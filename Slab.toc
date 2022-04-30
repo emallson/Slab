@@ -1,0 +1,11 @@
+## Interface: 90200
+## Title: Slab
+## Notes: Minimal Nameplates
+## Version: 0.0.1-dev
+
+libs\LibStub\LibStub.lua
+libs\LibHash\LibHash-1.0.lua
+src\lib.lua
+src\frame.lua
+src\color.lua
+src\index.lua
