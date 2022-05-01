@@ -79,7 +79,7 @@ local function setCastbarColor(castBar, uninterruptible)
     if uninterruptible then
         castBar.castBar:SetStatusBarColor(0.78, 0.82, 0.86, 1)
     else
-        castBar.castBar:SetStatusBarColor(0.4, 0.6, 0.8, 1)
+        castBar.castBar:SetStatusBarColor(255 / 255, 191 / 255, 45 / 255, 1)
     end
 end
 
