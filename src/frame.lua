@@ -58,11 +58,16 @@ function Slab:BuildNameplate(parent)
     healthBar:SetFrameLevel(0)
 
     local name = frame:CreateFontString(frame:GetName() .. 'NameText', 'OVERLAY')
-
     name:SetPoint('BOTTOM', bg, 'TOP', 0, 2)
     name:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
 
+    local reactionIndicator = frame:CreateFontString(frame:GetName() .. 'IndicatorText', 'OVERLAY')
+    reactionIndicator:SetPoint('BOTTOMLEFT', bg, 'TOPLEFT', 0, 2)
+    reactionIndicator:SetFont("Fonts\\FRIZQT__.TTF", 8, "OUTLINE")
+    reactionIndicator:Hide()
+
     frame.name = name
+    frame.reactionIndicator = reactionIndicator
     frame.healthBar = healthBar
     frame.bg = bg
 
@@ -92,6 +97,18 @@ function Slab:BuildNameplate(parent)
         local content = UnitName(unitId)
         name:SetText(content)
     end
+
+    function frame:RefreshIndicator(unitId)
+        local reaction = UnitReaction(unitId, 'player')
+        if reaction == 4 then
+            reactionIndicator:SetText('N')
+            -- stolen from plater
+            reactionIndicator:SetTextColor(0.9254901, 0.8, 0.2666666, 1)
+            reactionIndicator:Show()
+        else
+            reactionIndicator:Hide()
+        end
+    end
 end
 
 function Slab.ShowNameplate(parent)
@@ -101,6 +118,7 @@ function Slab.ShowNameplate(parent)
     if frame.settings then
         frame:RefreshHealth(frame.settings.tag)
         frame:RefreshName(frame.settings.tag)
+        frame:RefreshIndicator(frame.settings.tag)
     end
     Slab:ShowCastbar(frame)
     frame:Show()
