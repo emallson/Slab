@@ -20,15 +20,6 @@ function Slab:BuildNameplate(parent)
 
     frame.healthBar = Slab.BuildComponent('healthBar', frame)
 
-    local name = frame:CreateFontString(frame:GetName() .. 'NameText', 'OVERLAY')
-    name:SetPoint('BOTTOM', frame.healthBar.frame.bg, 'TOP', 0, 2)
-    name:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
-
-    local reactionIndicator = frame:CreateFontString(frame:GetName() .. 'IndicatorText', 'OVERLAY')
-    reactionIndicator:SetPoint('BOTTOMLEFT', bg, 'TOPLEFT', 0, 2)
-    reactionIndicator:SetFont("Fonts\\FRIZQT__.TTF", 8, "OUTLINE")
-    reactionIndicator:Hide()
-
     frame.name = name
     frame.reactionIndicator = reactionIndicator
 
@@ -38,11 +29,6 @@ function Slab:BuildNameplate(parent)
     parent:HookScript('OnHide', Slab.HideNameplate)
 
     parent.slab = frame
-
-    function frame:RefreshName(unitId)
-        local content = UnitName(unitId)
-        name:SetText(content)
-    end
 
     function frame:RefreshIndicator(unitId)
         local reaction = UnitReaction(unitId, 'player')
