@@ -44,10 +44,6 @@ local function eventHandler(_frame, eventName, param)
         state:deregisterUnit(param)
     elseif eventName == "NAME_PLATE_CREATED" then
         state:initFrame(param)
-    elseif eventName == "UNIT_HEALTH" then
-        state:updateUnit(param, function(slab) slab:RefreshHealth(param) end)
-    elseif eventName == "UNIT_THREAT_LIST_UPDATE" then
-        state:updateUnit(param, function(slab) slab:RefreshColor() end)
     elseif eventName == "UNIT_NAME_UPDATE" then
         state:updateUnit(param, function(slab) slab:RefreshName(param) end)
     elseif eventName == "UNIT_SPELLCAST_START" then
@@ -60,21 +56,12 @@ local function eventHandler(_frame, eventName, param)
         state:updateUnit(param, function(slab) Slab:UpdateCastDuration(slab, eventName == "UNIT_SPELLCAST_CHANNEL_UPDATE") end)
     elseif eventName == "UNIT_SPELLCAST_INTERRUPTIBLE" or eventName == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE" then
         state:updateUnit(param, function(slab) Slab:UpdateCastColor(slab, eventName == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE") end)
-    elseif eventName == "RAID_TARGET_UPDATE" then
-        local plates = C_NamePlate.GetNamePlates()
-        for i,plate in ipairs(plates) do
-            if plate.slab ~= nil and plate.slab.settings ~= nil then
-                plate.slab:RefreshRaidMarker(plate.slab.settings.tag)
-            end
-        end
     end
 end
 
 frame:RegisterEvent("NAME_PLATE_UNIT_ADDED")
 frame:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
 frame:RegisterEvent("NAME_PLATE_CREATED")
-frame:RegisterEvent("UNIT_HEALTH")
-frame:RegisterEvent("UNIT_THREAT_LIST_UPDATE")
 frame:RegisterEvent("UNIT_NAME_UPDATE")
 frame:RegisterEvent("UNIT_SPELLCAST_START")
 frame:RegisterEvent("UNIT_SPELLCAST_STOP")
@@ -84,7 +71,6 @@ frame:RegisterEvent("UNIT_SPELLCAST_DELAYED")
 frame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
 frame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTIBLE")
 frame:RegisterEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
-frame:RegisterEvent("RAID_TARGET_UPDATE")
 frame:SetScript("OnEvent", eventHandler)
 
 if NamePlateDriverFrame and NamePlateDriverFrame.AcquireUnitFrame then

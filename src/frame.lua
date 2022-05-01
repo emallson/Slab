@@ -1,30 +1,5 @@
 local Slab = LibStub("Slab")
 
-local WIDTH = 150
-local HEIGHT = 15
-
-local function IsTank(unit)
-    local role = UnitGroupRolesAssigned(unit)
-    return role == "TANK"
-end
-
-local function threatSaturation(target, source)
-    local threatStatus = UnitThreatSituation(target, source)
-    if threatStatus == nil then return 1 end
-    if IsTank("player") then
-        if threatStatus == 1 or threatStatus == 2 then
-            return 2
-        elseif threatStatus == 0 and IsTank(source .. "target") then
-            return 6
-        end
-    else
-        if threatStatus == 1 then
-            return 2
-        elseif threatStatus > 1 then
-            return 6
-        end
-    end
-end
 
 function Slab:GetSlab(unitId)
     local nameplate = C_NamePlate.GetNamePlateForUnit(unitId)
@@ -43,21 +18,10 @@ function Slab:BuildNameplate(parent)
     frame:SetFrameStrata('BACKGROUND')
     frame:SetFrameLevel(0)
 
-    local bg = frame:CreateTexture(frame:GetName() .. 'Background', 'BACKGROUND')
-    bg:SetTexture('interface/buttons/white8x8')
-    bg:SetSize(WIDTH, HEIGHT)
-    bg:SetVertexColor(0.01, 0, 0, .5)
-    bg:SetPoint('CENTER')
-
-    local healthBar = CreateFrame('StatusBar', frame:GetName() .. 'HealthBar', parent)
-    healthBar:SetStatusBarTexture('interface/raidframe/raid-bar-hp-fill')
-    healthBar:SetStatusBarColor(1, 1, 1, 1)
-    healthBar:SetSize(WIDTH, HEIGHT)
-    healthBar:SetPoint('TOPLEFT', bg)
-    healthBar:SetPoint('BOTTOMRIGHT', bg)
+    frame.healthBar = Slab.BuildComponent('healthBar', frame)
 
     local name = frame:CreateFontString(frame:GetName() .. 'NameText', 'OVERLAY')
-    name:SetPoint('BOTTOM', bg, 'TOP', 0, 2)
+    name:SetPoint('BOTTOM', frame.healthBar.frame.bg, 'TOP', 0, 2)
     name:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
 
     local reactionIndicator = frame:CreateFontString(frame:GetName() .. 'IndicatorText', 'OVERLAY')
@@ -65,16 +29,8 @@ function Slab:BuildNameplate(parent)
     reactionIndicator:SetFont("Fonts\\FRIZQT__.TTF", 8, "OUTLINE")
     reactionIndicator:Hide()
 
-    local raidMarker = healthBar:CreateTexture(healthBar:GetName() .. 'RaidMarker', 'OVERLAY')
-    raidMarker:SetPoint('LEFT', bg, 'LEFT', 2, 0)
-    raidMarker:SetSize(HEIGHT - 2, HEIGHT - 2)
-    raidMarker:Hide()
-
     frame.name = name
     frame.reactionIndicator = reactionIndicator
-    frame.raidMarker = raidMarker
-    frame.healthBar = healthBar
-    frame.bg = bg
 
     frame.castBar = Slab:BuildCastbar(frame)
 
@@ -82,21 +38,6 @@ function Slab:BuildNameplate(parent)
     parent:HookScript('OnHide', Slab.HideNameplate)
 
     parent.slab = frame
-
-    function frame:RefreshColor()
-        if frame.settings then
-            local saturation = threatSaturation('player', frame.settings.tag)
-            local color = Slab.color.point_to_color(frame.settings.point, saturation)
-            frame.healthBar:SetStatusBarColor(color.r, color.g, color.b)
-        else
-            print("Settings missing for frame")
-        end
-    end
-
-    function frame:RefreshHealth(unitId)
-        frame.healthBar:SetMinMaxValues(0, UnitHealthMax(unitId))
-        frame.healthBar:SetValue(UnitHealth(unitId))
-    end
 
     function frame:RefreshName(unitId)
         local content = UnitName(unitId)
@@ -114,29 +55,15 @@ function Slab:BuildNameplate(parent)
             reactionIndicator:Hide()
         end
     end
-
-    function frame:RefreshRaidMarker(unitId)
-        local markerId = GetRaidTargetIndex(unitId)
-        if markerId == nil then
-            raidMarker:Hide()
-        else
-            local iconTexture = 'Interface\\TargetingFrame\\UI-RaidTargetingIcon_' .. markerId
-            raidMarker:SetTexture(iconTexture)
-            raidMarker:Show()
-        end
-
-    end
 end
 
 function Slab.ShowNameplate(parent)
     local frame = parent.slab
     --print("Showing nameplate")
-    frame:RefreshColor()
     if frame.settings then
-        frame:RefreshHealth(frame.settings.tag)
+        frame.healthBar:show(frame.settings)
         frame:RefreshName(frame.settings.tag)
         frame:RefreshIndicator(frame.settings.tag)
-        frame:RefreshRaidMarker(frame.settings.tag)
     end
     Slab:ShowCastbar(frame)
     frame:Show()
@@ -145,6 +72,9 @@ end
 function Slab.HideNameplate(frame)
     -- print("Hiding nameplate " .. frame:GetName())
     frame.slab:Hide()
+    if frame.healthBar then
+        frame.healthBar:hide()
+    end
     Slab:HideCastbar(frame.slab)
 end
 
