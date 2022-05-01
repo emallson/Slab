@@ -56,7 +56,7 @@ end
 local cfg = {
     hash_bytes = 8,
     num_colors = 256 * 256 * 256,
-    saturation = 30,
+    saturation = 15,
     lightness = 75
 }
 
@@ -76,16 +76,21 @@ local function hash_text(text)
     return result
 end
 
-local function name_to_color(name)
-    local hash = hash_text(name)
-    local bucket = hash % cfg.num_colors
-    local angle = 2 * math.pi * (bucket / cfg.num_colors)
-    local a = cfg.saturation * math.cos(angle)
-    local b = cfg.saturation * math.sin(angle)
+local function name_to_point(name)
+  local hash = hash_text(name)
+  local bucket = hash % cfg.num_colors
+  local angle = 2 * math.pi * (bucket / cfg.num_colors)
+  return angle
+end
+
+local function point_to_color(angle, saturationMultiplier)
+    local saturation = cfg.saturation * (saturationMultiplier or 1)
+    local a = saturation * math.cos(angle)
+    local b = saturation * math.sin(angle)
     local x, y, z = cielab_to_xyz(cfg.lightness, a, b)
     local sr, sg, sb = xyz_to_srgb(x, y, z)
 
-    return sr, sg, sb
+    return {r = sr, g = sg, b = sb}
 end
 
 local Slab = LibStub("Slab")
@@ -93,5 +98,6 @@ local Slab = LibStub("Slab")
 Slab.color = {
     xyz_to_srgb = xyz_to_srgb,
     cielab_to_xyz = cielab_to_xyz,
-    name_to_color = name_to_color
+    name_to_point = name_to_point,
+    point_to_color = point_to_color
 }

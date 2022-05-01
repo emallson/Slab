@@ -7,18 +7,17 @@ local state  = {
     settings = {}
 }
 function state:registerUnit(unitId)
-    local r, g, b = Slab.color.name_to_color(UnitName(unitId))
+    local point = Slab.color.name_to_point(UnitName(unitId))
     self.settings[unitId] = {
-        color = {r = r, g = g, b = b},
+        point = point,
         tag = unitId
     }
     local nameplate = C_NamePlate.GetNamePlateForUnit(unitId)
 
     if nameplate and nameplate.slab then
-        print(string.format("Registered: %s (#%02x%02x%02x)", UnitName(unitId), r * 255, g * 255, b * 255))
+        --print(string.format("Registered: %s (#%02x%02x%02x)", UnitName(unitId), r * 255, g * 255, b * 255))
         nameplate.slab.settings = self.settings[unitId]
-        nameplate.slab:RefreshColor()
-        nameplate.slab:RefreshHealth(unitId)
+        Slab.ShowNameplate(nameplate)
     end
 end
 function state:deregisterUnit(unitId)
@@ -31,10 +30,10 @@ function state:initFrame(nameplate)
     end
 end
 
-function state:updateHealth(unitId)
+function state:updateUnit(unitId, fn)
     local nameplate = C_NamePlate.GetNamePlateForUnit(unitId)
     if nameplate and nameplate.slab then
-        nameplate.slab:RefreshHealth(unitId)
+        fn(nameplate.slab)
     end
 end
 
@@ -46,7 +45,11 @@ local function eventHandler(_frame, eventName, param)
     elseif eventName == "NAME_PLATE_CREATED" then
         state:initFrame(param)
     elseif eventName == "UNIT_HEALTH" then
-        state:updateHealth(param)
+        state:updateUnit(param, function(slab) slab:RefreshHealth(param) end)
+    elseif eventName == "UNIT_THREAT_LIST_UPDATE" then
+        state:updateUnit(param, function(slab) slab:RefreshColor() end)
+    elseif eventName == "UNIT_NAME_UPDATE" then
+        state:updateUnit(param, function(slab) slab:RefreshName(param) end)
     end
 end
 
@@ -54,9 +57,10 @@ frame:RegisterEvent("NAME_PLATE_UNIT_ADDED")
 frame:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
 frame:RegisterEvent("NAME_PLATE_CREATED")
 frame:RegisterEvent("UNIT_HEALTH")
+frame:RegisterEvent("UNIT_THREAT_LIST_UPDATE")
+frame:RegisterEvent("UNIT_NAME_UPDATE")
 frame:SetScript("OnEvent", eventHandler)
 
 if NamePlateDriverFrame and NamePlateDriverFrame.AcquireUnitFrame then
-    print('hooking nameplate driver')
     hooksecurefunc(NamePlateDriverFrame,'AcquireUnitFrame', Slab.HookAcquireUnitFrame)
 end

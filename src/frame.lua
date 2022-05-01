@@ -3,8 +3,31 @@ local Slab = LibStub("Slab")
 local WIDTH = 150
 local HEIGHT = 15
 
+local function IsTank(unit)
+    local role = UnitGroupRolesAssigned(unit)
+    return role == "TANK"
+end
+
+local function threatSaturation(target, source)
+    local threatStatus = UnitThreatSituation(target, source)
+    if threatStatus == nil then return 1 end
+    if IsTank("player") then
+        if threatStatus == 1 or threatStatus == 2 then
+            return 2
+        elseif threatStatus == 0 and IsTank(source .. "target") then
+            return 6
+        end
+    else
+        if threatStatus == 1 then
+            return 2
+        elseif threatStatus > 1 then
+            return 6
+        end
+    end
+end
+
 function Slab:BuildNameplate(parent)
-    print("building nameplate for " .. parent:GetName())
+    -- print("building nameplate for " .. parent:GetName())
     local frame = CreateFrame('Frame', 'Slab' .. parent:GetName(), parent)
     frame.iSlab = true
 
@@ -27,6 +50,12 @@ function Slab:BuildNameplate(parent)
     healthBar:SetPoint('BOTTOMRIGHT', bg)
     healthBar:SetFrameLevel(0)
 
+    local name = frame:CreateFontString(frame:GetName() .. 'NameText', 'OVERLAY')
+
+    name:SetPoint('BOTTOM', bg, 'TOP', 0, 2)
+    name:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
+
+    frame.name = name
     frame.healthBar = healthBar
     frame.bg = bg
 
@@ -37,7 +66,8 @@ function Slab:BuildNameplate(parent)
 
     function frame:RefreshColor()
         if frame.settings then
-            local color = frame.settings.color
+            local saturation = threatSaturation('player', frame.settings.tag)
+            local color = Slab.color.point_to_color(frame.settings.point, saturation)
             frame.healthBar:SetStatusBarColor(color.r, color.g, color.b)
         else
             print("Settings missing for frame")
@@ -48,18 +78,27 @@ function Slab:BuildNameplate(parent)
         frame.healthBar:SetMinMaxValues(0, UnitHealthMax(unitId))
         frame.healthBar:SetValue(UnitHealth(unitId))
     end
+
+    function frame:RefreshName(unitId)
+        local content = UnitName(unitId)
+        name:SetText(content)
+    end
 end
 
 function Slab.ShowNameplate(parent)
     local frame = parent.slab
-    print("Showing nameplate")
+    --print("Showing nameplate")
     frame:RefreshColor()
+    if frame.settings then
+        frame:RefreshHealth(frame.settings.tag)
+        frame:RefreshName(frame.settings.tag)
+    end
     frame:Show()
 end
 
 function Slab.HideNameplate(frame)
-    --print("Hiding nameplate")
-    frame:Hide()
+    -- print("Hiding nameplate " .. frame:GetName())
+    frame.slab:Hide()
 end
 
 local function HideChildFrame(frame)
