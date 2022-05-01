@@ -1,10 +1,12 @@
 local Slab = LibStub("Slab")
 
-function Slab:BuildCastbar(slab)
-    local frame = CreateFrame('Frame', slab:GetName() .. 'CastBarContainer', slab)
+local component = {}
+
+function component:build(parent)
+    local frame = CreateFrame('Frame', parent:GetName() .. 'CastBarContainer', parent)
 
     frame:Hide()
-    frame:SetAllPoints(slab.bg)
+    frame:SetAllPoints(parent.bg) -- not ideal
     frame:SetFrameStrata('BACKGROUND')
     frame:SetFrameLevel(0)
 
@@ -21,7 +23,7 @@ function Slab:BuildCastbar(slab)
     castBar:SetFrameLevel(0)
     castBar:SetAllPoints(castBg)
 
-    local icon = frame:CreateTexture(slab:GetName() .. 'SpellIcon', 'BACKGROUND', nil, 2)
+    local icon = frame:CreateTexture(frame:GetName() .. 'SpellIcon', 'BACKGROUND', nil, 2)
     icon:SetSize(12, 12)
     icon:SetPoint("TOPRIGHT", castBar, 'TOPLEFT', -1, 0)
 
@@ -83,8 +85,52 @@ local function setCastbarColor(castBar, uninterruptible)
     end
 end
 
-function Slab:ShowCastbar(slab, isChannel)
-    local unitId = slab.settings.tag
+function component:bind(settings)
+    self.frame:RegisterEvent("UNIT_SPELLCAST_START")
+    self.frame:RegisterEvent("UNIT_SPELLCAST_STOP")
+    self.frame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
+    self.frame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
+    self.frame:RegisterEvent("UNIT_SPELLCAST_DELAYED")
+    self.frame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
+    self.frame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTIBLE")
+    self.frame:RegisterEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
+end
+
+function component:unbind()
+    self:hideCastbar()
+end
+
+function component:refresh(settings)
+    self:showCastbar(settings)
+    self:showCastbar(settings, true)
+end
+
+function component:updateCastDuration(settings, isChannel)
+    local unitId = settings.tag
+    local spellName, displayName, spellIcon, startTimeMS, endTimeMS = getCastInfo(unitId, isChannel)
+    self.frame.castBar:SetMinMaxValues(startTimeMS / 1000, endTimeMS / 1000)
+end
+
+function component:updateCastColor(settings, uninterruptible)
+    setCastbarColor(self, uninterruptible)
+end
+
+function component:update(eventName, ...)
+    if eventName == "UNIT_SPELLCAST_START" then
+        self:showCastbar(self.settings)
+    elseif eventName == "UNIT_SPELLCAST_STOP" or eventName == "UNIT_SPELLCAST_CHANNEL_STOP" then
+        self:hideCastbar()
+    elseif eventName == "UNIT_SPELLCAST_CHANNEL_START" then
+        self:showCastbar(self.settings, true)
+    elseif eventName == "UNIT_SPELLCAST_DELAYED" or eventName == "UNIT_SPELLCAST_CHANNEL_UPDATE" then
+        self:updateCastDuration(self.settings, eventName == "UNIT_SPELLCAST_CHANNEL_UPDATE")
+    elseif eventName == "UNIT_SPELLCAST_INTERRUPTIBLE" or eventName == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE" then
+        self:updateCastColor(self.settings, eventName == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
+    end
+end
+
+function component:showCastbar(settings, isChannel)
+    local unitId = settings.tag
     local spellName, displayName, spellIcon, startTimeMS, endTimeMS, _isTrade, uninterruptible = getCastInfo(unitId, isChannel)
     local targetName = UnitName(unitId .. 'target')
 
@@ -94,44 +140,36 @@ function Slab:ShowCastbar(slab, isChannel)
 
     -- print('Showing cast of ' .. spellName, startTimeMS, endTimeMS)
 
-    setCastbarColor(slab.castBar, uninterruptible)
-    slab.castBar.icon:SetTexture(spellIcon)
+    setCastbarColor(self.frame, uninterruptible)
+    self.frame.icon:SetTexture(spellIcon)
 
-    slab.castBar.spellName:SetText(string.sub(spellName, 0, 15))
+    self.frame.spellName:SetText(string.sub(spellName, 0, 15))
 
     if isChannel then
-        displayChannel(slab.castBar, startTimeMS, endTimeMS)
+        displayChannel(self.frame, startTimeMS, endTimeMS)
     else
-        displayCast(slab.castBar, startTimeMS, endTimeMS)
+        displayCast(self.frame, startTimeMS, endTimeMS)
     end
 
     if targetName ~= nil then
-        slab.castBar.targetName:SetText(targetName)
+        self.frame.targetName:SetText(targetName)
         local classColor = C_ClassColor.GetClassColor(UnitClass(unitId .. 'target'))
 
         if classColor ~= nil then
-            slab.castBar.targetName:SetTextColor(classColor.r, classColor.g, classColor.b)
+            self.frame.targetName:SetTextColor(classColor.r, classColor.g, classColor.b)
         else
-            slab.castBar.targetName:SetTextColor(1, 1, 1)
+            self.frame.targetName:SetTextColor(1, 1, 1)
         end
     end
 
-    slab.castBar:Raise()
-    slab.castBar:Show()
+    self.frame:Raise()
+    self.frame:Show()
 end
 
-function Slab:HideCastbar(slab)
+function component:hideCastbar()
     -- print('Hiding castbar')
-    slab.castBar:SetScript('OnUpdate', nil)
-    slab.castBar:Hide()
+    self.frame:SetScript('OnUpdate', nil)
+    self.frame:Hide()
 end
 
-function Slab:UpdateCastDuration(slab, isChannel)
-    local unitId = slab.settings.tag
-    local spellName, displayName, spellIcon, startTimeMS, endTimeMS = getCastInfo(unitId, isChannel)
-    slab.castBar.castBar:SetMinMaxValues(startTimeMS / 1000, endTimeMS / 1000)
-end
-
-function Slab:UpdateCastColor(slab, uninterruptible)
-    setCastbarColor(slab.castBar, uninterruptible)
-end
+Slab.RegisterComponent('castBar', component)

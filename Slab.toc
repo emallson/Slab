@@ -8,7 +8,7 @@ libs\LibHash\LibHash-1.0.lua
 src\lib.lua
 src\components\index.lua
 src\components\healthbar.lua
-src\castbar.lua
+src\components\castbar.lua
 src\frame.lua
 src\color.lua
 src\index.lua

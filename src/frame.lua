@@ -18,50 +18,36 @@ function Slab:BuildNameplate(parent)
     frame:SetFrameStrata('BACKGROUND')
     frame:SetFrameLevel(0)
 
-    frame.healthBar = Slab.BuildComponent('healthBar', frame)
+    local healthBar = Slab.BuildComponent('healthBar', frame)
 
-    frame.name = name
-    frame.reactionIndicator = reactionIndicator
-
-    frame.castBar = Slab:BuildCastbar(frame)
+    frame.components = {
+        healthBar = healthBar,
+        castBar = Slab.BuildComponent('castBar', healthBar.frame)
+    }
 
     parent:HookScript('OnShow', Slab.ShowNameplate)
     parent:HookScript('OnHide', Slab.HideNameplate)
 
     parent.slab = frame
-
-    function frame:RefreshIndicator(unitId)
-        local reaction = UnitReaction(unitId, 'player')
-        if reaction == 4 then
-            reactionIndicator:SetText('N')
-            -- stolen from plater
-            reactionIndicator:SetTextColor(0.9254901, 0.8, 0.2666666, 1)
-            reactionIndicator:Show()
-        else
-            reactionIndicator:Hide()
-        end
-    end
 end
 
 function Slab.ShowNameplate(parent)
     local frame = parent.slab
     --print("Showing nameplate")
     if frame.settings then
-        frame.healthBar:show(frame.settings)
-        frame:RefreshName(frame.settings.tag)
-        frame:RefreshIndicator(frame.settings.tag)
+        for _, component in pairs(frame.components) do
+            component:show(frame.settings)
+        end
     end
-    Slab:ShowCastbar(frame)
     frame:Show()
 end
 
 function Slab.HideNameplate(frame)
     -- print("Hiding nameplate " .. frame:GetName())
     frame.slab:Hide()
-    if frame.healthBar then
-        frame.healthBar:hide()
+    for _, component in pairs(frame.slab.components) do
+        component:hide()
     end
-    Slab:HideCastbar(frame.slab)
 end
 
 local function HideChildFrame(frame)

@@ -8,10 +8,10 @@ local baseComponent = {
     build = mustOverride,
 }
 
-function baseComponent:refresh(self, settings)
+function baseComponent:refresh(settings)
 end
 
-function baseComponent:bind(self, settings)
+function baseComponent:bind(settings)
 end
 
 local function unbind(component)
@@ -20,13 +20,13 @@ local function unbind(component)
     end
 end
 
-function baseComponent:unbind(self)
+function baseComponent:unbind()
 end
-function baseComponent:update(self)
+function baseComponent:update()
 end
 
 function Slab.Component(table)
-    setmetatable(table, baseComponent)
+    setmetatable(table, { __index = baseComponent })
 
     local mt = {
         __index = table

@@ -44,30 +44,12 @@ local function eventHandler(_frame, eventName, param)
         state:deregisterUnit(param)
     elseif eventName == "NAME_PLATE_CREATED" then
         state:initFrame(param)
-    elseif eventName == "UNIT_SPELLCAST_START" then
-        state:updateUnit(param, function(slab) Slab:ShowCastbar(slab) end)
-    elseif eventName == "UNIT_SPELLCAST_STOP" or eventName == "UNIT_SPELLCAST_CHANNEL_STOP" then
-        state:updateUnit(param, function(slab) Slab:HideCastbar(slab) end)
-    elseif eventName == "UNIT_SPELLCAST_CHANNEL_START" then
-        state:updateUnit(param, function(slab) Slab:ShowCastbar(slab, true) end)
-    elseif eventName == "UNIT_SPELLCAST_DELAYED" or eventName == "UNIT_SPELLCAST_CHANNEL_UPDATE" then
-        state:updateUnit(param, function(slab) Slab:UpdateCastDuration(slab, eventName == "UNIT_SPELLCAST_CHANNEL_UPDATE") end)
-    elseif eventName == "UNIT_SPELLCAST_INTERRUPTIBLE" or eventName == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE" then
-        state:updateUnit(param, function(slab) Slab:UpdateCastColor(slab, eventName == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE") end)
     end
 end
 
 frame:RegisterEvent("NAME_PLATE_UNIT_ADDED")
 frame:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
 frame:RegisterEvent("NAME_PLATE_CREATED")
-frame:RegisterEvent("UNIT_SPELLCAST_START")
-frame:RegisterEvent("UNIT_SPELLCAST_STOP")
-frame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
-frame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
-frame:RegisterEvent("UNIT_SPELLCAST_DELAYED")
-frame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
-frame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTIBLE")
-frame:RegisterEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
 frame:SetScript("OnEvent", eventHandler)
 
 if NamePlateDriverFrame and NamePlateDriverFrame.AcquireUnitFrame then
