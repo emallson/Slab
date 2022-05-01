@@ -55,7 +55,6 @@ function Slab:BuildNameplate(parent)
     healthBar:SetSize(WIDTH, HEIGHT)
     healthBar:SetPoint('TOPLEFT', bg)
     healthBar:SetPoint('BOTTOMRIGHT', bg)
-    healthBar:SetFrameLevel(0)
 
     local name = frame:CreateFontString(frame:GetName() .. 'NameText', 'OVERLAY')
     name:SetPoint('BOTTOM', bg, 'TOP', 0, 2)
@@ -66,8 +65,14 @@ function Slab:BuildNameplate(parent)
     reactionIndicator:SetFont("Fonts\\FRIZQT__.TTF", 8, "OUTLINE")
     reactionIndicator:Hide()
 
+    local raidMarker = healthBar:CreateTexture(healthBar:GetName() .. 'RaidMarker', 'OVERLAY')
+    raidMarker:SetPoint('LEFT', bg, 'LEFT', 2, 0)
+    raidMarker:SetSize(HEIGHT - 2, HEIGHT - 2)
+    raidMarker:Hide()
+
     frame.name = name
     frame.reactionIndicator = reactionIndicator
+    frame.raidMarker = raidMarker
     frame.healthBar = healthBar
     frame.bg = bg
 
@@ -109,6 +114,18 @@ function Slab:BuildNameplate(parent)
             reactionIndicator:Hide()
         end
     end
+
+    function frame:RefreshRaidMarker(unitId)
+        local markerId = GetRaidTargetIndex(unitId)
+        if markerId == nil then
+            raidMarker:Hide()
+        else
+            local iconTexture = 'Interface\\TargetingFrame\\UI-RaidTargetingIcon_' .. markerId
+            raidMarker:SetTexture(iconTexture)
+            raidMarker:Show()
+        end
+
+    end
 end
 
 function Slab.ShowNameplate(parent)
@@ -119,6 +136,7 @@ function Slab.ShowNameplate(parent)
         frame:RefreshHealth(frame.settings.tag)
         frame:RefreshName(frame.settings.tag)
         frame:RefreshIndicator(frame.settings.tag)
+        frame:RefreshRaidMarker(frame.settings.tag)
     end
     Slab:ShowCastbar(frame)
     frame:Show()
