@@ -28,19 +28,30 @@ end
 
 local component = {}
 
-function component:refresh(settings)
-    local unitId = settings.tag
-    -- health
-    self.frame:SetMinMaxValues(0, UnitHealthMax(unitId))
-    self.frame:SetValue(UnitHealth(unitId))
+function component:refreshName(settings, recomputeColor)
+    local name = UnitName(settings.tag)
+    self.frame.name:SetText(name)
 
-    -- color
-    local saturation = threatSaturation('player', unitId)
+    if recomputeColor then
+        settings.point = Slab.color.name_to_point(name)
+        self:refreshColor(settings)
+    end
+end
+
+function component:refreshColor(settings)
+    local saturation = threatSaturation('player', settings.tag)
     local color = Slab.color.point_to_color(settings.point, saturation)
     self.frame:SetStatusBarColor(color.r, color.g, color.b)
+end
 
-    -- target marker
-    local markerId = GetRaidTargetIndex(unitId)
+function component:refreshHealth(settings)
+    local unitId = settings.tag
+    self.frame:SetMinMaxValues(0, UnitHealthMax(unitId))
+    self.frame:SetValue(UnitHealth(unitId))
+end
+
+function component:refreshTargetMarker(settings)
+    local markerId = GetRaidTargetIndex(settings.tag)
     local raidMarker = self.frame.raidMarker
     if markerId == nil then
         raidMarker:Hide()
@@ -51,14 +62,31 @@ function component:refresh(settings)
     end
 end
 
+
+function component:refresh(settings)
+    self:refreshName(settings, false)
+    self:refreshColor(settings)
+    self:refreshHealth(settings)
+    self:refreshTargetMarker(settings)
+end
+
 function component:bind(settings)
     self.frame:RegisterUnitEvent('UNIT_HEALTH', settings.tag)
     self.frame:RegisterUnitEvent('UNIT_THREAT_LIST_UPDATE', settings.tag)
     self.frame:RegisterEvent('RAID_TARGET_UPDATE')
+    self.frame:RegisterUnitEvent("UNIT_NAME_UPDATE", settings.tag)
 end
 
 function component:update(eventName, ...)
-    self:refresh(self.settings)
+    if eventName == 'UNIT_NAME_UPDATE' then
+        self:refreshName(self.settings, true)
+    elseif eventName == 'UNIT_HEALTH' then
+        self:refreshHealth(self.settings)
+    elseif eventName == 'UNIT_THREAT_LIST_UPDATE' then
+        self:refreshColor(self.settings)
+    elseif eventName == 'RAID_TARGET_UPDATE' then
+        self:refreshTargetMarker(self.settings)
+    end
 end
 
 function component:build(parent)
@@ -80,8 +108,19 @@ function component:build(parent)
     raidMarker:SetSize(HEIGHT - 2, HEIGHT - 2)
     raidMarker:Hide()
 
+    local name = healthBar:CreateFontString(healthBar:GetName() .. 'NameText', 'OVERLAY')
+    name:SetPoint('BOTTOM', bg, 'TOP', 0, 2)
+    name:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
+
+    local reactionIndicator = healthBar:CreateFontString(healthBar:GetName() .. 'IndicatorText', 'OVERLAY')
+    reactionIndicator:SetPoint('BOTTOMLEFT', bg, 'TOPLEFT', 0, 2)
+    reactionIndicator:SetFont("Fonts\\FRIZQT__.TTF", 8, "OUTLINE")
+    reactionIndicator:Hide()
+
     healthBar.raidMarker = raidMarker
     healthBar.bg = bg
+    healthBar.name = name
+    healthBar.reactionIndicator = reactionIndicator
 
     return healthBar
 end
