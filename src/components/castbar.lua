@@ -86,14 +86,14 @@ local function setCastbarColor(castBar, uninterruptible)
 end
 
 function component:bind(settings)
-    self.frame:RegisterEvent("UNIT_SPELLCAST_START")
-    self.frame:RegisterEvent("UNIT_SPELLCAST_STOP")
-    self.frame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
-    self.frame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
-    self.frame:RegisterEvent("UNIT_SPELLCAST_DELAYED")
-    self.frame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
-    self.frame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTIBLE")
-    self.frame:RegisterEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
+    self.frame:RegisterUnitEvent("UNIT_SPELLCAST_START", settings.tag)
+    self.frame:RegisterUnitEvent("UNIT_SPELLCAST_STOP", settings.tag)
+    self.frame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_START", settings.tag)
+    self.frame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", settings.tag)
+    self.frame:RegisterUnitEvent("UNIT_SPELLCAST_DELAYED", settings.tag)
+    self.frame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_UPDATE", settings.tag)
+    self.frame:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTIBLE", settings.tag)
+    self.frame:RegisterUnitEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE", settings.tag)
 end
 
 function component:unbind()
@@ -129,17 +129,7 @@ function component:update(eventName, ...)
     end
 end
 
-function component:showCastbar(settings, isChannel)
-    local unitId = settings.tag
-    local spellName, displayName, spellIcon, startTimeMS, endTimeMS, _isTrade, uninterruptible = getCastInfo(unitId, isChannel)
-    local targetName = UnitName(unitId .. 'target')
-
-    if spellName == nil then
-        return
-    end
-
-    -- print('Showing cast of ' .. spellName, startTimeMS, endTimeMS)
-
+function component:showCastbarDetails(settings, spellName, spellIcon, startTimeMS, endTimeMS, isChannel, uninterruptible, targetName)
     setCastbarColor(self.frame, uninterruptible)
     self.frame.icon:SetTexture(spellIcon)
 
@@ -153,7 +143,7 @@ function component:showCastbar(settings, isChannel)
 
     if targetName ~= nil then
         self.frame.targetName:SetText(targetName)
-        local classColor = C_ClassColor.GetClassColor(UnitClass(unitId .. 'target'))
+        local classColor = C_ClassColor.GetClassColor(UnitClass(settings.tag .. 'target'))
 
         if classColor ~= nil then
             self.frame.targetName:SetTextColor(classColor.r, classColor.g, classColor.b)
@@ -164,6 +154,17 @@ function component:showCastbar(settings, isChannel)
 
     self.frame:Raise()
     self.frame:Show()
+end
+
+function component:showCastbar(settings, isChannel)
+    local unitId = settings.tag
+    local spellName, displayName, spellIcon, startTimeMS, endTimeMS, _isTrade, uninterruptible = getCastInfo(unitId, isChannel)
+    local targetName = UnitName(unitId .. 'target')
+
+    if spellName == nil then
+        return
+    end
+    self:showCastbarDetails(settings, spellName, spellIcon, startTimeMS, endTimeMS, isChannel, uninterruptible, targetName)
 end
 
 function component:hideCastbar()
