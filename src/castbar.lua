@@ -67,15 +67,25 @@ end
 
 local function getCastInfo(unit, isChannel)
     if isChannel then
-        return UnitChannelInfo(unit)
+        local spellName, displayName, spellIcon, startTimeMS, endTimeMS, isTrade, uninterruptible = UnitChannelInfo(unit)
+        return spellName, displayName, spellIcon, startTimeMS, endTimeMS, isTrade, uninterruptible
     else
-        return UnitCastingInfo(unit)
+        local spellName, displayName, spellIcon, startTimeMS, endTimeMS, isTrade, _castId, uninterruptible = UnitCastingInfo(unit)
+        return spellName, displayName, spellIcon, startTimeMS, endTimeMS, isTrade, uninterruptible
+    end
+end
+
+local function setCastbarColor(castBar, uninterruptible)
+    if uninterruptible then
+        castBar.castBar:SetStatusBarColor(0.78, 0.82, 0.86, 1)
+    else
+        castBar.castBar:SetStatusBarColor(0.4, 0.6, 0.8, 1)
     end
 end
 
 function Slab:ShowCastbar(slab, isChannel)
     local unitId = slab.settings.tag
-    local spellName, displayName, spellIcon, startTimeMS, endTimeMS = getCastInfo(unitId, isChannel)
+    local spellName, displayName, spellIcon, startTimeMS, endTimeMS, _isTrade, uninterruptible = getCastInfo(unitId, isChannel)
     local targetName = UnitName(unitId .. 'target')
 
     if spellName == nil then
@@ -84,10 +94,10 @@ function Slab:ShowCastbar(slab, isChannel)
 
     -- print('Showing cast of ' .. spellName, startTimeMS, endTimeMS)
 
+    setCastbarColor(slab.castBar, uninterruptible)
     slab.castBar.icon:SetTexture(spellIcon)
-    slab.castBar.castBar:SetStatusBarColor(1, 1, 1, 1)
 
-    slab.castBar.spellName:SetText(string.sub(spellName, 0, 12))
+    slab.castBar.spellName:SetText(string.sub(spellName, 0, 15))
 
     if isChannel then
         displayChannel(slab.castBar, startTimeMS, endTimeMS)
@@ -120,4 +130,8 @@ function Slab:UpdateCastDuration(slab, isChannel)
     local unitId = slab.settings.tag
     local spellName, displayName, spellIcon, startTimeMS, endTimeMS = getCastInfo(unitId, isChannel)
     slab.castBar.castBar:SetMinMaxValues(startTimeMS / 1000, endTimeMS / 1000)
+end
+
+function Slab:UpdateCastColor(slab, uninterruptible)
+    setCastbarColor(slab.castBar, uninterruptible)
 end
