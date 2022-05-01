@@ -55,8 +55,8 @@ end
 
 local cfg = {
     hash_bytes = 8,
-    num_colors = 256 * 256 * 256,
-    saturation = 15,
+    num_colors = 256 ^ 3,
+    saturation = 20,
     lightness = 75
 }
 
@@ -66,27 +66,42 @@ local function hash_text(text)
     end
   
     local bytes = hash.sha256(text)
-    local result = 0
+    local a = 0
+    local b = 0
     for i=0, cfg.hash_bytes do
         local ix = #bytes - 2 * (i + 1)
         local byte = tonumber(string.sub(bytes, ix, ix+1), 16)
-        result = result * 256 + byte
+        a = a * 256 + byte
+    end
+    for i=8, 2 * cfg.hash_bytes do
+        local ix = #bytes - 2 * (i + 1)
+        local byte = tonumber(string.sub(bytes, ix, ix+1), 16)
+        b = b * 256 + byte
     end
   
-    return result
+    return a, b
+end
+
+local cache = {}
+
+local function to_angle(val)
+  return 2 * math.pi * (val % cfg.num_colors / cfg.num_colors)
 end
 
 local function name_to_point(name)
-  local hash = hash_text(name)
-  local bucket = hash % cfg.num_colors
-  local angle = 2 * math.pi * (bucket / cfg.num_colors)
-  return angle
+  local existing = cache[name]
+  if existing ~= nil then
+    return existing
+  end
+  local a, b = hash_text(name)
+  cache[name] = {a = to_angle(a), b = to_angle(b)}
+  return cache[name]
 end
 
 local function point_to_color(angle, saturationMultiplier)
     local saturation = cfg.saturation * (saturationMultiplier or 1)
-    local a = saturation * math.cos(angle)
-    local b = saturation * math.sin(angle)
+    local a = saturation * math.cos(angle.a)
+    local b = saturation * math.sin(angle.b)
     local x, y, z = cielab_to_xyz(cfg.lightness, a, b)
     local sr, sg, sb = xyz_to_srgb(x, y, z)
 

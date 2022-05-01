@@ -62,12 +62,24 @@ function component:refreshTargetMarker(settings)
     end
 end
 
+function component:refreshReaction(settings)
+    local reaction = UnitReaction(settings.tag, 'player')
+    if reaction == 4 then
+        self.frame.reactionIndicator:SetText('N')
+        -- stolen from plater
+        self.frame.reactionIndicator:SetTextColor(0.9254901, 0.8, 0.2666666, 1)
+        self.frame.reactionIndicator:Show()
+    else
+        self.frame.reactionIndicator:Hide()
+    end
+end
 
 function component:refresh(settings)
     self:refreshName(settings, false)
     self:refreshColor(settings)
     self:refreshHealth(settings)
     self:refreshTargetMarker(settings)
+    self:refreshReaction(settings)
 end
 
 function component:bind(settings)
