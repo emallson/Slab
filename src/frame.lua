@@ -26,6 +26,13 @@ local function threatSaturation(target, source)
     end
 end
 
+function Slab:GetSlab(unitId)
+    local nameplate = C_NamePlate.GetNamePlateForUnit(unitId)
+
+    if nameplate == nil then return nil end
+    return nameplate.slab
+end
+
 function Slab:BuildNameplate(parent)
     -- print("building nameplate for " .. parent:GetName())
     local frame = CreateFrame('Frame', 'Slab' .. parent:GetName(), parent)
@@ -58,6 +65,8 @@ function Slab:BuildNameplate(parent)
     frame.name = name
     frame.healthBar = healthBar
     frame.bg = bg
+
+    frame.castBar = Slab:BuildCastbar(frame)
 
     parent:HookScript('OnShow', Slab.ShowNameplate)
     parent:HookScript('OnHide', Slab.HideNameplate)
@@ -93,12 +102,14 @@ function Slab.ShowNameplate(parent)
         frame:RefreshHealth(frame.settings.tag)
         frame:RefreshName(frame.settings.tag)
     end
+    Slab:ShowCastbar(frame)
     frame:Show()
 end
 
 function Slab.HideNameplate(frame)
     -- print("Hiding nameplate " .. frame:GetName())
     frame.slab:Hide()
+    Slab:HideCastbar(frame.slab)
 end
 
 local function HideChildFrame(frame)
