@@ -1,7 +1,7 @@
 local Slab = LibStub("Slab")
 
 local WIDTH = 150
-local HEIGHT = 15
+local HEIGHT = 12
 
 local function IsTank(unit)
     local role = UnitGroupRolesAssigned(unit)
@@ -112,7 +112,7 @@ function component:build(parent)
 
     healthBar:SetStatusBarTexture('interface/raidframe/raid-bar-hp-fill')
     healthBar:SetStatusBarColor(1, 1, 1, 1)
-    healthBar:SetSize(WIDTH, HEIGHT)
+    healthBar:SetSize(WIDTH-2, HEIGHT-2)
     healthBar:SetPoint('CENTER')
 
     local raidMarker = healthBar:CreateTexture(healthBar:GetName() .. 'RaidMarker', 'OVERLAY')
@@ -122,7 +122,7 @@ function component:build(parent)
 
     local name = healthBar:CreateFontString(healthBar:GetName() .. 'NameText', 'OVERLAY')
     name:SetPoint('BOTTOM', bg, 'TOP', 0, 2)
-    name:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
+    name:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE")
 
     local reactionIndicator = healthBar:CreateFontString(healthBar:GetName() .. 'IndicatorText', 'OVERLAY')
     reactionIndicator:SetPoint('BOTTOMLEFT', bg, 'TOPLEFT', 0, 2)
