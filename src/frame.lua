@@ -1,6 +1,10 @@
 local Slab = LibStub("Slab")
 
 
+function Slab.scale(value)
+    return math.ceil(value * UIParent:GetScale())
+end
+
 function Slab:GetSlab(unitId)
     local nameplate = C_NamePlate.GetNamePlateForUnit(unitId)
 
@@ -17,7 +21,6 @@ function Slab:BuildNameplate(parent)
     frame:SetAllPoints()
     frame:SetFrameStrata('BACKGROUND')
     frame:SetFrameLevel(0)
-    frame:SetIgnoreParentScale(true)
     frame:SetScale(1 / UIParent:GetScale())
 
     local healthBar = Slab.BuildComponent('healthBar', frame)

@@ -19,20 +19,20 @@ function component:build(parent)
 
     local castBar = CreateFrame('StatusBar', frame:GetName() .. 'Bar', frame)
     castBar:SetStatusBarTexture('interface/raidframe/raid-bar-hp-fill')
-    castBar:SetSize(120, 4)
+    castBar:SetSize(Slab.scale(120), Slab.scale(4))
     castBar:SetFrameLevel(0)
     castBar:SetAllPoints(castBg)
 
     local icon = frame:CreateTexture(frame:GetName() .. 'SpellIcon', 'BACKGROUND', nil, 2)
-    icon:SetSize(12, 12)
+    icon:SetSize(Slab.scale(12), Slab.scale(12))
     icon:SetPoint("TOPRIGHT", castBar, 'TOPLEFT', -1, 0)
 
     local targetName = frame:CreateFontString(frame:GetName() .. 'TargetText', 'OVERLAY')
-    targetName:SetFont("Fonts\\FRIZQT__.TTF", 8, "OUTLINE")
+    targetName:SetFont("Fonts\\FRIZQT__.TTF", Slab.scale(8), "OUTLINE")
     targetName:SetPoint('TOPRIGHT', castBar, 'BOTTOMRIGHT', 0, 1)
 
     local spellName = frame:CreateFontString(frame:GetName() .. 'TargetText', 'OVERLAY')
-    spellName:SetFont("Fonts\\FRIZQT__.TTF", 8, "OUTLINE")
+    spellName:SetFont("Fonts\\FRIZQT__.TTF", Slab.scale(8), "OUTLINE")
     spellName:SetPoint('TOPLEFT', castBar, 'BOTTOMLEFT', 0, 1)
 
     frame.icon = icon

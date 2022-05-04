@@ -3,13 +3,13 @@ local Slab = LibStub("Slab")
 local WIDTH = 150
 local HEIGHT = 12
 
-local function scale(value)
-    return math.ceil(value * UIParent:GetScale())
-end
-
 -- stolen from plater
 local function UnitNpcId(unit)
-    local npcID = select (6, strsplit ("-", UnitGUID(unit)))
+    local guid = UnitGUID(unit)
+    if guid == nil then
+        return 0
+    end
+    local npcID = select (6, strsplit ("-", guid))
     return tonumber (npcID or "0") or 0
 end
 
@@ -95,7 +95,7 @@ function component:refreshReaction(settings)
         -- stolen from plater
         self.frame.reactionIndicator:SetTextColor(0.9254901, 0.8, 0.2666666, 1)
         self.frame.reactionIndicator:Show()
-    elseif threatStatus == 0 and IsTankPet(settings.tag .. 'target') then
+    elseif IsTankPet(settings.tag .. 'target') then
         self.frame.reactionIndicator:SetText('PET')
         self.frame.reactionIndicator:SetTextColor(0.75, 0.75, 0.5, 1)
         self.frame.reactionIndicator:Show()
@@ -137,27 +137,27 @@ function component:build(parent)
 
     healthBar:SetStatusBarTexture('interface/raidframe/raid-bar-hp-fill')
     healthBar:SetStatusBarColor(1, 1, 1, 1)
-    healthBar:SetSize(scale(WIDTH), scale(HEIGHT))
+    healthBar:SetSize(Slab.scale(WIDTH), Slab.scale(HEIGHT))
     healthBar:SetPoint('CENTER')
 
     local bg = healthBar:CreateTexture(healthBar:GetName() .. 'Background', 'BACKGROUND')
     bg:SetTexture('interface/buttons/white8x8')
     bg:SetVertexColor(0.01, 0, 0, 0.5)
-    bg:SetSize(scale(WIDTH)+2, scale(HEIGHT)+2)
-    bg:SetPoint('CENTER')
+    bg:SetPoint('TOPLEFT', healthBar, 'TOPLEFT', -1, 1)
+    bg:SetPoint('BOTTOMRIGHT', healthBar, 'BOTTOMRIGHT', 1, -1)
 
     local raidMarker = healthBar:CreateTexture(healthBar:GetName() .. 'RaidMarker', 'OVERLAY')
     raidMarker:SetPoint('LEFT', healthBar, 'LEFT', 2, 0)
-    raidMarker:SetSize(scale(HEIGHT) - 2, scale(HEIGHT) - 2)
+    raidMarker:SetSize(Slab.scale(HEIGHT) - 2, Slab.scale(HEIGHT) - 2)
     raidMarker:Hide()
 
     local name = healthBar:CreateFontString(healthBar:GetName() .. 'NameText', 'OVERLAY')
     name:SetPoint('BOTTOM', healthBar, 'TOP', 0, 2)
-    name:SetFont("Fonts\\FRIZQT__.TTF", scale(10), "THINOUTLINE")
+    name:SetFont("Fonts\\FRIZQT__.TTF", Slab.scale(9), "THINOUTLINE")
 
     local reactionIndicator = healthBar:CreateFontString(healthBar:GetName() .. 'IndicatorText', 'OVERLAY')
     reactionIndicator:SetPoint('BOTTOMLEFT', healthBar, 'TOPLEFT', 0, 2)
-    reactionIndicator:SetFont("Fonts\\FRIZQT__.TTF", scale(8), "THINOUTLINE")
+    reactionIndicator:SetFont("Fonts\\FRIZQT__.TTF", Slab.scale(8), "THINOUTLINE")
     reactionIndicator:Hide()
 
     healthBar.raidMarker = raidMarker
