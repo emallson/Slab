@@ -17,11 +17,11 @@ local function IsTankPet(unit)
     local npcId = UnitNpcId(unit)
 
     return
-        npcId == 61146
-        or npcId == 103822
-        or npcId == 15352
-        or npcId == 95072
-        or npcId == 61056
+        npcId == 61146 -- ox statue
+        or npcId == 103822 -- trees
+        or npcId == 15352 -- earth ele
+        or npcId == 95072 -- greater earth ele
+        or npcId == 61056 -- primal earth ele
 end
 
 local function IsTank(unit)
