@@ -30,7 +30,7 @@ local function IsTank(unit)
 end
 
 local function IsPlayerTank()
-    return GetSpecializationRole(GetSpecialization())
+    return GetSpecializationRole(GetSpecialization()) == "TANK"
 end
 
 local function threatSaturation(target, source)
