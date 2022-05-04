@@ -3,23 +3,48 @@ local Slab = LibStub("Slab")
 local WIDTH = 150
 local HEIGHT = 12
 
+local function scale(value)
+    return math.ceil(value * UIParent:GetScale())
+end
+
+-- stolen from plater
+local function UnitNpcId(unit)
+    local npcID = select (6, strsplit ("-", UnitGUID(unit)))
+    return tonumber (npcID or "0") or 0
+end
+
+local function IsTankPet(unit)
+    local npcId = UnitNpcId(unit)
+
+    return
+        npcId == 61146
+        or npcId == 103822
+        or npcId == 15352
+        or npcId == 95072
+        or npcId == 61056
+end
+
 local function IsTank(unit)
     local role = UnitGroupRolesAssigned(unit)
-    return role == "TANK"
+    return role == "TANK" or IsTankPet(unit)
+end
+
+local function IsPlayerTank()
+    return GetSpecializationRole(GetSpecialization())
 end
 
 local function threatSaturation(target, source)
     local threatStatus = UnitThreatSituation(target, source)
     if threatStatus == nil then return 1 end
-    if IsTank("player") then
+    if IsPlayerTank() then
         if threatStatus == 1 or threatStatus == 2 then
-            return 2
-        elseif threatStatus == 0 and IsTank(source .. "target") then
+            return 3
+        elseif threatStatus == 0 and not IsTank(source .. "target") then
             return 6
         end
     else
         if threatStatus == 1 then
-            return 2
+            return 3
         elseif threatStatus > 1 then
             return 6
         end
@@ -64,10 +89,15 @@ end
 
 function component:refreshReaction(settings)
     local reaction = UnitReaction(settings.tag, 'player')
-    if reaction == 4 then
+    local threatStatus = UnitThreatSituation('player', settings.tag)
+    if reaction == 4 and threatStatus == nil then
         self.frame.reactionIndicator:SetText('N')
         -- stolen from plater
         self.frame.reactionIndicator:SetTextColor(0.9254901, 0.8, 0.2666666, 1)
+        self.frame.reactionIndicator:Show()
+    elseif threatStatus == 0 and IsTankPet(settings.tag .. 'target') then
+        self.frame.reactionIndicator:SetText('PET')
+        self.frame.reactionIndicator:SetTextColor(0.75, 0.75, 0.5, 1)
         self.frame.reactionIndicator:Show()
     else
         self.frame.reactionIndicator:Hide()
@@ -96,6 +126,7 @@ function component:update(eventName, ...)
         self:refreshHealth(self.settings)
     elseif eventName == 'UNIT_THREAT_LIST_UPDATE' then
         self:refreshColor(self.settings)
+        self:refreshReaction(self.settings)
     elseif eventName == 'RAID_TARGET_UPDATE' then
         self:refreshTargetMarker(self.settings)
     end
@@ -104,29 +135,29 @@ end
 function component:build(parent)
     local healthBar = CreateFrame('StatusBar', parent:GetName() .. 'HealthBar', parent)
 
-    local bg = healthBar:CreateTexture(healthBar:GetName() .. 'Background', 'BACKGROUND')
-    bg:SetTexture('interface/buttons/white8x8')
-    bg:SetSize(WIDTH, HEIGHT)
-    bg:SetVertexColor(0.01, 0, 0, .5)
-    bg:SetPoint('CENTER')
-
     healthBar:SetStatusBarTexture('interface/raidframe/raid-bar-hp-fill')
     healthBar:SetStatusBarColor(1, 1, 1, 1)
-    healthBar:SetSize(WIDTH-2, HEIGHT-2)
+    healthBar:SetSize(scale(WIDTH), scale(HEIGHT))
     healthBar:SetPoint('CENTER')
 
+    local bg = healthBar:CreateTexture(healthBar:GetName() .. 'Background', 'BACKGROUND')
+    bg:SetTexture('interface/buttons/white8x8')
+    bg:SetVertexColor(0.01, 0, 0, 0.5)
+    bg:SetSize(scale(WIDTH)+2, scale(HEIGHT)+2)
+    bg:SetPoint('CENTER')
+
     local raidMarker = healthBar:CreateTexture(healthBar:GetName() .. 'RaidMarker', 'OVERLAY')
-    raidMarker:SetPoint('LEFT', bg, 'LEFT', 2, 0)
-    raidMarker:SetSize(HEIGHT - 2, HEIGHT - 2)
+    raidMarker:SetPoint('LEFT', healthBar, 'LEFT', 2, 0)
+    raidMarker:SetSize(scale(HEIGHT) - 2, scale(HEIGHT) - 2)
     raidMarker:Hide()
 
     local name = healthBar:CreateFontString(healthBar:GetName() .. 'NameText', 'OVERLAY')
-    name:SetPoint('BOTTOM', bg, 'TOP', 0, 2)
-    name:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE")
+    name:SetPoint('BOTTOM', healthBar, 'TOP', 0, 2)
+    name:SetFont("Fonts\\FRIZQT__.TTF", scale(10), "THINOUTLINE")
 
     local reactionIndicator = healthBar:CreateFontString(healthBar:GetName() .. 'IndicatorText', 'OVERLAY')
-    reactionIndicator:SetPoint('BOTTOMLEFT', bg, 'TOPLEFT', 0, 2)
-    reactionIndicator:SetFont("Fonts\\FRIZQT__.TTF", 8, "OUTLINE")
+    reactionIndicator:SetPoint('BOTTOMLEFT', healthBar, 'TOPLEFT', 0, 2)
+    reactionIndicator:SetFont("Fonts\\FRIZQT__.TTF", scale(8), "THINOUTLINE")
     reactionIndicator:Hide()
 
     healthBar.raidMarker = raidMarker

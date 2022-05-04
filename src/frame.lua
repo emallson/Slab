@@ -17,6 +17,8 @@ function Slab:BuildNameplate(parent)
     frame:SetAllPoints()
     frame:SetFrameStrata('BACKGROUND')
     frame:SetFrameLevel(0)
+    frame:SetIgnoreParentScale(true)
+    frame:SetScale(1 / UIParent:GetScale())
 
     local healthBar = Slab.BuildComponent('healthBar', frame)
 
