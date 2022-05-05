@@ -12,16 +12,20 @@ function component:build(parent)
 
     local castBg = frame:CreateTexture(frame:GetName() .. 'BarBackground', 'BACKGROUND')
     castBg:SetTexture('interface/buttons/white8x8')
-    castBg:SetSize(120, 4)
+    castBg:SetSize(Slab.scale(120), Slab.scale(4))
     castBg:SetVertexColor(0, 0, 0, .5)
     castBg:SetPoint('TOPLEFT', frame, 'BOTTOMLEFT', 12, -1)
     castBg:SetPoint('BOTTOMRIGHT', frame, 'BOTTOMRIGHT', 0, -5)
 
-    local castBar = CreateFrame('StatusBar', frame:GetName() .. 'Bar', frame)
-    castBar:SetStatusBarTexture('interface/raidframe/raid-bar-hp-fill')
-    castBar:SetSize(Slab.scale(120), Slab.scale(4))
-    castBar:SetFrameLevel(0)
+    local castBar = frame:CreateTexture(nil, 'OVERLAY')
+    castBar:SetTexture('interface/raidframe/raid-bar-hp-fill')
     castBar:SetAllPoints(castBg)
+
+    local castAnimGroup = castBar:CreateAnimationGroup()
+    castAnimGroup:SetLooping('NONE')
+    local castAnim = castAnimGroup:CreateAnimation('Scale')
+    castAnim:SetOrigin('LEFT', 0, 0)
+    castAnim:SetEndDelay(1)
 
     local icon = frame:CreateTexture(frame:GetName() .. 'SpellIcon', 'BACKGROUND', nil, 2)
     icon:SetSize(Slab.scale(12), Slab.scale(12))
@@ -37,34 +41,38 @@ function component:build(parent)
 
     frame.icon = icon
     frame.castBar = castBar
+    frame.castAnimGroup = castAnimGroup
+    frame.castAnim = castAnim
     frame.targetName = targetName
     frame.spellName = spellName
-    frame.updateFrame = CreateFrame('Frame', frame:GetName() .. 'Update', frame)
 
     return frame
 end
 
 local function displayCast(castBar, startTime, endTime)
-    castBar.castBar:SetMinMaxValues(startTime / 1000, endTime / 1000)
+    local duration = endTime / 1000 - GetTime()
+    local totalDuration = (endTime - startTime) / 1000
+    local initialScale = (GetTime() - startTime / 1000) / totalDuration
 
-    local duration = startTime / 1000
-    castBar.castBar:SetValue(duration)
-
-    castBar:SetScript('OnUpdate', function(_, elap)
-        duration = duration + elap
-        castBar.castBar:SetValue(duration)
-    end)
+    castBar.castAnimGroup:Stop()
+    castBar.castAnim:SetDuration(duration)
+    castBar.castAnim:SetFromScale(initialScale, 1)
+    castBar.castAnim:SetToScale(1, 1)
+    castBar.castAnimGroup:Restart()
+    castBar.castAnimGroup:Play()
 end
 
 local function displayChannel(castBar, startTime, endTime)
-    local duration = endTime / 1000
-    castBar.castBar:SetMinMaxValues(startTime / 1000, duration)
-    castBar.castBar:SetValue(duration)
+    local duration = endTime / 1000 - GetTime()
+    local totalDuration = (endTime - startTime) / 1000
+    local initialScale = 1 - (GetTime() - startTime / 1000) / totalDuration
 
-    castBar:SetScript('OnUpdate', function(_, elap)
-        duration = duration - elap
-        castBar.castBar:SetValue(duration)
-    end)
+    castBar.castAnimGroup:Stop()
+    castBar.castAnim:SetDuration(duration)
+    castBar.castAnim:SetFromScale(initialScale, 1)
+    castBar.castAnim:SetToScale(0, 1)
+    castBar.castAnimGroup:Restart()
+    castBar.castAnimGroup:Play()
 end
 
 local function getCastInfo(unit, isChannel)
@@ -79,13 +87,14 @@ end
 
 local function setCastbarColor(castBar, uninterruptible)
     if uninterruptible then
-        castBar.castBar:SetStatusBarColor(0.78, 0.82, 0.86, 1)
+        castBar.castBar:SetColorTexture(0.78, 0.82, 0.86, 1)
     else
-        castBar.castBar:SetStatusBarColor(255 / 255, 191 / 255, 45 / 255, 1)
+        castBar.castBar:SetColorTexture(255 / 255, 191 / 255, 45 / 255, 1)
     end
 end
 
 function component:bind(settings)
+    self:hideCastbar()
     self.frame:RegisterUnitEvent("UNIT_SPELLCAST_START", settings.tag)
     self.frame:RegisterUnitEvent("UNIT_SPELLCAST_STOP", settings.tag)
     self.frame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_START", settings.tag)
@@ -108,7 +117,11 @@ end
 function component:updateCastDuration(settings, isChannel)
     local unitId = settings.tag
     local spellName, displayName, spellIcon, startTimeMS, endTimeMS = getCastInfo(unitId, isChannel)
-    self.frame.castBar:SetMinMaxValues(startTimeMS / 1000, endTimeMS / 1000)
+    if isChannel then
+        displayChannel(self.frame, startTimeMS, endTimeMS)
+    else
+        displayCast(self.frame, startTimeMS, endTimeMS)
+    end
 end
 
 function component:updateCastColor(settings, uninterruptible)
@@ -141,15 +154,18 @@ function component:showCastbarDetails(settings, spellName, spellIcon, startTimeM
         displayCast(self.frame, startTimeMS, endTimeMS)
     end
 
-    if targetName ~= nil then
+    if targetName ~= nil and UnitIsPlayer(targetName) then
         self.frame.targetName:SetText(targetName)
-        local classColor = C_ClassColor.GetClassColor(UnitClass(settings.tag .. 'target'))
+        local classColor = C_ClassColor.GetClassColor(UnitClass(targetName))
 
         if classColor ~= nil then
             self.frame.targetName:SetTextColor(classColor.r, classColor.g, classColor.b)
         else
             self.frame.targetName:SetTextColor(1, 1, 1)
         end
+        self.frame.targetName:Show()
+    else
+        self.frame.targetName:Hide()
     end
 
     self.frame:Raise()
@@ -160,6 +176,7 @@ function component:showCastbar(settings, isChannel)
     local unitId = settings.tag
     local spellName, displayName, spellIcon, startTimeMS, endTimeMS, _isTrade, uninterruptible = getCastInfo(unitId, isChannel)
     local targetName = UnitName(unitId .. 'target')
+    --print(targetName)
 
     if spellName == nil then
         return
@@ -168,8 +185,7 @@ function component:showCastbar(settings, isChannel)
 end
 
 function component:hideCastbar()
-    -- print('Hiding castbar')
-    self.frame:SetScript('OnUpdate', nil)
+    self.frame.castAnimGroup:Stop()
     self.frame:Hide()
 end
 
