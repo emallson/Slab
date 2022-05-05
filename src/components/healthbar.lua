@@ -153,11 +153,11 @@ function component:build(parent)
 
     local name = healthBar:CreateFontString(healthBar:GetName() .. 'NameText', 'OVERLAY')
     name:SetPoint('BOTTOM', healthBar, 'TOP', 0, 2)
-    name:SetFont("Fonts\\FRIZQT__.TTF", Slab.scale(9), "THINOUTLINE")
+    name:SetFont(Slab.font, Slab.scale(9), "THINOUTLINE")
 
     local reactionIndicator = healthBar:CreateFontString(healthBar:GetName() .. 'IndicatorText', 'OVERLAY')
     reactionIndicator:SetPoint('BOTTOMLEFT', healthBar, 'TOPLEFT', 0, 2)
-    reactionIndicator:SetFont("Fonts\\FRIZQT__.TTF", Slab.scale(8), "THINOUTLINE")
+    reactionIndicator:SetFont(Slab.font, Slab.scale(8), "THINOUTLINE")
     reactionIndicator:Hide()
 
     healthBar.raidMarker = raidMarker

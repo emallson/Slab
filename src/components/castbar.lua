@@ -28,11 +28,11 @@ function component:build(parent)
     icon:SetPoint("TOPRIGHT", castBar, 'TOPLEFT', -1, 0)
 
     local targetName = frame:CreateFontString(frame:GetName() .. 'TargetText', 'OVERLAY')
-    targetName:SetFont("Fonts\\FRIZQT__.TTF", Slab.scale(8), "OUTLINE")
+    targetName:SetFont(Slab.font, Slab.scale(8), "OUTLINE")
     targetName:SetPoint('TOPRIGHT', castBar, 'BOTTOMRIGHT', 0, 1)
 
     local spellName = frame:CreateFontString(frame:GetName() .. 'TargetText', 'OVERLAY')
-    spellName:SetFont("Fonts\\FRIZQT__.TTF", Slab.scale(8), "OUTLINE")
+    spellName:SetFont(Slab.font, Slab.scale(8), "OUTLINE")
     spellName:SetPoint('TOPLEFT', castBar, 'BOTTOMLEFT', 0, 1)
 
     frame.icon = icon
