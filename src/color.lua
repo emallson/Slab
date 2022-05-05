@@ -67,19 +67,13 @@ local function hash_text(text)
   
     local bytes = hash.sha256(text)
     local a = 0
-    local b = 0
     for i=0, cfg.hash_bytes do
         local ix = #bytes - 2 * (i + 1)
         local byte = tonumber(string.sub(bytes, ix, ix+1), 16)
         a = a * 256 + byte
     end
-    for i=8, 2 * cfg.hash_bytes do
-        local ix = #bytes - 2 * (i + 1)
-        local byte = tonumber(string.sub(bytes, ix, ix+1), 16)
-        b = b * 256 + byte
-    end
   
-    return a, b
+    return a
 end
 
 local cache = {}
@@ -93,15 +87,15 @@ local function name_to_point(name)
   if existing ~= nil then
     return existing
   end
-  local a, b = hash_text(name)
-  cache[name] = {a = to_angle(a), b = to_angle(b)}
+  local a = hash_text(name)
+  cache[name] = to_angle(a)
   return cache[name]
 end
 
 local function point_to_color(angle, saturationMultiplier)
     local saturation = cfg.saturation * (saturationMultiplier or 1)
-    local a = saturation * math.cos(angle.a)
-    local b = saturation * math.sin(angle.b)
+    local a = saturation * math.cos(angle)
+    local b = saturation * math.sin(angle)
     local x, y, z = cielab_to_xyz(cfg.lightness, a, b)
     local sr, sg, sb = xyz_to_srgb(x, y, z)
 
