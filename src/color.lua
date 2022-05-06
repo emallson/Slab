@@ -1,8 +1,11 @@
+---@class LibHash
+---@field public sha256 fun(text:string):string
 local hash = LibStub("LibHash-1.0")
 -- methods to convert from CIE L*a*b to XYZ and from XYZ to sRGB.
 -- the L*a*b methods are shamelessly taken from emacs' color.el, while the XYZ->sRGB is from easyrgb.com
 local cie_epsilon = 216 / 24389
 local cie_kappa = 24389 / 27
+
 
 local function cielab_xyz_rescale(var)
   if var ^ 3 > cie_epsilon then
@@ -76,12 +79,18 @@ local function hash_text(text)
     return a
 end
 
+---@type table<string, ColorPoint>
 local cache = {}
 
 local function to_angle(val)
   return 2 * math.pi * (val % cfg.num_colors / cfg.num_colors)
 end
 
+---@alias ColorPoint number
+
+---comment
+---@param name string
+---@return ColorPoint
 local function name_to_point(name)
   local existing = cache[name]
   if existing ~= nil then
@@ -92,6 +101,10 @@ local function name_to_point(name)
   return cache[name]
 end
 
+---comment
+---@param angle ColorPoint
+---@param saturationMultiplier number
+---@return RGB
 local function point_to_color(angle, saturationMultiplier)
     local saturation = cfg.saturation * (saturationMultiplier or 1)
     local a = saturation * math.cos(angle)
@@ -99,9 +112,11 @@ local function point_to_color(angle, saturationMultiplier)
     local x, y, z = cielab_to_xyz(cfg.lightness, a, b)
     local sr, sg, sb = xyz_to_srgb(x, y, z)
 
+    ---@class RGB
     return {r = sr, g = sg, b = sb}
 end
 
+---@class LibSlab
 local Slab = LibStub("Slab")
 
 Slab.color = {

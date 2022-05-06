@@ -1,17 +1,25 @@
+---@class LibSlab
 local Slab = LibStub("Slab")
 
 
 local frame = CreateFrame("Frame", "Slab")
 
+---@alias UnitId string
+
 local state  = {
+    ---@type table<string, SlabNameplateSettings>
     settings = {}
 }
 function state:registerUnit(unitId)
     local point = Slab.color.name_to_point(UnitName(unitId))
-    self.settings[unitId] = {
+    ---@class SlabNameplateSettings
+    local setting = {
+        ---@type ColorPoint
         point = point,
+        ---@type UnitId
         tag = unitId
     }
+    self.settings[unitId] = setting
     local nameplate = C_NamePlate.GetNamePlateForUnit(unitId)
 
     if nameplate and nameplate.slab then

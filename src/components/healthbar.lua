@@ -1,9 +1,12 @@
+---@class LibSlab
 local Slab = LibStub("Slab")
 
 local WIDTH = 150
 local HEIGHT = 12
 
--- stolen from plater
+---stolen from plater
+---@param unit UnitId
+---@return integer
 local function UnitNpcId(unit)
     local guid = UnitGUID(unit)
     if guid == nil then
@@ -13,6 +16,9 @@ local function UnitNpcId(unit)
     return tonumber (npcID or "0") or 0
 end
 
+---determine if a unit is a tank pet
+---@param unit UnitId
+---@return boolean
 local function IsTankPet(unit)
     local npcId = UnitNpcId(unit)
 
@@ -24,15 +30,24 @@ local function IsTankPet(unit)
         or npcId == 61056 -- primal earth ele
 end
 
+---determine if a unit is a tank player or pet
+---@param unit UnitId
+---@return boolean
 local function IsTank(unit)
     local role = UnitGroupRolesAssigned(unit)
     return role == "TANK" or IsTankPet(unit)
 end
 
+---determine if the player is a tank spec
+---@return boolean
 local function IsPlayerTank()
     return GetSpecializationRole(GetSpecialization()) == "TANK"
 end
 
+---Determine the appropriate saturation level to use for the source unit, based on threat.
+---@param target UnitId
+---@param source UnitId
+---@return integer
 local function threatSaturation(target, source)
     local threatStatus = UnitThreatSituation(target, source)
     if threatStatus == nil then return 1 end
@@ -51,8 +66,13 @@ local function threatSaturation(target, source)
     end
 end
 
-local component = {}
+---@class HealthBarComponent:Component
+---@field public frame HealthBar
+local component = {
+}
 
+---@param settings SlabNameplateSettings
+---@param recomputeColor boolean
 function component:refreshName(settings, recomputeColor)
     local name = UnitName(settings.tag)
     self.frame.name:SetText(name)
@@ -63,18 +83,21 @@ function component:refreshName(settings, recomputeColor)
     end
 end
 
+---@param settings SlabNameplateSettings
 function component:refreshColor(settings)
     local saturation = threatSaturation('player', settings.tag)
     local color = Slab.color.point_to_color(settings.point, saturation)
     self.frame:SetStatusBarColor(color.r, color.g, color.b)
 end
 
+---@param settings SlabNameplateSettings
 function component:refreshHealth(settings)
     local unitId = settings.tag
     self.frame:SetMinMaxValues(0, UnitHealthMax(unitId))
     self.frame:SetValue(UnitHealth(unitId))
 end
 
+---@param settings SlabNameplateSettings
 function component:refreshTargetMarker(settings)
     local markerId = GetRaidTargetIndex(settings.tag)
     local raidMarker = self.frame.raidMarker
@@ -87,6 +110,7 @@ function component:refreshTargetMarker(settings)
     end
 end
 
+---@param settings SlabNameplateSettings
 function component:refreshReaction(settings)
     local reaction = UnitReaction(settings.tag, 'player')
     local threatStatus = UnitThreatSituation('player', settings.tag)
@@ -104,6 +128,7 @@ function component:refreshReaction(settings)
     end
 end
 
+---@param settings SlabNameplateSettings
 function component:refresh(settings)
     self:refreshName(settings, false)
     self:refreshColor(settings)
@@ -112,6 +137,7 @@ function component:refresh(settings)
     self:refreshReaction(settings)
 end
 
+---@param settings SlabNameplateSettings
 function component:bind(settings)
     self.frame:RegisterUnitEvent('UNIT_HEALTH', settings.tag)
     self.frame:RegisterUnitEvent('UNIT_THREAT_LIST_UPDATE', settings.tag)
@@ -119,6 +145,8 @@ function component:bind(settings)
     self.frame:RegisterUnitEvent("UNIT_NAME_UPDATE", settings.tag)
 end
 
+---@param eventName string
+---@vararg any
 function component:update(eventName, ...)
     if eventName == 'UNIT_NAME_UPDATE' then
         self:refreshName(self.settings, true)
@@ -132,7 +160,10 @@ function component:update(eventName, ...)
     end
 end
 
+---@param parent Frame
+---@return HealthBar
 function component:build(parent)
+    ---@class HealthBar:StatusBar
     local healthBar = CreateFrame('StatusBar', parent:GetName() .. 'HealthBar', parent)
 
     healthBar:SetStatusBarTexture('interface/raidframe/raid-bar-hp-fill')

@@ -1,8 +1,13 @@
+---@class LibSlab
 local Slab = LibStub("Slab")
 
-local component = {}
+---@class CastBarComponent:Component
+---@field public frame CastBar
+local component = {
+}
 
 function component:build(parent)
+    ---@class CastBar:Frame
     local frame = CreateFrame('Frame', parent:GetName() .. 'CastBarContainer', parent)
 
     frame:Hide()
@@ -49,6 +54,9 @@ function component:build(parent)
     return frame
 end
 
+---@param castBar CastBar
+---@param startTime number
+---@param endTime number
 local function displayCast(castBar, startTime, endTime)
     local duration = endTime / 1000 - GetTime()
     local totalDuration = (endTime - startTime) / 1000
@@ -62,6 +70,9 @@ local function displayCast(castBar, startTime, endTime)
     castBar.castAnimGroup:Play()
 end
 
+---@param castBar CastBar
+---@param startTime number
+---@param endTime number
 local function displayChannel(castBar, startTime, endTime)
     local duration = endTime / 1000 - GetTime()
     local totalDuration = (endTime - startTime) / 1000
@@ -75,6 +86,8 @@ local function displayChannel(castBar, startTime, endTime)
     castBar.castAnimGroup:Play()
 end
 
+---@param unit UnitId
+---@param isChannel boolean
 local function getCastInfo(unit, isChannel)
     if isChannel then
         local spellName, displayName, spellIcon, startTimeMS, endTimeMS, isTrade, uninterruptible = UnitChannelInfo(unit)
@@ -85,6 +98,8 @@ local function getCastInfo(unit, isChannel)
     end
 end
 
+---@param castBar CastBar
+---@param uninterruptible boolean
 local function setCastbarColor(castBar, uninterruptible)
     if uninterruptible then
         castBar.castBar:SetColorTexture(0.78, 0.82, 0.86, 1)
@@ -93,6 +108,7 @@ local function setCastbarColor(castBar, uninterruptible)
     end
 end
 
+---@param settings SlabNameplateSettings
 function component:bind(settings)
     self:hideCastbar()
     self.frame:RegisterUnitEvent("UNIT_SPELLCAST_START", settings.tag)
@@ -109,11 +125,14 @@ function component:unbind()
     self:hideCastbar()
 end
 
+---@param settings SlabNameplateSettings
 function component:refresh(settings)
     self:showCastbar(settings)
     self:showCastbar(settings, true)
 end
 
+---@param settings SlabNameplateSettings
+---@param isChannel boolean
 function component:updateCastDuration(settings, isChannel)
     local unitId = settings.tag
     local spellName, displayName, spellIcon, startTimeMS, endTimeMS = getCastInfo(unitId, isChannel)
@@ -124,10 +143,14 @@ function component:updateCastDuration(settings, isChannel)
     end
 end
 
+---@param settings SlabNameplateSettings
+---@param uninterruptible boolean
 function component:updateCastColor(settings, uninterruptible)
     setCastbarColor(self, uninterruptible)
 end
 
+---@param eventName string
+---@vararg any
 function component:update(eventName, ...)
     if eventName == "UNIT_SPELLCAST_START" then
         self:showCastbar(self.settings)
@@ -142,6 +165,8 @@ function component:update(eventName, ...)
     end
 end
 
+---@param targetUnit UnitId
+---@param frame FontString
 local function updateTargetName(targetUnit, frame)
     if targetUnit == nil then return end
 
@@ -161,7 +186,14 @@ local function updateTargetName(targetUnit, frame)
     end
 end
 
-function component:showCastbarDetails(settings, spellName, spellIcon, startTimeMS, endTimeMS, isChannel, uninterruptible, targetName)
+---@param settings SlabNameplateSettings
+---@param spellName string
+---@param spellIcon string
+---@param startTimeMS number
+---@param endTimeMS number
+---@param isChannel boolean
+---@param uninterruptible boolean
+function component:showCastbarDetails(settings, spellName, spellIcon, startTimeMS, endTimeMS, isChannel, uninterruptible)
     setCastbarColor(self.frame, uninterruptible)
     self.frame.icon:SetTexture(spellIcon)
 
@@ -182,16 +214,16 @@ function component:showCastbarDetails(settings, spellName, spellIcon, startTimeM
     self.frame:Show()
 end
 
+---@param settings SlabNameplateSettings
+---@param isChannel? boolean
 function component:showCastbar(settings, isChannel)
     local unitId = settings.tag
     local spellName, displayName, spellIcon, startTimeMS, endTimeMS, _isTrade, uninterruptible = getCastInfo(unitId, isChannel)
-    local targetName = UnitName(unitId .. 'target')
-    --print(targetName)
 
     if spellName == nil then
         return
     end
-    self:showCastbarDetails(settings, spellName, spellIcon, startTimeMS, endTimeMS, isChannel, uninterruptible, targetName)
+    self:showCastbarDetails(settings, spellName, spellIcon, startTimeMS, endTimeMS, isChannel, uninterruptible)
 end
 
 function component:hideCastbar()

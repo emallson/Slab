@@ -1,10 +1,19 @@
+---@class LibSlab
 local Slab = LibStub("Slab")
 
+---@class SlabContainer:Frame
+---@field public slab Slab|nil
 
+---Scale the provider number based on the current UI scale.
+---@param value number
+---@return integer
 function Slab.scale(value)
     return math.ceil(value * UIParent:GetScale())
 end
 
+---Get the current Slab for a unit
+---@param unitId UnitId
+---@return Slab|nil
 function Slab:GetSlab(unitId)
     local nameplate = C_NamePlate.GetNamePlateForUnit(unitId)
 
@@ -12,8 +21,11 @@ function Slab:GetSlab(unitId)
     return nameplate.slab
 end
 
+---Build a new nameplate from scratch
+---@param parent Frame
 function Slab:BuildNameplate(parent)
-    -- print("building nameplate for " .. parent:GetName())
+    ---@class Slab:Frame
+    ---@field public settings SlabNameplateSettings|nil
     local frame = CreateFrame('Frame', 'Slab' .. parent:GetName(), parent)
     frame.iSlab = true
 
@@ -23,10 +35,13 @@ function Slab:BuildNameplate(parent)
     frame:SetFrameLevel(0)
     frame:SetScale(1 / UIParent:GetScale())
 
+    ---@type HealthBarComponent
     local healthBar = Slab.BuildComponent('healthBar', frame)
 
+    ---@type table<string, ComponentConstructed>
     frame.components = {
         healthBar = healthBar,
+        ---@type CastBarComponent
         castBar = Slab.BuildComponent('castBar', healthBar.frame)
     }
 
@@ -36,10 +51,11 @@ function Slab:BuildNameplate(parent)
     parent.slab = frame
 end
 
+---Show the nameplate.
+---@param parent SlabContainer
 function Slab.ShowNameplate(parent)
     local frame = parent.slab
-    --print("Showing nameplate")
-    if frame.settings then
+    if frame ~= nil and frame.settings then
         for _, component in pairs(frame.components) do
             component:show(frame.settings)
         end
@@ -47,8 +63,8 @@ function Slab.ShowNameplate(parent)
     frame:Show()
 end
 
+---@param frame SlabContainer
 function Slab.HideNameplate(frame)
-    -- print("Hiding nameplate " .. frame:GetName())
     frame.slab:Hide()
     for _, component in pairs(frame.slab.components) do
         component:hide()
