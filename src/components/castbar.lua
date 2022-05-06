@@ -142,6 +142,25 @@ function component:update(eventName, ...)
     end
 end
 
+local function updateTargetName(targetUnit, frame)
+    if targetUnit == nil then return end
+
+    local targetName = UnitName(targetUnit)
+    if targetName ~= nil and UnitIsPlayer(targetUnit) then
+        frame:SetText(targetName)
+        local classColor = C_ClassColor.GetClassColor(select(2, UnitClass(targetUnit)))
+
+        if classColor ~= nil then
+            frame:SetTextColor(classColor.r, classColor.g, classColor.b)
+        else
+            frame:SetTextColor(1, 1, 1)
+        end
+        frame:Show()
+    else
+        frame:Hide()
+    end
+end
+
 function component:showCastbarDetails(settings, spellName, spellIcon, startTimeMS, endTimeMS, isChannel, uninterruptible, targetName)
     setCastbarColor(self.frame, uninterruptible)
     self.frame.icon:SetTexture(spellIcon)
@@ -154,19 +173,10 @@ function component:showCastbarDetails(settings, spellName, spellIcon, startTimeM
         displayCast(self.frame, startTimeMS, endTimeMS)
     end
 
-    if targetName ~= nil and UnitIsPlayer(targetName) then
-        self.frame.targetName:SetText(targetName)
-        local classColor = C_ClassColor.GetClassColor(UnitClass(targetName))
+    local targetUnit = settings.tag .. 'target'
+    updateTargetName(targetUnit, self.frame.targetName)
 
-        if classColor ~= nil then
-            self.frame.targetName:SetTextColor(classColor.r, classColor.g, classColor.b)
-        else
-            self.frame.targetName:SetTextColor(1, 1, 1)
-        end
-        self.frame.targetName:Show()
-    else
-        self.frame.targetName:Hide()
-    end
+    C_Timer.After(0.05, function() updateTargetName(targetUnit, self.frame.targetName) end)
 
     self.frame:Raise()
     self.frame:Show()
