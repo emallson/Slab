@@ -21,6 +21,9 @@ function Slab:GetSlab(unitId)
     return nameplate.slab
 end
 
+---@type table<string, fun(components: table<string, ComponentConstructed>): ComponentConstructed>
+Slab.extensionComponents = {}
+
 ---Build a new nameplate from scratch
 ---@param parent Frame
 function Slab:BuildNameplate(parent)
@@ -44,6 +47,10 @@ function Slab:BuildNameplate(parent)
         ---@type CastBarComponent
         castBar = Slab.BuildComponent('castBar', healthBar.frame)
     }
+
+    for key, componentBuilder in pairs(Slab.extensionComponents) do
+        frame.components[key] = componentBuilder(frame.components)
+    end
 
     parent:HookScript('OnShow', Slab.ShowNameplate)
     parent:HookScript('OnHide', Slab.HideNameplate)
