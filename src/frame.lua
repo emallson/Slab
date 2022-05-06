@@ -48,8 +48,17 @@ function Slab:BuildNameplate(parent)
         castBar = Slab.BuildComponent('castBar', healthBar.frame)
     }
 
+    local tod = Slab.BuildComponent('todIndicator', healthBar.frame)
+
+    if tod ~= nil then
+        frame.components.tod = tod
+    end
+
     for key, componentBuilder in pairs(Slab.extensionComponents) do
-        frame.components[key] = componentBuilder(frame.components)
+        local c = componentBuilder(frame.components)
+        if c ~= nil then
+            frame.components[key] = c
+        end
     end
 
     parent:HookScript('OnShow', Slab.ShowNameplate)

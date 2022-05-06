@@ -59,6 +59,7 @@ function Slab.Component(table)
         local self = {}
         setmetatable(self, mt)
         self.frame = self:build(parent)
+        if self.frame == nil then return nil end
         self.frame:SetScript('OnEvent', function(frame, eventName, ...)
             self:update(eventName, ...)
         end)
