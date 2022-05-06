@@ -17,6 +17,18 @@ Slab is a slim and colorful nameplate addon for Retail World of Warcraft that as
 <img alt="Castbar" src="readme/turtle_cast.png" />
 </p>
 
+### A Note on CVars and Plater
+
+Many aspects of nameplates in WoW are controlled by CVars, which are stored as part of your game configuration independently of any addon. If you've used Plater, you likely have a large number of CVars set from adjusting nameplate settings through the Plater options.
+
+Slab sets a single CVar for the purposes of avoiding jittery frames: `NamePlateMinScale`. There are a few that you may want to reset using `AdvancedInterfaceOptions` when trying Slab:
+
+- `NamePlateMinAlpha`
+- `NamePlateMinAlphaDistance`
+- `NamePlateMinScaleDistance`
+- `NamePlateMaxScale`
+- `NamePlateMaxScaleDistance`
+
 ## Colorful
 
 *tl;dr*
