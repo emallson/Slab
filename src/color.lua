@@ -1,17 +1,16 @@
 ---@class LibHash
 ---@field public sha256 fun(text:string):string
 local hash = LibStub("LibHash-1.0")
--- methods to convert from CIE L*a*b to XYZ and from XYZ to sRGB.
--- the L*a*b methods are shamelessly taken from emacs' color.el, while the XYZ->sRGB is from easyrgb.com
-local cie_epsilon = 216 / 24389
-local cie_kappa = 24389 / 27
+-- cielab -> ciexyz from wikipedia
+-- ciexyz -> srgb from https://www.image-engineering.de/library/technotes/958-how-to-convert-between-srgb-and-ciexyz
+local cie_delta = 6/29
 
 
 local function cielab_xyz_rescale(var)
-  if var ^ 3 > cie_epsilon then
+  if var > cie_delta then
     return var ^ 3
   else
-    return (var * 116 - 16) / cie_kappa
+    return 3 * cie_delta ^ 2 * (var - 4/29)
   end
 end
 
@@ -25,12 +24,7 @@ local function cielab_to_xyz(l, a, b)
   local fx = (a / 500) + fy
 
   local xr = cielab_xyz_rescale(fx)
-  local yr
-  if l > cie_kappa * cie_epsilon then
-    yr = ((l + 16) / 116) ^ 3
-  else
-    yr = l / cie_kappa
-  end
+  local yr = cielab_xyz_rescale(fy)
   local zr = cielab_xyz_rescale(fz)
 
   return ref_x * xr, ref_y * yr, ref_z * zr
@@ -50,8 +44,8 @@ local function xyz_to_srgb(x, y, z)
   local var_z = z
 
   local var_r = xyz_srgb_rescale(var_x * 3.2406 + var_y * -1.5372 + var_z * -0.4986)
-  local var_g = xyz_srgb_rescale(var_x * -0.9689 + var_y * 1.8758 + var_z * 0.0415)
-  local var_b = xyz_srgb_rescale(var_x * 0.0557 + var_y * -0.2040 + var_z * 1.0570)
+  local var_g = xyz_srgb_rescale(var_x * -0.96926 + var_y * 1.87601 + var_z * 0.04155)
+  local var_b = xyz_srgb_rescale(var_x * 0.05564 + var_y * -0.2040259 + var_z * 1.0572252)
 
   return var_r, var_g, var_b 
 end
@@ -83,7 +77,7 @@ end
 local cache = {}
 
 local function to_angle(val)
-  return 2 * math.pi * (val % cfg.num_colors / cfg.num_colors)
+  return 2 * math.pi * (val % cfg.num_colors) / cfg.num_colors
 end
 
 ---@alias ColorPoint number
@@ -123,5 +117,6 @@ Slab.color = {
     xyz_to_srgb = xyz_to_srgb,
     cielab_to_xyz = cielab_to_xyz,
     name_to_point = name_to_point,
-    point_to_color = point_to_color
+    point_to_color = point_to_color,
+    test_color = function(name) return point_to_color(name_to_point(name), 1) end
 }
