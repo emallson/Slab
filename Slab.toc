@@ -10,6 +10,7 @@ src\components\index.lua
 src\components\healthbar.lua
 src\components\castbar.lua
 src\components\tod_indicator.lua
+src\components\absorb.lua
 src\frame.lua
 src\color.lua
 src\index.lua
