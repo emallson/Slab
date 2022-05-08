@@ -4,14 +4,17 @@ local Slab = LibStub("Slab")
 ---@class ThresholdIndicatorComponent:Component
 ---@field public frame ThresholdIndicator
 local component = {
+    dependencies = {'healthBar'}
 }
 
----@param parent Frame
+---@param slab Slab
 ---@return ThresholdIndicator|nil
-function component:build(parent)
+function component:build(slab)
     if select(2, UnitClass('player')) ~= 'MONK' then
         return nil
     end
+    
+    local parent = slab.components.healthBar.frame
     ---@class ThresholdIndicator:Frame
     local indicator = CreateFrame('Frame', parent:GetName() .. 'ToDIndicator', parent)
     indicator:SetPoint('LEFT', parent, 'LEFT', 0, 0)

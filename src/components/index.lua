@@ -8,11 +8,13 @@ end
 ---@class Component
 ---@field public settings SlabNameplateSettings|nil
 ---@field public frame Frame
+---@field public dependencies table<string>
 local baseComponent = {
     ---Construct the frames to be used for the component. They are not bound to any particular unit at this point.
     ---@param parent Frame
     ---@return Frame
     build = mustOverride,
+    dependencies = {},
 }
 
 ---Refresh the component's state using the provided settings, including the unit id.
@@ -96,7 +98,7 @@ end
 
 ---Construct a component.
 ---@param key string
----@param parent Frame
+---@param parent Slab
 ---@return ComponentConstructed
 function Slab.BuildComponent(key, parent)
     local component = registry[key]
@@ -104,7 +106,49 @@ function Slab.BuildComponent(key, parent)
     if component == nil then
         error('No component exists: ' .. key)
         return nil
+    else
+        for _, dep in ipairs(component.dependencies) do
+            if parent.components[dep] == nil then
+                -- dependency not present, skip
+                return nil
+            end
+        end
     end
 
     return component.construct(parent)
+end
+
+---Builds the `component` table for a Slab from registered components.
+---@param slab Slab
+function Slab.BuildComponentTable(slab)
+    -- topo sort the components
+    local buildList = {}
+    local temp = {}
+    local perm = {}
+
+    local function visit(key)
+        if perm[key] then return end
+        if temp[key] then error('Slab: circular component dependency. Bailing. Key:' .. key) return end
+
+        temp[key] = true
+        for _, dep in ipairs(registry[key].dependencies) do
+            visit(dep)
+        end
+
+        temp[key] = false
+        perm[key] = true
+        table.insert(buildList, key)
+    end
+
+    for key, _ in pairs(registry) do
+        visit(key)
+    end
+
+    slab.components = {}
+    for _, key in ipairs(buildList) do
+        local c = Slab.BuildComponent(key, slab)
+        if c ~= nil then
+            slab.components[key] = c
+        end
+    end
 end

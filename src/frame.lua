@@ -21,16 +21,14 @@ function Slab:GetSlab(unitId)
     return nameplate.slab
 end
 
----@type table<string, fun(components: table<string, ComponentConstructed>): ComponentConstructed>
-Slab.extensionComponents = {}
-
 ---Build a new nameplate from scratch
 ---@param parent Frame
 function Slab:BuildNameplate(parent)
     ---@class Slab:Frame
     ---@field public settings SlabNameplateSettings|nil
+    ---@field public components table<string, ComponentConstructed>
     local frame = CreateFrame('Frame', 'Slab' .. parent:GetName(), parent)
-    frame.iSlab = true
+    frame.isSlab = true
 
     frame:Hide()
     frame:SetAllPoints()
@@ -38,28 +36,7 @@ function Slab:BuildNameplate(parent)
     frame:SetFrameLevel(0)
     frame:SetScale(1 / UIParent:GetScale())
 
-    ---@type HealthBarComponent
-    local healthBar = Slab.BuildComponent('healthBar', frame)
-
-    ---@type table<string, ComponentConstructed>
-    frame.components = {
-        healthBar = healthBar,
-        ---@type CastBarComponent
-        castBar = Slab.BuildComponent('castBar', healthBar.frame)
-    }
-
-    local tod = Slab.BuildComponent('todIndicator', healthBar.frame)
-
-    if tod ~= nil then
-        frame.components.tod = tod
-    end
-
-    for key, componentBuilder in pairs(Slab.extensionComponents) do
-        local c = componentBuilder(frame.components)
-        if c ~= nil then
-            frame.components[key] = c
-        end
-    end
+    Slab.BuildComponentTable(frame)
 
     parent:HookScript('OnShow', Slab.ShowNameplate)
     parent:HookScript('OnHide', Slab.HideNameplate)

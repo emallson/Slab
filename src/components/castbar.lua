@@ -4,9 +4,13 @@ local Slab = LibStub("Slab")
 ---@class CastBarComponent:Component
 ---@field public frame CastBar
 local component = {
+    dependencies = {'healthBar'}
 }
 
-function component:build(parent)
+---@param slab Slab
+---@return CastBar
+function component:build(slab)
+    local parent = slab.components.healthBar.frame
     ---@class CastBar:Frame
     local frame = CreateFrame('Frame', parent:GetName() .. 'CastBarContainer', parent)
 
