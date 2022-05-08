@@ -118,17 +118,21 @@ function Slab.BuildComponent(key, parent)
     return component.construct(parent)
 end
 
----Builds the `component` table for a Slab from registered components.
----@param slab Slab
-function Slab.BuildComponentTable(slab)
+local buildList = nil
+local function generateBuildList()
+    if buildList ~= nil then return end
     -- topo sort the components
-    local buildList = {}
+    buildList = {}
     local temp = {}
     local perm = {}
 
     local function visit(key)
         if perm[key] then return end
-        if temp[key] then error('Slab: circular component dependency. Bailing. Key:' .. key) return end
+        if temp[key] then
+            buildList = {}
+            error('Slab: circular component dependency. Bailing. Key:' .. key)
+            return
+        end
 
         temp[key] = true
         for _, dep in ipairs(registry[key].dependencies) do
@@ -143,6 +147,12 @@ function Slab.BuildComponentTable(slab)
     for key, _ in pairs(registry) do
         visit(key)
     end
+end
+
+---Builds the `component` table for a Slab from registered components.
+---@param slab Slab
+function Slab.BuildComponentTable(slab)
+    generateBuildList()
 
     slab.components = {}
     for _, key in ipairs(buildList) do
