@@ -10,10 +10,6 @@ local component = {
 ---@param slab Slab
 ---@return ThresholdIndicator|nil
 function component:build(slab)
-    if select(2, UnitClass('player')) ~= 'MONK' then
-        return nil
-    end
-    
     local parent = slab.components.healthBar.frame
     ---@class ThresholdIndicator:Frame
     local indicator = CreateFrame('Frame', parent:GetName() .. 'ToDIndicator', parent)
@@ -68,4 +64,7 @@ function component:update()
     self:refresh(self.settings)
 end
 
-Slab.RegisterComponent('todIndicator', component)
+
+if select(2, UnitClass('player')) == 'MONK' then
+    Slab.RegisterComponent('todIndicator', component)
+end
