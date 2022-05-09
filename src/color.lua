@@ -55,9 +55,6 @@ local cfg = {
     lightness = 75
 }
 
----@type table<string, ColorPoint>
-local cache = {}
-
 local function to_angle(val)
   return 2 * math.pi * val
 end
@@ -68,13 +65,8 @@ end
 ---@param id integer
 ---@return ColorPoint
 local function id_to_point(id)
-  local existing = cache[id]
-  if existing ~= nil then
-    return existing
-  end
   local a = cfg.angles[id % cfg.num_colors + 1]
-  cache[id] = to_angle(a)
-  return cache[id]
+  return to_angle(a)
 end
 
 ---comment
