@@ -16,6 +16,8 @@ local function UnitNpcId(unit)
     return tonumber (npcID or "0") or 0
 end
 
+Slab.UnitNpcId = UnitNpcId
+
 ---determine if a unit is a tank pet
 ---@param unit UnitId
 ---@return boolean
@@ -78,7 +80,7 @@ function component:refreshName(settings, recomputeColor)
     self.frame.name:SetText(name)
 
     if recomputeColor then
-        settings.point = Slab.color.name_to_point(name)
+        settings.point = Slab.color.id_to_point(UnitNpcId(settings.tag))
         self:refreshColor(settings)
     end
 end

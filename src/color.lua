@@ -1,6 +1,3 @@
----@class LibHash
----@field public sha256 fun(text:string):string
-local hash = LibStub("LibHash-1.0")
 -- cielab -> ciexyz from wikipedia
 -- ciexyz -> srgb from https://www.image-engineering.de/library/technotes/958-how-to-convert-between-srgb-and-ciexyz
 local cie_delta = 6/29
@@ -52,47 +49,32 @@ end
 
 local cfg = {
     hash_bytes = 8,
-    num_colors = 256 ^ 3,
+    num_colors = 23,
+    angles = {0.9565217391304348, 0.43478260869565216, 0.6521739130434783, 0.2608695652173913, 0.8695652173913043, 0.17391304347826086, 0.7391304347826086, 0.4782608695652174, 0.08695652173913043, 0.9130434782608695, 0.391304347826087, 0.6086956521739131, 0.21739130434782608, 0.8260869565217391, 0.043478260869565216, 0.5652173913043478, 0.34782608695652173, 0.782608695652174, 0.13043478260869565, 0.6956521739130435, 0.30434782608695654, 0.5217391304347826, 0.0},
     saturation = 20,
     lightness = 75
 }
-
-local function hash_text(text)
-    if text == nil then
-      return nil
-    end
-  
-    local bytes = hash.sha256(text)
-    local a = 0
-    for i=0, cfg.hash_bytes do
-        local ix = #bytes - 2 * (i + 1)
-        local byte = tonumber(string.sub(bytes, ix, ix+1), 16)
-        a = a * 256 + byte
-    end
-  
-    return a
-end
 
 ---@type table<string, ColorPoint>
 local cache = {}
 
 local function to_angle(val)
-  return 2 * math.pi * (val % cfg.num_colors) / cfg.num_colors
+  return 2 * math.pi * val
 end
 
 ---@alias ColorPoint number
 
 ---comment
----@param name string
+---@param id integer
 ---@return ColorPoint
-local function name_to_point(name)
-  local existing = cache[name]
+local function id_to_point(id)
+  local existing = cache[id]
   if existing ~= nil then
     return existing
   end
-  local a = hash_text(name)
-  cache[name] = to_angle(a)
-  return cache[name]
+  local a = cfg.angles[id % cfg.num_colors + 1]
+  cache[id] = to_angle(a)
+  return cache[id]
 end
 
 ---comment
@@ -116,7 +98,7 @@ local Slab = LibStub("Slab")
 Slab.color = {
     xyz_to_srgb = xyz_to_srgb,
     cielab_to_xyz = cielab_to_xyz,
-    name_to_point = name_to_point,
+    id_to_point = id_to_point,
     point_to_color = point_to_color,
-    test_color = function(name) return point_to_color(name_to_point(name), 1) end
+    test_color = function(name) return point_to_color(id_to_point(name), 1) end
 }

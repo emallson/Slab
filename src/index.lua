@@ -11,7 +11,7 @@ local state  = {
     settings = {}
 }
 function state:registerUnit(unitId)
-    local point = Slab.color.name_to_point(UnitName(unitId))
+    local point = Slab.color.id_to_point(Slab.UnitNpcId(unitId))
     ---@class SlabNameplateSettings
     local setting = {
         ---@type ColorPoint
