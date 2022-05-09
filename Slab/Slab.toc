@@ -4,7 +4,6 @@
 ## Version: 0.0.1-dev
 
 libs\LibStub\LibStub.lua
-libs\LibHash\LibHash-1.0.lua
 src\lib.lua
 src\components\index.lua
 src\components\healthbar.lua
