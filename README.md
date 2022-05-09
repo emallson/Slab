@@ -41,7 +41,7 @@ Slab sets a single CVar for the purposes of avoiding jittery frames: `NamePlateM
 
 ### Hue Algorithm
 
-Nameplate colors are assigned using an algorithm that I stole from the `rainbow-identifiers.el` Emacs package: the SHA256 of the name is computed, then the final 8 bytes are converted to an angle in CIELAB color space. That is then combined with the lightness and saturation to produce a point in color space, which is then mapped to sRGB and applied to the nameplate.
+Nameplate colors are assigned using an algorithm that I stole in large part from the `rainbow-identifiers.el` Emacs package. First, the unit ID is converted to an angle in CIELAB color space. That is then combined with the lightness and saturation to produce a point in color space, which is then mapped to sRGB and applied to the nameplate.
 
 ## Efficient
 
