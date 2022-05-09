@@ -1,0 +1,9 @@
+## Interface: 90200
+## Title: Slab_Bench
+## Notes: Benchmarking Minimal Nameplates
+## Version: 0.0.1-dev
+## Dependencies: Slab
+## DefaultState: disabled
+## SavedVariables: Slab_Bench
+
+src\index.lua

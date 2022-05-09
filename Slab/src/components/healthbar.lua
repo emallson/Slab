@@ -74,15 +74,9 @@ local component = {
 }
 
 ---@param settings SlabNameplateSettings
----@param recomputeColor boolean
-function component:refreshName(settings, recomputeColor)
+function component:refreshName(settings)
     local name = UnitName(settings.tag)
     self.frame.name:SetText(name)
-
-    if recomputeColor then
-        settings.point = Slab.color.id_to_point(UnitNpcId(settings.tag))
-        self:refreshColor(settings)
-    end
 end
 
 ---@param settings SlabNameplateSettings
@@ -132,7 +126,7 @@ end
 
 ---@param settings SlabNameplateSettings
 function component:refresh(settings)
-    self:refreshName(settings, false)
+    self:refreshName(settings)
     self:refreshColor(settings)
     self:refreshHealth(settings)
     self:refreshTargetMarker(settings)
@@ -144,15 +138,12 @@ function component:bind(settings)
     self.frame:RegisterUnitEvent('UNIT_HEALTH', settings.tag)
     self.frame:RegisterUnitEvent('UNIT_THREAT_LIST_UPDATE', settings.tag)
     self.frame:RegisterEvent('RAID_TARGET_UPDATE')
-    self.frame:RegisterUnitEvent("UNIT_NAME_UPDATE", settings.tag)
 end
 
 ---@param eventName string
 ---@vararg any
 function component:update(eventName, ...)
-    if eventName == 'UNIT_NAME_UPDATE' then
-        self:refreshName(self.settings, true)
-    elseif eventName == 'UNIT_HEALTH' then
+    if eventName == 'UNIT_HEALTH' then
         self:refreshHealth(self.settings)
     elseif eventName == 'UNIT_THREAT_LIST_UPDATE' then
         self:refreshColor(self.settings)

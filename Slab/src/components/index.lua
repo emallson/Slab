@@ -162,3 +162,5 @@ function Slab.BuildComponentTable(slab)
         end
     end
 end
+
+Slab.componentRegistry = registry
