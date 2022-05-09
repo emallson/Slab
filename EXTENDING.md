@@ -1,4 +1,4 @@
-It is possible to extend Slab by registering a component. Components have a very basic lifecycle that will be reminescent of React (if you've worked with that). The core is:
+It is possible to extend Slab by registering a component. Components have a very basic lifecycle that will be reminiscent of React (if you've worked with that). The core is:
 
 - `build` - Create any frames that you will need. This generally happens once. You do not have a unit to pull data from yet. Should return a `Frame`. May return `nil` to prevent construction.
 - `refresh` - Set the values of your component based on the values in `settings`. (`settings.tag` is the unit id)
