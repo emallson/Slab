@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-COLORS = 23
+COLORS = 17
 
 indices = list(range(COLORS))
 
