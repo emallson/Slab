@@ -150,7 +150,7 @@ end
 ---@param settings SlabNameplateSettings
 ---@param uninterruptible boolean
 function component:updateCastColor(settings, uninterruptible)
-    setCastbarColor(self, uninterruptible)
+    setCastbarColor(self.frame, uninterruptible)
 end
 
 ---@param eventName string
