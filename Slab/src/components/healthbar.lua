@@ -125,12 +125,22 @@ function component:refreshReaction(settings)
 end
 
 ---@param settings SlabNameplateSettings
+function component:refreshPlayerTargetIndicator(settings)
+    if UnitIsUnit('target', settings.tag) then
+        self.frame.bg:SetAlpha(0.8)
+    else
+        self.frame.bg:SetAlpha(0.5)
+    end
+end
+
+---@param settings SlabNameplateSettings
 function component:refresh(settings)
     self:refreshName(settings)
     self:refreshColor(settings)
     self:refreshHealth(settings)
     self:refreshTargetMarker(settings)
     self:refreshReaction(settings)
+    self:refreshPlayerTargetIndicator(settings)
 end
 
 ---@param settings SlabNameplateSettings
@@ -138,6 +148,7 @@ function component:bind(settings)
     self.frame:RegisterUnitEvent('UNIT_HEALTH', settings.tag)
     self.frame:RegisterUnitEvent('UNIT_THREAT_LIST_UPDATE', settings.tag)
     self.frame:RegisterEvent('RAID_TARGET_UPDATE')
+    self.frame:RegisterEvent('PLAYER_TARGET_CHANGED')
 end
 
 ---@param eventName string
@@ -150,6 +161,8 @@ function component:update(eventName, ...)
         self:refreshReaction(self.settings)
     elseif eventName == 'RAID_TARGET_UPDATE' then
         self:refreshTargetMarker(self.settings)
+    elseif eventName == 'PLAYER_TARGET_CHANGED' then
+        self:refreshPlayerTargetIndicator(self.settings)
     end
 end
 
