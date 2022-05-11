@@ -49,7 +49,7 @@ Slab was written with efficiency in mind. Benchmarks are a WIP but there's no im
 
 ### Details
 
-Each frame used by Slab registers only the minimal events required for its functionality. Expensive tools like `OnUpdate` are not used. The most expensive operation (by far) is calculating the SHA of a unit's name, which is done once per name per login (and something I'm looking at replacing with a quicker operation like B64).
+Each frame used by Slab registers only the minimal events required for its functionality. Expensive tools like `OnUpdate` are not used.
 
 ## Tank Stuff
 
