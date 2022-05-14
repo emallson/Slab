@@ -76,7 +76,18 @@ local component = {
 ---@param settings SlabNameplateSettings
 function component:refreshName(settings)
     local name = UnitName(settings.tag)
+    if name == UNKNOWNOBJECT then
+        local tag = settings.tag
+        C_Timer.After(0.1, function()
+            -- quick check to help avoid race conditions
+            if tag ~= settings.tag then
+                return
+            end
+            self.frame.name:SetText(UnitName(settings.tag))
+        end)
+    else
     self.frame.name:SetText(name)
+    end
 end
 
 ---@param settings SlabNameplateSettings
