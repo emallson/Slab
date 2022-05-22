@@ -58,6 +58,8 @@ local function threatSaturation(target, source)
             return 3
         elseif threatStatus == 0 and not IsTank(source .. "target") then
             return 6
+        elseif threatStatus == 0 and IsTank(source .. 'target') then
+            return 0.5
         end
     else
         if threatStatus == 1 then
@@ -86,7 +88,7 @@ function component:refreshName(settings)
             self.frame.name:SetText(UnitName(settings.tag))
         end)
     else
-    self.frame.name:SetText(name)
+        self.frame.name:SetText(name)
     end
 end
 
@@ -158,6 +160,7 @@ end
 function component:bind(settings)
     self.frame:RegisterUnitEvent('UNIT_HEALTH', settings.tag)
     self.frame:RegisterUnitEvent('UNIT_THREAT_LIST_UPDATE', settings.tag)
+    self.frame:RegisterUnitEvent('UNIT_NAME_UPDATE', settings.tag)
     self.frame:RegisterEvent('RAID_TARGET_UPDATE')
     self.frame:RegisterEvent('PLAYER_TARGET_CHANGED')
 end
@@ -174,6 +177,8 @@ function component:update(eventName, ...)
         self:refreshTargetMarker(self.settings)
     elseif eventName == 'PLAYER_TARGET_CHANGED' then
         self:refreshPlayerTargetIndicator(self.settings)
+    elseif eventName == 'UNIT_NAME_UPDATE' then
+        self:refreshName(self.settings)
     end
 end
 
