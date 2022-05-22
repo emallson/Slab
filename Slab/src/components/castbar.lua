@@ -210,9 +210,10 @@ function component:showCastbarDetails(settings, spellName, spellIcon, startTimeM
     end
 
     local targetUnit = settings.tag .. 'target'
-    updateTargetName(targetUnit, self.frame.targetName)
+    -- updateTargetName(targetUnit, self.frame.targetName)
+    self.frame.targetName:Hide()
 
-    C_Timer.After(0.05, function() updateTargetName(targetUnit, self.frame.targetName) end)
+    C_Timer.After(0.3, function() updateTargetName(targetUnit, self.frame.targetName) end)
 
     self.frame:Raise()
     self.frame:Show()
