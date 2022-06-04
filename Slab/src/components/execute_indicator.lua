@@ -69,7 +69,7 @@ function component:updateLocation(settings)
 end
 
 ---@param settings SlabNameplateSettings
-function component:updateThreshold(settings)
+function component:updateThreshold(settings, forceRefresh)
     local current = self.executeThreshold
 
     local nextFn = executeThresholds[playerClass]
@@ -77,7 +77,7 @@ function component:updateThreshold(settings)
     if nextFn then
         local next = nextFn()
 
-        if next ~= current then
+        if next ~= current or forceRefresh then
             self.executeThreshold = next
             self:updateLocation(settings)
         end
@@ -93,7 +93,7 @@ function component:update(eventName)
 end
 
 function component:refresh(settings)
-    self:updateThreshold(settings)
+    self:updateThreshold(settings, true)
 end
 
 
