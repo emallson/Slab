@@ -99,8 +99,6 @@ local registry = {}
 ---@param component Component
 function Slab.RegisterComponent(key, component)
     registry[key] = Slab.Component(component)
-    print(key)
-    DevTools_Dump(registry[key].dependencies)
 end
 
 ---@alias ComponentConstructed ComponentConstructor
