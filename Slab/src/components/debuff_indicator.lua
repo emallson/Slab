@@ -24,32 +24,12 @@ function component:build(slab)
 
     indicator:Hide()
     indicator.texture = tex
-    indicator.disabled = true
     return indicator
 end
 
 ---@param settings SlabNameplateSettings
 function component:bind(settings)
     self.frame:RegisterUnitEvent("UNIT_AURA", settings.tag)
-    self.frame:RegisterEvent("PLAYER_TALENT_UPDATE")
-end
-
-function component:disabled()
-    return self.frame.disabled
-end
-
-function component:refreshTalents()
-    if IsPlayerSpell(115636) then
-        if self:disabled() then
-            self.frame:Show()
-            self.frame.disabled = false
-        end
-    else
-        if not self:disabled() then
-            self.frame:Hide()
-            self.frame.disabled = true
-        end
-    end
 end
 
 function component:refreshAuras(settings)
@@ -68,9 +48,7 @@ function component:refreshAuras(settings)
 end
 
 function component:update(eventName, unitTarget, isFullUpdate, updatedAuras)
-    if eventName == "PLAYER_TALENT_UPDATE" then
-        self:refreshTalents()
-    elseif not self:disabled() and not AuraUtil.ShouldSkipAuraUpdate(isFullUpdate, updatedAuras, function(aura)
+    if not AuraUtil.ShouldSkipAuraUpdate(isFullUpdate, updatedAuras, function(aura)
         return aura.spellId == 228287 and aura.isFromPlayerOrPlayerPet
     end) then
         self:refreshAuras(self.settings)
@@ -82,12 +60,8 @@ function component:unbind()
 end
 
 function component:refresh(settings)
-    self:refreshTalents()
-    if not self:disabled() then
-        self:refreshAuras(settings)
-    end
+    self:refreshAuras(settings)
 end
 
-if select(2, UnitClass('player')) == 'MONK' then
-    Slab.RegisterComponent('debuffIndicator', component)
-end
+component = Slab.combinators.enable_when_spell(component, 115636)
+Slab.combinators.load_for(component, 'debuffIndicator', 'MONK')

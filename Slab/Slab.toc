@@ -5,6 +5,8 @@
 
 libs\LibStub\LibStub.lua
 src\lib.lua
+src\combinators\enable_when.lua
+src\combinators\load_for.lua
 src\components\index.lua
 src\components\healthbar.lua
 src\components\castbar.lua

@@ -64,7 +64,4 @@ function component:update()
     self:refresh(self.settings)
 end
 
-
-if select(2, UnitClass('player')) == 'MONK' then
-    Slab.RegisterComponent('todIndicator', component)
-end
+Slab.combinators.load_for(component, 'todIndicator', 'MONK')

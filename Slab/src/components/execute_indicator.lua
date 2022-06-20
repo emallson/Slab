@@ -9,12 +9,6 @@ local component = {
     executeThreshold = nil
 }
 
-local playerClass = select(2, UnitClass('player'))
-
-local executeThresholds = {
-    MAGE = function() if IsPlayerSpell(269644) then return 0.3 else return nil end end
-};
-
 ---@param slab Slab
 ---@return ExecuteIndicator
 function component:build(slab)
@@ -41,7 +35,6 @@ end
 ---@param settings SlabNameplateSettings
 function component:bind(settings)
     self.frame:RegisterUnitEvent("UNIT_MAXHEALTH", settings.tag)
-    self.frame:RegisterEvent("PLAYER_TALENT_UPDATE")
 end
 
 function component:unbind()
@@ -51,8 +44,6 @@ end
 
 ---@param settings SlabNameplateSettings
 function component:updateLocation(settings)
-    local targetMax = UnitHealthMax(settings.tag)
-
     local ratio = self.executeThreshold
 
     if ratio == nil or ratio < 0.05 then
@@ -68,35 +59,24 @@ function component:updateLocation(settings)
     self.frame:Show()
 end
 
----@param settings SlabNameplateSettings
-function component:updateThreshold(settings, forceRefresh)
-    local current = self.executeThreshold
-
-    local nextFn = executeThresholds[playerClass]
-
-    if nextFn then
-        local next = nextFn()
-
-        if next ~= current or forceRefresh then
-            self.executeThreshold = next
-            self:updateLocation(settings)
-        end
-    end
-end
-
 function component:update(eventName)
     if eventName == "UNIT_MAXHEALTH" then
         self:updateLocation(self.settings)
-    elseif eventName == 'PLAYER_TALENT_UPDATE' then
-        self:updateThreshold(self.settings)
     end
 end
 
 function component:refresh(settings)
-    self:updateThreshold(settings, true)
+    self:updateLocation(settings)
 end
 
+searingTouchComponent = Slab.combinators.enable_when_spell(component, 269644, nil, function(self, settings)
+    self.executeThreshold = 0.3
+    self:updateLocation(settings)
+end)
+Slab.combinators.load_for(searingTouchComponent, 'executeIndicator', 'MAGE')
 
-if executeThresholds[playerClass] ~= nil then
-    Slab.RegisterComponent('executeIndicator', component)
-end
+firestarterComponent = Slab.combinators.enable_when_spell(component, 205026, nil, function(self, settings)
+    self.executeThreshold = 0.9
+    self:updateLocation(settings)
+end)
+Slab.combinators.load_for(firestarterComponent, 'firestarterIndicator', 'MAGE')

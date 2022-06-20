@@ -43,12 +43,19 @@ function baseComponent:update(eventName, ...)
 end
 
 ---Produce a component constructor from a component.
----@param table Component
+---@param baseTable Component
 ---@return ComponentConstructor
-function Slab.Component(table)
+function Slab.Component(baseTable)
     ---@class ComponentConstructor : Component
-    local table = table
-    setmetatable(table, { __index = baseComponent })
+    local table = {}
+    setmetatable(table, {
+        __index = function(table, key)
+            if baseTable[key] ~= nil then
+                return baseTable[key]
+            end
+            return baseComponent[key]
+        end
+    })
 
     local mt = {
         __index = table
@@ -92,6 +99,8 @@ local registry = {}
 ---@param component Component
 function Slab.RegisterComponent(key, component)
     registry[key] = Slab.Component(component)
+    print(key)
+    DevTools_Dump(registry[key].dependencies)
 end
 
 ---@alias ComponentConstructed ComponentConstructor
