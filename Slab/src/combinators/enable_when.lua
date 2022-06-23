@@ -5,13 +5,13 @@ local function defaultSelector(component)
     return component.frame
 end
 
----@param component ComponentConstructor
+---@param baseComponent ComponentConstructor
 ---@param condition function
 ---@param updateEvent WowEvent
 ---@param selector? function
 ---@param onUpdate? function
 ---@return ComponentConstructor
-function Slab.combinators.enable_when(baseComponent, condition, updateEvent, selector, onUpdate)
+local function enable_when(baseComponent, condition, updateEvent, selector, onUpdate)
     if selector == nil then
         selector = defaultSelector
     end
@@ -69,11 +69,11 @@ end
 
 ---@param component ComponentConstructor
 ---@param spellId integer
----@param selector? function
 ---@param onUpdate? function
+---@param selector? function
 ---@return ComponentConstructor
-function Slab.combinators.enable_when_spell(component, spellId, selector, onUpdate)
-    return Slab.combinators.enable_when(
+local function enable_when_spell(component, spellId, onUpdate, selector)
+    return enable_when(
         component, 
         function() return IsPlayerSpell(spellId) end,
         "PLAYER_TALENT_UPDATE",
@@ -81,3 +81,6 @@ function Slab.combinators.enable_when_spell(component, spellId, selector, onUpda
         onUpdate
     )
 end
+
+Slab.combinators.enable_when = Slab.combinator(enable_when)
+Slab.combinators.enable_when_spell = Slab.combinator(enable_when_spell)

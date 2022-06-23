@@ -64,4 +64,4 @@ function component:update()
     self:refresh(self.settings)
 end
 
-Slab.combinators.load_for(component, 'todIndicator', 'MONK')
+Slab.utils.load_for('todIndicator', { MONK = component })
