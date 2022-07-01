@@ -14,7 +14,7 @@ Slab is a slim and colorful nameplate addon for Retail World of Warcraft that as
 - Option-free. Install & go, no fiddling allowed.
 
 <p align="center">
-<img alt="Castbar" src="readme/turtle_threat.png" />
+<img alt="Castbar" src="readme/turtle_cast.png" />
 </p>
 
 ### A Note on CVars and Plater
