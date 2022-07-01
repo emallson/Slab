@@ -2,7 +2,7 @@
 local Slab = LibStub("Slab")
 
 local WIDTH = 150
-local HEIGHT = 12
+local HEIGHT = 9
 
 ---stolen from plater
 ---@param unit UnitId
@@ -206,11 +206,11 @@ function component:build(parent)
 
     local name = healthBar:CreateFontString(healthBar:GetName() .. 'NameText', 'OVERLAY')
     name:SetPoint('BOTTOM', healthBar, 'TOP', 0, 2)
-    name:SetFont(Slab.font, Slab.scale(9), "THINOUTLINE")
+    name:SetFont(Slab.font, Slab.scale(8), "OUTLINE")
 
     local reactionIndicator = healthBar:CreateFontString(healthBar:GetName() .. 'IndicatorText', 'OVERLAY')
     reactionIndicator:SetPoint('BOTTOMLEFT', healthBar, 'TOPLEFT', 0, 2)
-    reactionIndicator:SetFont(Slab.font, Slab.scale(8), "THINOUTLINE")
+    reactionIndicator:SetFont(Slab.font, Slab.scale(7))
     reactionIndicator:Hide()
 
     healthBar.raidMarker = raidMarker

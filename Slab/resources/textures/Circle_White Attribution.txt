@@ -1,0 +1,3 @@
+The "Circle_White.tga" texture is taken from WeakAuras2, which is licensed under the GPL v2. The file "Circle_White LICENSE.txt" is a copy of the license file at the time the texture was copied.
+
+No other code is used from WeakAuras2.

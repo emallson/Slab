@@ -21,8 +21,7 @@ local function debuffIndicator(debuffSpelId, anchor)
         indicator:SetFrameLevel(1)
     
         local tex = indicator:CreateTexture(nil, 'OVERLAY')
-        -- TODO: don't use WA texture
-        tex:SetTexture('Interface\\addons\\weakauras\\media\\textures\\circle_white')
+        tex:SetTexture('Interface/addons/Slab/resources/textures/Circle_White')
         tex:SetVertexColor(1, 145 / 255, 0, 1)
         tex:SetAllPoints(indicator)
     
