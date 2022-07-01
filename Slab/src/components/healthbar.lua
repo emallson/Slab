@@ -210,7 +210,7 @@ function component:build(parent)
 
     local reactionIndicator = healthBar:CreateFontString(healthBar:GetName() .. 'IndicatorText', 'OVERLAY')
     reactionIndicator:SetPoint('BOTTOMLEFT', healthBar, 'TOPLEFT', 0, 2)
-    reactionIndicator:SetFont(Slab.font, Slab.scale(7))
+    reactionIndicator:SetFont(Slab.font, Slab.scale(7), "OUTLINE")
     reactionIndicator:Hide()
 
     healthBar.raidMarker = raidMarker

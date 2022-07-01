@@ -14,7 +14,7 @@ Slab is a slim and colorful nameplate addon for Retail World of Warcraft that as
 - Option-free. Install & go, no fiddling allowed.
 
 <p align="center">
-<img alt="Castbar" src="readme/turtle_cast.png" />
+<img alt="Castbar" src="readme/turtle_threat.png" />
 </p>
 
 ### A Note on CVars and Plater
@@ -62,7 +62,7 @@ Threat is handled by default in two ways:
 2. Tank pets like Black Ox Statue, Treants, and Earth Elemental are handled natively. An enemy being tanked by a pet shows the "PET" status in the top left.
 
 <p align="center">
-<img alt="Threat display" src="readme/turtle_threat.png" />
+<img alt="Threat display" src="readme/devourer_threat.png" />
 </p>
 
 # License
