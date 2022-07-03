@@ -15,6 +15,7 @@ src\components\tod_indicator.lua
 src\components\absorb.lua
 src\components\execute_indicator.lua
 src\components\debuff_indicator.lua
+src\components\bolster_indicator.lua
 src\frame.lua
 src\color.lua
 src\index.lua
