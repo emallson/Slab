@@ -40,7 +40,6 @@ function component:bind(settings)
     local level, affixes, _ = C_ChallengeMode.GetActiveKeystoneInfo()
 
     if not isBolsteringActive(affixes) then
-        DevTools_Dump(affixes)
         return
     end
     self.frame:RegisterUnitEvent("UNIT_AURA", settings.tag)
