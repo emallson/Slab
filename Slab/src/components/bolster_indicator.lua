@@ -88,7 +88,7 @@ end
 -- this avoids frame creation for the entire login session.
 --
 -- possible issues if you somehow stay online during the transition
--- from one week to the next, as well as on tournament realms.
+-- from one week to the next.
 local function initialBolsterCheck(tries)
     if IsOnTournamentRealm() then
         Slab.RegisterComponent("bolsterIndicator", component)
