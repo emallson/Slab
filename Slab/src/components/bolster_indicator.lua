@@ -8,6 +8,19 @@ local component = {
     dependencies = {'healthBar'},
 }
 
+local function isBolsteringActive(affixes)
+    if affixes == nil then
+        print("no affixes")
+        return false
+    end
+    for _, affix in ipairs(affixes) do
+        if (type(affix) == 'number' and affix == 7) or (type(affix) == "table" and affix.id == 7) then
+            return true
+        end
+    end
+    return false
+end
+
 function component:build(slab)
     local parent = slab.components.healthBar.frame
     ---@class BolsterIndicator:Frame
@@ -23,14 +36,6 @@ function component:build(slab)
     indicator:Hide()
     indicator.stackCount = stackCount
     return indicator
-end
-
-local function isBolsteringActive(affixes)
-    for _, affix in ipairs(affixes) do
-        if (type(affix) == 'number' and affix == 7) or (type(affix) == "table" and affix.id == 7) then
-            return true
-        end
-    end
 end
 
 ---@param settings SlabNameplateSettings
@@ -84,7 +89,22 @@ end
 --
 -- possible issues if you somehow stay online during the transition
 -- from one week to the next, as well as on tournament realms.
-local affixes = C_MythicPlus.GetCurrentAffixes()
-if isBolsteringActive(affixes) then
-    Slab.RegisterComponent("bolsterIndicator", component)
+local function initialBolsterCheck(tries)
+    if IsOnTournamentRealm() then
+        Slab.RegisterComponent("bolsterIndicator", component)
+        return
+    end
+
+    local affixes = C_MythicPlus.GetCurrentAffixes()
+    if affixes == nil and tries < 3 then
+        C_Timer.After(1, function() initialBolsterCheck(tries + 1) end)
+        return
+    end
+
+    if isBolsteringActive(affixes) then
+        Slab.RegisterComponent("bolsterIndicator", component)
+        return
+    end
 end
+
+initialBolsterCheck(0)
