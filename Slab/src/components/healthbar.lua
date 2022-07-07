@@ -1,8 +1,8 @@
 ---@class LibSlab
 local Slab = LibStub("Slab")
 
-local WIDTH = 150
-local HEIGHT = 9
+local WIDTH = 152
+local HEIGHT = 12
 
 ---stolen from plater
 ---@param unit UnitId
@@ -188,7 +188,7 @@ function component:build(parent)
     ---@class HealthBar:StatusBar
     local healthBar = CreateFrame('StatusBar', parent:GetName() .. 'HealthBar', parent)
 
-    healthBar:SetStatusBarTexture('interface/raidframe/raid-bar-hp-fill')
+    healthBar:SetStatusBarTexture('interface/addons/Slab/resources/textures/healthbar')
     healthBar:SetStatusBarColor(1, 1, 1, 1)
     healthBar:SetSize(Slab.scale(WIDTH), Slab.scale(HEIGHT))
     healthBar:SetPoint('CENTER')
@@ -196,8 +196,8 @@ function component:build(parent)
     local bg = healthBar:CreateTexture(healthBar:GetName() .. 'Background', 'BACKGROUND')
     bg:SetTexture('interface/buttons/white8x8')
     bg:SetVertexColor(0.01, 0, 0, 0.5)
-    bg:SetPoint('TOPLEFT', healthBar, 'TOPLEFT', -1, 1)
-    bg:SetPoint('BOTTOMRIGHT', healthBar, 'BOTTOMRIGHT', 1, -1)
+    bg:SetPoint('TOPLEFT', healthBar, 'TOPLEFT', 0, 0)
+    bg:SetPoint('BOTTOMRIGHT', healthBar, 'BOTTOMRIGHT', 0, 0)
 
     local raidMarker = healthBar:CreateTexture(healthBar:GetName() .. 'RaidMarker', 'OVERLAY')
     raidMarker:SetPoint('LEFT', healthBar, 'LEFT', 2, 0)

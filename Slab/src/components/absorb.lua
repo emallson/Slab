@@ -14,7 +14,7 @@ function component:build(slab)
     ---@class AbsorbBar:StatusBar
     local absorb = CreateFrame('StatusBar', parent:GetName() .. 'AbsorbBar', parent)
     absorb:SetAllPoints(parent)
-    absorb:SetStatusBarTexture('interface/raidframe/raid-bar-hp-fill')
+    absorb:SetStatusBarTexture('interface/addons/Slab/resources/textures/healthbar')
     absorb:SetStatusBarColor(255 / 255, 191 / 255, 45 / 255, 0.75)
 
     absorb:Hide()

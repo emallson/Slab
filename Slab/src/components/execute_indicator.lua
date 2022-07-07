@@ -22,8 +22,8 @@ local function executeIndicator(executeThreshold)
         indicator:SetFrameLevel(1)
 
         local tex = indicator:CreateTexture(nil, 'OVERLAY')
-        tex:SetTexture('interface/buttons/white8x8')
-        tex:SetVertexColor(1, 1, 1, 0.3)
+        tex:SetTexture('interface/addons/Slab/resources/textures/vertical_line')
+        tex:SetVertexColor(1, 1, 1, 0.5)
         tex:SetAllPoints(indicator)
 
         indicator:Hide()
