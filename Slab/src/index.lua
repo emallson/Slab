@@ -64,6 +64,4 @@ if NamePlateDriverFrame and NamePlateDriverFrame.AcquireUnitFrame then
     hooksecurefunc(NamePlateDriverFrame,'AcquireUnitFrame', Slab.HookAcquireUnitFrame)
 end
 
-C_CVar.SetCVar("NamePlateMinScale", 1)
-
 Slab.font = "Fonts\\FRIZQT__.TTF"
