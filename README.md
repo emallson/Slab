@@ -4,7 +4,7 @@
 
 Slab is a slim and colorful nameplate addon for Retail World of Warcraft that assigns each enemy a color for rapid recognition during combat.
 
-**Status:** Actively tweaking. Main functionality is set. Tweaking things like font scale and nameplate height.
+**Status:** Actively tweaking. Main functionality is set. Tweaking things like font scale and nameplate height. Not happy with cotank color indication yet.
 
 ### Features
 
