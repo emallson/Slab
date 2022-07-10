@@ -37,7 +37,7 @@ Slab sets a single CVar for the purposes of avoiding jittery frames: `NamePlateM
 - **Saturation:** what your threat status on this enemy is
 - **Lightness:** *fixed constant*
 
-![Slab in the Maw](readme/maw_colors.png)
+<!-- ![Slab in the Maw](readme/maw_colors.png) -->
 
 ### Hue Algorithm
 
