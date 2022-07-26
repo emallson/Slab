@@ -141,8 +141,14 @@ end
 function component:refreshPlayerTargetIndicator(settings)
     if UnitIsUnit('target', settings.tag) then
         self.frame.bg:SetAlpha(0.8)
+        for _, pin in ipairs(self.frame.targetPins) do
+            pin:Show()
+        end
     else
         self.frame.bg:SetAlpha(0.5)
+        for _, pin in ipairs(self.frame.targetPins) do
+            pin:Hide()
+        end
     end
 end
 
@@ -182,6 +188,26 @@ function component:update(eventName, ...)
     end
 end
 
+local function buildTargetPins(frame)
+    -- coords stolen from plater, but i suppose they're just fundamental to the texture
+    local coords = {{145/256, 161/256, 3/256, 19/256}, {145/256, 161/256, 19/256, 3/256}, {161/256, 145/256, 19/256, 3/256}, {161/256, 145/256, 3/256, 19/256}}
+    local positions = {"TOPLEFT", "BOTTOMLEFT", "BOTTOMRIGHT", "TOPRIGHT"}
+    local offsets = {{-2, 2}, {-2, -2}, {2, -2}, {2, 2}}
+
+    local pins = {}
+    for i = 1, 4 do
+        local pin = frame:CreateTexture(frame:GetName() .. "TargetPin" .. i, 'OVERLAY')
+        pin:SetTexture([[Interface\ITEMSOCKETINGFRAME\UI-ItemSockets]])
+        pin:SetTexCoord(unpack(coords[i]))
+        pin:SetPoint(positions[i], frame, positions[i], unpack(offsets[i]))
+        pin:SetSize(4, 4)
+        pin:Hide()
+        pins[i] = pin
+    end
+
+    return pins
+end
+
 ---@param parent Frame
 ---@return HealthBar
 function component:build(parent)
@@ -213,10 +239,13 @@ function component:build(parent)
     reactionIndicator:SetFont(Slab.font, Slab.scale(7), "OUTLINE")
     reactionIndicator:Hide()
 
+    local pins = buildTargetPins(healthBar)
+
     healthBar.raidMarker = raidMarker
     healthBar.bg = bg
     healthBar.name = name
     healthBar.reactionIndicator = reactionIndicator
+    healthBar.targetPins = pins
 
     return healthBar
 end
