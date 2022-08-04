@@ -50,7 +50,8 @@ end
 local cfg = {
     hash_bytes = 8,
     num_colors = 17,
-    angles = {0.9411764705882353, 0.4117647058823529, 0.6470588235294118, 0.17647058823529413, 0.8235294117647058, 0.35294117647058826, 0.5882352941176471, 0.11764705882352941, 0.8823529411764706, 0.47058823529411764, 0.23529411764705882, 0.7647058823529411, 0.058823529411764705, 0.7058823529411765, 0.29411764705882354, 0.5294117647058824, 0.0},
+    angles = {0.9444444444444444, 0.5, 0.2777777777777778, 0.7777777777777778, 0.16666666666666666, 0.6666666666666666, 0.3888888888888889, 0.8888888888888888, 0.1111111111111111, 0.6111111111111112, 0.3333333333333333, 0.8333333333333334, 0.05555555555555555, 0.5555555555555556, 0.2222222222222222, 0.7222222222222222, 0.4444444444444444}
+    special_angle = 0.0,
     saturation = 20,
     lightness = 75
 }
@@ -61,7 +62,6 @@ end
 
 ---@alias ColorPoint number
 
----comment
 ---@param id integer
 ---@return ColorPoint
 local function id_to_point(id)
@@ -69,7 +69,9 @@ local function id_to_point(id)
   return to_angle(a)
 end
 
----comment
+---Color used for special enemies like Explosive Orbs
+local special_point = to_angle(cfg.special_angle)
+
 ---@param angle ColorPoint
 ---@param saturationMultiplier number
 ---@return RGB
@@ -91,6 +93,7 @@ Slab.color = {
     xyz_to_srgb = xyz_to_srgb,
     cielab_to_xyz = cielab_to_xyz,
     id_to_point = id_to_point,
+    special_point = special_point,
     point_to_color = point_to_color,
     test_color = function(name) return point_to_color(id_to_point(name), 1) end
 }
