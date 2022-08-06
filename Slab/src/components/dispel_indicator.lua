@@ -13,7 +13,7 @@ function component:build(slab)
     local parent = slab.components.healthBar.frame
     ---@class DispelIndicator:Frame
     local indicator = CreateFrame('Frame', parent:GetName() .. 'DispelIndicator', parent)
-    indicator:SetPoint('CENTER', parent, 'TOPRIGHT', 0, 0)
+    indicator:SetPoint('CENTER', parent, 'RIGHT', -5, 0)
     indicator:SetSize(Slab.scale(3), Slab.scale(3))
     indicator:SetFrameLevel(1)
 
@@ -57,9 +57,9 @@ end
 
 function component:update(eventName, unitTarget, isFullUpdate, updatedAuras)
     if not AuraUtil.ShouldSkipAuraUpdate(isFullUpdate, updatedAuras, function(aura)
-        return aura.isHelpful
+        return aura.isHelpful and aura.debuffType == 'Magic'
     end) then
-        component:refresh(self.settings)
+        self:refresh(self.settings)
     end
 end
 

@@ -16,7 +16,7 @@ local function debuffIndicator(debuffSpellId, anchor)
         local parent = slab.components.healthBar.frame
         ---@class DebuffIndicator:Frame
         local indicator = CreateFrame('Frame', parent:GetName() .. 'DebuffIndicator' .. debuffSpellId, parent)
-        indicator:SetPoint('CENTER', parent, anchor, 0, 0)
+        indicator:SetPoint('CENTER', parent, anchor, -6, 0)
         indicator:SetSize(Slab.scale(3), Slab.scale(3))
         indicator:SetFrameLevel(1)
     
@@ -71,7 +71,7 @@ end
 
 
 local ww_motc_debuff = Slab.apply_combinators(
-    debuffIndicator(228287, 'TOPRIGHT'),
+    debuffIndicator(228287, 'RIGHT'),
     Slab.combinators.enable_when_spell(115636)
 )
 
