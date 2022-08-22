@@ -17,12 +17,12 @@ local function debuffIndicator(debuffSpellId, anchor)
         ---@class DebuffIndicator:Frame
         local indicator = CreateFrame('Frame', parent:GetName() .. 'DebuffIndicator' .. debuffSpellId, parent)
         indicator:SetPoint('CENTER', parent, anchor, -6, 0)
-        indicator:SetSize(Slab.scale(3), Slab.scale(3))
+        indicator:SetSize(Slab.scale(4.5), Slab.scale(4.5))
         indicator:SetFrameLevel(1)
     
         local tex = indicator:CreateTexture(nil, 'OVERLAY')
-        tex:SetTexture('Interface/addons/Slab/resources/textures/Circle_White')
-        tex:SetVertexColor(1, 145 / 255, 0, 1)
+        tex:SetTexture('Interface/addons/Slab/resources/textures/Circle_White_Border')
+        tex:SetVertexColor(0.6, 1, 0.3, 1)
         tex:SetAllPoints(indicator)
     
         indicator:Hide()

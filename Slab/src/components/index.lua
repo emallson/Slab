@@ -63,7 +63,7 @@ function Slab.Component(baseTable)
 
     ---Construct the component
     ---@param parent Frame
-    ---@return Component
+    ---@return Component?
     function table.construct(parent)
         local self = {}
         setmetatable(self, mt)
@@ -106,7 +106,7 @@ end
 ---Construct a component.
 ---@param key string
 ---@param parent Slab
----@return ComponentConstructed
+---@return ComponentConstructed?
 function Slab.BuildComponent(key, parent)
     local component = registry[key]
 
