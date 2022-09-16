@@ -7,7 +7,7 @@ end
 
 ---@param baseComponent ComponentConstructor
 ---@param condition function
----@param updateEvent WowEvent
+---@param updateEvent? WowEvent
 ---@param selector? function
 ---@param onUpdate? function
 ---@return ComponentConstructor
@@ -60,7 +60,9 @@ local function enable_when(baseComponent, condition, updateEvent, selector, onUp
     end
 
     function component:bind(settings)
-        self.frame:RegisterEvent(updateEvent)
+        if updateEvent then
+            self.frame:RegisterEvent(updateEvent)
+        end
         baseComponent.bind(self, settings)
     end
 

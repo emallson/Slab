@@ -53,7 +53,9 @@ function Slab.ShowNameplate(parent)
             component:show(frame.settings)
         end
     end
-    frame:Show()
+    if frame ~= nil then
+        frame:Show()
+    end
 end
 
 ---@param frame SlabContainer

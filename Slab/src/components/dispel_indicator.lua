@@ -63,6 +63,11 @@ function component:update(eventName, unitTarget, isFullUpdate, updatedAuras)
     end
 end
 
+local outer_component = Slab.apply_combinators(
+    component, 
+    Slab.combinators.disable_minimal()
+)
+
 Slab.utils.load_for('dispelIndicator', {
-    MAGE = component
+    MAGE = outer_component
 })
