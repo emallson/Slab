@@ -69,5 +69,6 @@ local outer_component = Slab.apply_combinators(
 )
 
 Slab.utils.load_for('dispelIndicator', {
-    MAGE = outer_component
+    MAGE = outer_component,
+    HUNTER = outer_component
 })
