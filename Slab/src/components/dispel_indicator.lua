@@ -7,6 +7,14 @@ local component = {
     dependencies = {'healthBar'}
 }
 
+
+local function shouldShow(tbl)
+    for _, v in pairs(tbl) do
+        if v then return true end
+    end
+    return false
+end
+
 ---@param slab Slab
 ---@return DispelIndicator
 function component:build(slab)
@@ -30,6 +38,7 @@ end
 ---@param settings SlabNameplateSettings
 function component:bind(settings)
     self.frame:RegisterUnitEvent("UNIT_AURA", settings.tag)
+    self.dispellableAuraIds = {}
 end
 
 function component:unbind()
@@ -37,29 +46,53 @@ function component:unbind()
     self.frame:Hide()
 end
 
+function component:auraMatches(aura)
+    return aura.dispelName == 'Magic'
+end
+
 ---@param settings SlabNameplateSettings
 function component:refresh(settings)
-    local found = false
-    AuraUtil.ForEachAura(settings.tag, "HELPFUL", nil, function(...)
-        local isSpellstealable = select(8, ...)
-        if isSpellstealable then
-            found = true
-            return true
+    self.dispellableAuraIds = {}
+    AuraUtil.ForEachAura(settings.tag, "HELPFUL", nil, function(aura)
+        if self:auraMatches(aura) then
+            self.dispellableAuraIds[aura.auraInstanceID] = true
         end
     end)
 
-    if found then
+    if shouldShow(self.dispellableAuraIds) then
         self.frame:Show()
     else
         self.frame:Hide()
     end
 end
 
-function component:update(eventName, unitTarget, isFullUpdate, updatedAuras)
-    if not AuraUtil.ShouldSkipAuraUpdate(isFullUpdate, updatedAuras, function(aura)
-        return aura.isHelpful and aura.debuffType == 'Magic'
-    end) then
+function component:update(eventName, unitTarget, updatedAuras)
+    if updatedAuras == nil or updatedAuras.isFullUpdate then
         self:refresh(self.settings)
+    else
+        local changed = false
+        if updatedAuras.removedAuraInstanceIDs ~= nil then
+            for _, id in ipairs(updatedAuras.removedAuraInstanceIDs) do
+                if self.dispellableAuraIds[id] then
+                    self.dispellableAuraIds[id] = false
+                    changed = true
+                end
+            end
+        end
+        if updatedAuras.addedAuras ~= nil then
+            for _, aura in ipairs(updatedAuras.addedAuras) do
+                if self:auraMatches(aura) then
+                    self.dispellableAuraIds[aura.auraInstanceID] = true
+                    changed = true
+                end
+            end
+        end
+
+        if changed and shouldShow(self.dispellableAuraIds) then
+            self.frame:Show()
+        else
+            self.frame:Hide()
+        end
     end
 end
 

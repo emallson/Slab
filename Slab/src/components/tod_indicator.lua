@@ -45,7 +45,7 @@ function component:refresh(settings)
     local targetMax = UnitHealthMax(settings.tag)
     local playerMax = UnitHealthMax('player')
 
-    local ratio = math.min(1, playerMax / targetMax)
+    local ratio = math.min(1, playerMax / math.max(targetMax, 1))
 
     if ratio == 1 or ratio < 0.025 then
         self.frame:Hide()

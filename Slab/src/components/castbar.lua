@@ -68,8 +68,8 @@ local function displayCast(castBar, startTime, endTime)
 
     castBar.castAnimGroup:Stop()
     castBar.castAnim:SetDuration(duration)
-    castBar.castAnim:SetFromScale(initialScale, 1)
-    castBar.castAnim:SetToScale(1, 1)
+    castBar.castAnim:SetScaleFrom(initialScale, 1)
+    castBar.castAnim:SetScaleTo(1, 1)
     castBar.castAnimGroup:Restart()
     castBar.castAnimGroup:Play()
 end
@@ -84,8 +84,8 @@ local function displayChannel(castBar, startTime, endTime)
 
     castBar.castAnimGroup:Stop()
     castBar.castAnim:SetDuration(duration)
-    castBar.castAnim:SetFromScale(initialScale, 1)
-    castBar.castAnim:SetToScale(0, 1)
+    castBar.castAnim:SetScaleFrom(initialScale, 1)
+    castBar.castAnim:SetScaleTo(0, 1)
     castBar.castAnimGroup:Restart()
     castBar.castAnimGroup:Play()
 end
