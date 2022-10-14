@@ -4,3 +4,5 @@ ignore:
 externals:
   Slab/libs/LibStub:
     url: https://repos.wowace.com/wow/libstub/trunk
+move-folders:
+  Slab: Slab
