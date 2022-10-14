@@ -1,0 +1,6 @@
+ignore:
+  - Slab_Bench
+  - readme
+externals:
+  Slab/libs/LibStub:
+    url: https://repos.wowace.com/wow/libstub/trunk
