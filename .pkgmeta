@@ -1,3 +1,4 @@
+package-as: Slab
 ignore:
   - Slab_Bench
   - readme
