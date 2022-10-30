@@ -1,11 +1,6 @@
 ---@class LibSlab
 local Slab = LibStub("Slab")
 
----@class DispelIndicatorComponent:Component
----@field public frame DispelIndicator
-local component = {
-    dependencies = {'healthBar'}
-}
 
 
 local function shouldShow(tbl)
@@ -15,93 +10,114 @@ local function shouldShow(tbl)
     return false
 end
 
----@param slab Slab
----@return DispelIndicator
-function component:build(slab)
-    local parent = slab.components.healthBar.frame
-    ---@class DispelIndicator:Frame
-    local indicator = CreateFrame('Frame', parent:GetName() .. 'DispelIndicator', parent)
-    indicator:SetPoint('CENTER', parent, 'RIGHT', -5, 0)
-    indicator:SetSize(Slab.scale(3), Slab.scale(3))
-    indicator:SetFrameLevel(1)
+local function dispelIndicator(types)
+    local typeMap = {}
+    for _, type in ipairs(types) do
+        typeMap[type] = true
+    end
+    ---@class DispelIndicatorComponent:Component
+    ---@field public frame DispelIndicator
+    local component = {
+        dependencies = {'healthBar'}
+    }
+    
+    ---@param slab Slab
+    ---@return DispelIndicator
+    function component:build(slab)
+        local parent = slab.components.healthBar.frame
+        ---@class DispelIndicator:Frame
+        local indicator = CreateFrame('Frame', parent:GetName() .. 'DispelIndicator', parent)
+        indicator:SetPoint('CENTER', parent, 'RIGHT', -5, 0)
+        indicator:SetSize(Slab.scale(3), Slab.scale(3))
+        indicator:SetFrameLevel(1)
 
-    local tex = indicator:CreateTexture(nil, 'OVERLAY')
-    tex:SetTexture('Interface/addons/Slab/resources/textures/Circle_White')
-    tex:SetVertexColor(1, 1, 1, 1)
-    tex:SetAllPoints(indicator)
+        local tex = indicator:CreateTexture(nil, 'OVERLAY')
+        tex:SetTexture('Interface/addons/Slab/resources/textures/Circle_White')
+        tex:SetVertexColor(1, 1, 1, 1)
+        tex:SetAllPoints(indicator)
 
-    indicator:Hide()
-    indicator.texture = tex
-    return indicator
-end
+        indicator:Hide()
+        indicator.texture = tex
+        return indicator
+    end
 
----@param settings SlabNameplateSettings
-function component:bind(settings)
-    self.frame:RegisterUnitEvent("UNIT_AURA", settings.tag)
-    self.dispellableAuraIds = {}
-end
+    ---@param settings SlabNameplateSettings
+    function component:bind(settings)
+        self.frame:RegisterUnitEvent("UNIT_AURA", settings.tag)
+        self.dispellableAuraIds = {}
+    end
 
-function component:unbind()
-    self.frame:UnregisterAllEvents()
-    self.frame:Hide()
-end
-
-function component:auraMatches(aura)
-    return aura.dispelName == 'Magic'
-end
-
----@param settings SlabNameplateSettings
-function component:refresh(settings)
-    self.dispellableAuraIds = {}
-    AuraUtil.ForEachAura(settings.tag, "HELPFUL", nil, function(aura)
-        if self:auraMatches(aura) then
-            self.dispellableAuraIds[aura.auraInstanceID] = true
-        end
-    end)
-
-    if shouldShow(self.dispellableAuraIds) then
-        self.frame:Show()
-    else
+    function component:unbind()
+        self.frame:UnregisterAllEvents()
         self.frame:Hide()
     end
-end
 
-function component:update(eventName, unitTarget, updatedAuras)
-    if updatedAuras == nil or updatedAuras.isFullUpdate then
-        self:refresh(self.settings)
-    else
-        local changed = false
-        if updatedAuras.removedAuraInstanceIDs ~= nil then
-            for _, id in ipairs(updatedAuras.removedAuraInstanceIDs) do
-                if self.dispellableAuraIds[id] then
-                    self.dispellableAuraIds[id] = false
-                    changed = true
-                end
-            end
-        end
-        if updatedAuras.addedAuras ~= nil then
-            for _, aura in ipairs(updatedAuras.addedAuras) do
-                if self:auraMatches(aura) then
-                    self.dispellableAuraIds[aura.auraInstanceID] = true
-                    changed = true
-                end
-            end
-        end
+    function component:auraMatches(aura)
+        return typeMap[aura.dispelName] and aura.isStealable
+    end
 
-        if changed and shouldShow(self.dispellableAuraIds) then
+    ---@param settings SlabNameplateSettings
+    function component:refresh(settings)
+        self.dispellableAuraIds = {}
+        AuraUtil.ForEachAura(settings.tag, "HELPFUL", nil, function(aura)
+            if self:auraMatches(aura) then
+                self.dispellableAuraIds[aura.auraInstanceID] = true
+            end
+        end)
+
+        if shouldShow(self.dispellableAuraIds) then
             self.frame:Show()
         else
             self.frame:Hide()
         end
     end
+
+    function component:update(eventName, unitTarget, updatedAuras)
+        if updatedAuras == nil or updatedAuras.isFullUpdate then
+            self:refresh(self.settings)
+        else
+            local changed = false
+            if updatedAuras.removedAuraInstanceIDs ~= nil then
+                for _, id in ipairs(updatedAuras.removedAuraInstanceIDs) do
+                    if self.dispellableAuraIds[id] then
+                        self.dispellableAuraIds[id] = false
+                        changed = true
+                    end
+                end
+            end
+            if updatedAuras.addedAuras ~= nil then
+                for _, aura in ipairs(updatedAuras.addedAuras) do
+                    if self:auraMatches(aura) then
+                        self.dispellableAuraIds[aura.auraInstanceID] = true
+                        changed = true
+                    end
+                end
+            end
+
+            if changed and shouldShow(self.dispellableAuraIds) then
+                self.frame:Show()
+            else
+                self.frame:Hide()
+            end
+        end
+    end
+
+    local outer_component = Slab.apply_combinators(
+        component,
+        Slab.combinators.disable_minimal()
+    )
+
+    return outer_component
 end
 
-local outer_component = Slab.apply_combinators(
-    component, 
-    Slab.combinators.disable_minimal()
-)
+local magicDispel = dispelIndicator({ 'Magic' })
+local enrageDispel = dispelIndicator({ 'Enrage' })
+local magicEnrageDispel = dispelIndicator({ 'Magic', 'Enrage' })
 
 Slab.utils.load_for('dispelIndicator', {
-    MAGE = outer_component,
-    HUNTER = outer_component
+    MAGE = magicDispel,
+    SHAMAN = magicDispel,
+    HUNTER = magicEnrageDispel,
+    ROGUE = magicEnrageDispel,
+    DRUID = enrageDispel,
 })
