@@ -53,7 +53,7 @@ local function dispelIndicator(types)
     end
 
     function component:auraMatches(aura)
-        return typeMap[aura.dispelName] and aura.isStealable
+        return typeMap[aura.dispelName] and aura.isStealable and aura.isHelpful
     end
 
     ---@param settings SlabNameplateSettings
@@ -94,7 +94,9 @@ local function dispelIndicator(types)
                 end
             end
 
-            if changed and shouldShow(self.dispellableAuraIds) then
+            if not changed then return end
+
+            if shouldShow(self.dispellableAuraIds) then
                 self.frame:Show()
             else
                 self.frame:Hide()
