@@ -48,6 +48,10 @@ end
 ---@param parent SlabContainer
 function Slab.ShowNameplate(parent)
     local frame = parent.slab
+    if parent.namePlateUnitToken ~= nil and UnitNameplateShowsWidgetsOnly(parent.namePlateUnitToken) then
+        if frame ~= nil then frame:Hide() end -- insurance against the previous onhide not getting called in rare cases
+        return -- this is not a real nameplate, stuff like fishing nets, tuskarr soup.
+    end
     if frame ~= nil and frame.settings then
         for _, component in pairs(frame.components) do
             component:show(frame.settings)
@@ -67,6 +71,9 @@ function Slab.HideNameplate(frame)
 end
 
 local function HideChildFrame(frame)
+    if UnitNameplateShowsWidgetsOnly(frame:GetParent().namePlateUnitToken) then
+        return -- this is not a real nameplate, stuff like fishing nets, tuskarr soup.
+    end
     if frame:GetParent().slab and not frame.isSlab then
         frame:Hide()
     end
