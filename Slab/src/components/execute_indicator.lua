@@ -83,6 +83,12 @@ Slab.utils.load_for('executeIndicator', {
         executeIndicator(0.3),
         Slab.combinators.enable_when_spell(269644, onSpellLearned)
     ),
+    PALADIN = executeIndicator(0.2),
+    WARRIOR = executeIndicator(0.2),
+    DEATHKNIGHT = Slab.apply_combinators(
+        executeIndicator(0.35),
+        Slab.combinators.enable_when_spell(343294, onSpellLearned)
+    )
 })
 
 Slab.utils.load_for('antiExecuteIndicator', {

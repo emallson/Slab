@@ -78,7 +78,7 @@ local function enable_when_spell(component, spellId, onUpdate, selector)
     return enable_when(
         component, 
         function() return IsPlayerSpell(spellId) end,
-        "PLAYER_TALENT_UPDATE",
+        "TRAIT_CONFIG_UPDATED",
         selector,
         onUpdate
     )
