@@ -18,6 +18,7 @@ src\components\execute_indicator.lua
 src\components\debuff_indicator.lua
 src\components\bolster_indicator.lua
 src\components\dispel_indicator.lua
+src\components\mouseover.lua
 src\frame.lua
 src\color.lua
 src\index.lua
