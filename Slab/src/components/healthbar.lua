@@ -32,12 +32,18 @@ local function IsTankPet(unit)
         or npcId == 61056 -- primal earth ele
 end
 
+---@param unit UnitId
+---@return boolean
+local function IsTankPlayer(unit)
+    local role = UnitGroupRolesAssigned(unit)
+    return role == "TANK"
+end
+
 ---determine if a unit is a tank player or pet
 ---@param unit UnitId
 ---@return boolean
 local function IsTank(unit)
-    local role = UnitGroupRolesAssigned(unit)
-    return role == "TANK" or IsTankPet(unit)
+    return IsTankPlayer(unit) or IsTankPet(unit)
 end
 
 ---determine if the player is a tank spec
@@ -121,6 +127,7 @@ end
 
 ---@param settings SlabNameplateSettings
 function component:refreshReaction(settings)
+    local target = settings.tag .. 'target'
     local reaction = UnitReaction(settings.tag, 'player')
     local threatStatus = UnitThreatSituation('player', settings.tag)
     if reaction == 4 and threatStatus == nil then
@@ -128,9 +135,13 @@ function component:refreshReaction(settings)
         -- stolen from plater
         self.frame.reactionIndicator:SetTextColor(0.9254901, 0.8, 0.2666666, 1)
         self.frame.reactionIndicator:Show()
-    elseif IsTankPet(settings.tag .. 'target') then
+    elseif IsTankPet(target) then
         self.frame.reactionIndicator:SetText('PET')
         self.frame.reactionIndicator:SetTextColor(0.75, 0.75, 0.5, 1)
+        self.frame.reactionIndicator:Show()
+    elseif not UnitIsUnit("player", target) and IsTankPlayer(target) then
+        self.frame.reactionIndicator:SetText('CO')
+        self.frame.reactionIndicator:SetTextColor(0.44, 0.81, 0.37, 1)
         self.frame.reactionIndicator:Show()
     else
         self.frame.reactionIndicator:Hide()
