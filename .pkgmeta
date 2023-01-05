@@ -2,7 +2,6 @@ ignore:
   - Slab_Bench
   - readme
 externals:
-  Slab/libs/LibStub:
+  libs/LibStub:
     url: https://repos.wowace.com/wow/libstub/trunk
-move-folders:
-  Slab: Slab
+package-as: Slab

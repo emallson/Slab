@@ -2,6 +2,7 @@
 ## Title: Slab
 ## Notes: Minimal Nameplates
 ## Version: 0.0.1-dev
+## X-Curse-Project-ID: 792980
 
 libs\LibStub\LibStub.lua
 src\lib.lua

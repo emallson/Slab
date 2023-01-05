@@ -10,7 +10,7 @@ Slab is a slim and colorful nameplate addon for Retail World of Warcraft that as
 
 - Built-in support for threat and tank pets.
 - Built-in cast bars with support for cast targets.
-- Compatible with existing nameplate WAs.
+- Compatible with (most) existing nameplate WAs.
 - Option-free. Install & go, no fiddling allowed.
 
 <p align="center">
@@ -45,11 +45,7 @@ Nameplate colors are assigned using an algorithm that I stole in large part from
 
 ## Efficient
 
-Slab was written with efficiency in mind. Benchmarks are a WIP but there's no impact on framerate during Anduin intermissions, unlike my previous setup with Plater.
-
-### Details
-
-Each frame used by Slab registers only the minimal events required for its functionality. Expensive tools like `OnUpdate` are not used.
+Slab was written with efficiency in mind. Any frame drops in-game are dealt with ruthlessly---I will cut features if it means maintaining a seemless high framerate in-game.
 
 ## Tank Stuff
 
