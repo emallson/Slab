@@ -123,6 +123,7 @@ function component:bind(settings)
     self.frame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_UPDATE", settings.tag)
     self.frame:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTIBLE", settings.tag)
     self.frame:RegisterUnitEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE", settings.tag)
+    self.frame:RegisterUnitEvent("UNIT_TARGET", settings.tag)
 end
 
 function component:unbind()
@@ -153,22 +154,6 @@ function component:updateCastColor(settings, uninterruptible)
     setCastbarColor(self.frame, uninterruptible)
 end
 
----@param eventName string
----@vararg any
-function component:update(eventName, ...)
-    if eventName == "UNIT_SPELLCAST_START" then
-        self:showCastbar(self.settings)
-    elseif eventName == "UNIT_SPELLCAST_STOP" or eventName == "UNIT_SPELLCAST_CHANNEL_STOP" then
-        self:hideCastbar()
-    elseif eventName == "UNIT_SPELLCAST_CHANNEL_START" then
-        self:showCastbar(self.settings, true)
-    elseif eventName == "UNIT_SPELLCAST_DELAYED" or eventName == "UNIT_SPELLCAST_CHANNEL_UPDATE" then
-        self:updateCastDuration(self.settings, eventName == "UNIT_SPELLCAST_CHANNEL_UPDATE")
-    elseif eventName == "UNIT_SPELLCAST_INTERRUPTIBLE" or eventName == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE" then
-        self:updateCastColor(self.settings, eventName == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
-    end
-end
-
 ---@param targetUnit UnitId
 ---@param frame FontString
 local function updateTargetName(targetUnit, frame)
@@ -187,6 +172,24 @@ local function updateTargetName(targetUnit, frame)
         frame:Show()
     else
         frame:Hide()
+    end
+end
+
+---@param eventName string
+---@vararg any
+function component:update(eventName, ...)
+    if eventName == "UNIT_SPELLCAST_START" then
+        self:showCastbar(self.settings)
+    elseif eventName == "UNIT_SPELLCAST_STOP" or eventName == "UNIT_SPELLCAST_CHANNEL_STOP" then
+        self:hideCastbar()
+    elseif eventName == "UNIT_SPELLCAST_CHANNEL_START" then
+        self:showCastbar(self.settings, true)
+    elseif eventName == "UNIT_SPELLCAST_DELAYED" or eventName == "UNIT_SPELLCAST_CHANNEL_UPDATE" then
+        self:updateCastDuration(self.settings, eventName == "UNIT_SPELLCAST_CHANNEL_UPDATE")
+    elseif eventName == "UNIT_SPELLCAST_INTERRUPTIBLE" or eventName == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE" then
+        self:updateCastColor(self.settings, eventName == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
+    elseif eventName == "UNIT_TARGET" then
+        updateTargetName(self.settings.tag .. "target", self.frame.targetName)
     end
 end
 
@@ -210,10 +213,10 @@ function component:showCastbarDetails(settings, spellName, spellIcon, startTimeM
     end
 
     local targetUnit = settings.tag .. 'target'
-    -- updateTargetName(targetUnit, self.frame.targetName)
-    self.frame.targetName:Hide()
+    updateTargetName(targetUnit, self.frame.targetName)
+    -- self.frame.targetName:Hide()
 
-    C_Timer.After(0.3, function() updateTargetName(targetUnit, self.frame.targetName) end)
+    -- C_Timer.After(0.3, function() updateTargetName(targetUnit, self.frame.targetName) end)
 
     self.frame:Raise()
     self.frame:Show()
