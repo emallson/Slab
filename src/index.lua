@@ -79,3 +79,20 @@ if NamePlateDriverFrame and NamePlateDriverFrame.AcquireUnitFrame then
 end
 
 Slab.font = "Fonts\\FRIZQT__.TTF"
+
+local relevantCVars = {
+    "NamePlateMinAlpha",
+    "NamePlateMinAlphaDistance",
+    "NamePlateMinScale",
+    "NamePlateMinScaleDistance",
+    "NamePlateMaxScale",
+    "NamePlateMaxScaleDistance"
+}
+
+local function ResetCVars()
+    for _, cvar in ipairs(relevantCVars) do
+        C_CVar.SetCVar(cvar, C_CVar.GetCVarDefault(cvar))
+    end
+end
+
+ResetCVars()

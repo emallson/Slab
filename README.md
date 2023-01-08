@@ -2,9 +2,9 @@
 
 ![Slab in Bastion](readme/bastion_colors.png)
 
-Slab is a slim and colorful nameplate addon for Retail World of Warcraft that assigns each enemy a color for rapid recognition during combat.
+Slab is a slim and colorful nameplate addon for Retail World of Warcraft that assigns each enemy a consistent color during combat, allowing them to be easily distinguished at a glance.
 
-**Status:** Actively tweaking. Main functionality is set. Tweaking things like font scale and nameplate height. Not happy with cotank color indication yet.
+**Status:** Actively tweaking. Main functionality is set.
 
 ### Features
 
@@ -21,10 +21,11 @@ Slab is a slim and colorful nameplate addon for Retail World of Warcraft that as
 
 Many aspects of nameplates in WoW are controlled by CVars, which are stored as part of your game configuration independently of any addon. If you've used Plater, you likely have a large number of CVars set from adjusting nameplate settings through the Plater options.
 
-Slab sets a single CVar for the purposes of avoiding jittery frames: `NamePlateMinScale`. There are a few that you may want to reset using `AdvancedInterfaceOptions` when trying Slab:
+Slab resets the following CVars to their default values:
 
 - `NamePlateMinAlpha`
 - `NamePlateMinAlphaDistance`
+- `NamePlateMinScale`
 - `NamePlateMinScaleDistance`
 - `NamePlateMaxScale`
 - `NamePlateMaxScaleDistance`
