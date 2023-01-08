@@ -30,7 +30,7 @@ Slab resets the following CVars to their default values:
 - `NamePlateMaxScale`
 - `NamePlateMaxScaleDistance`
 
-## Colorful
+## Colors
 
 *tl;dr*
 
