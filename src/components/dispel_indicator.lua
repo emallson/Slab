@@ -112,9 +112,12 @@ local function dispelIndicator(types)
     return outer_component
 end
 
-local magicDispel = dispelIndicator({ 'Magic' })
-local enrageDispel = dispelIndicator({ 'Enrage' })
-local magicEnrageDispel = dispelIndicator({ 'Magic', 'Enrage' })
+local MAGIC = 'Magic'
+local ENRAGE = ''
+
+local magicDispel = dispelIndicator({ MAGIC })
+local enrageDispel = dispelIndicator({ ENRAGE })
+local magicEnrageDispel = dispelIndicator({ MAGIC, ENRAGE })
 
 Slab.utils.load_for('dispelIndicator', {
     MAGE = magicDispel,
@@ -122,4 +125,8 @@ Slab.utils.load_for('dispelIndicator', {
     HUNTER = magicEnrageDispel,
     ROGUE = magicEnrageDispel,
     DRUID = enrageDispel,
+    EVOKER = Slab.apply_combinators(
+        enrageDispel,
+        Slab.combinators.enable_when_spell(374346)
+    ),
 })
