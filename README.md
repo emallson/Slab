@@ -42,7 +42,7 @@ Slab resets the following CVars to their default values:
 
 ### Hue Algorithm
 
-Nameplate colors are assigned using an algorithm that I stole in large part from the `rainbow-identifiers.el` Emacs package. First, the unit ID is converted to an angle in CIELAB color space. That is then combined with the lightness and saturation to produce a point in color space, which is then mapped to sRGB and applied to the nameplate.
+*tl;dr* - The game's internal NPC ID is used to pick from 17 colors. This means that each type of enemy gets one color assigned to it permanently. There is an 18th color reserved for special enemies like Explosive Orbs.
 
 ## Efficient
 
