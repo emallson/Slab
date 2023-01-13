@@ -10,11 +10,31 @@ local function shouldShow(tbl)
     return false
 end
 
+
+local MAGIC = 'Magic'
+local ENRAGE = ''
+
+local ARCANE_TORRENT = { 28730, 155145, 25046, 69179, 202719, 232633, 129597, 50613, 80483 }
+
+local function hasArcaneTorrent()
+    for _, id in ipairs(ARCANE_TORRENT) do
+        if IsPlayerSpell(id) then
+            return true
+        end
+    end
+    return false
+end
+
 local function dispelIndicator(types)
     local typeMap = {}
     for _, type in ipairs(types) do
         typeMap[type] = true
     end
+
+    if hasArcaneTorrent() then
+        typeMap[MAGIC] = true
+    end
+
     ---@class DispelIndicatorComponent:Component
     ---@field public frame DispelIndicator
     local component = {
@@ -112,8 +132,6 @@ local function dispelIndicator(types)
     return outer_component
 end
 
-local MAGIC = 'Magic'
-local ENRAGE = ''
 
 local magicDispel = dispelIndicator({ MAGIC })
 local enrageDispel = dispelIndicator({ ENRAGE })
