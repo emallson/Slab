@@ -14,26 +14,10 @@ end
 local MAGIC = 'Magic'
 local ENRAGE = ''
 
-local ARCANE_TORRENT = { 28730, 155145, 25046, 69179, 202719, 232633, 129597, 50613, 80483 }
-
-local function hasArcaneTorrent()
-    for _, id in ipairs(ARCANE_TORRENT) do
-        if IsPlayerSpell(id) then
-            return true
-        end
-    end
-    return false
-end
-
-local function dispelIndicator(types)
-    local typeMap = {}
-    for _, type in ipairs(types) do
-        typeMap[type] = true
-    end
-
-    if hasArcaneTorrent() then
-        typeMap[MAGIC] = true
-    end
+---comment
+---@param typeMap table<string, boolean>
+---@return ComponentConstructor
+local function dispelIndicator(typeMap)
 
     ---@class DispelIndicatorComponent:Component
     ---@field public frame DispelIndicator
@@ -132,19 +116,46 @@ local function dispelIndicator(types)
     return outer_component
 end
 
+local ARCANE_TORRENT = { 28730, 155145, 25046, 69179, 202719, 232633, 129597, 50613, 80483 }
 
-local magicDispel = dispelIndicator({ MAGIC })
-local enrageDispel = dispelIndicator({ ENRAGE })
-local magicEnrageDispel = dispelIndicator({ MAGIC, ENRAGE })
+local function hasArcaneTorrent()
+    for _, id in ipairs(ARCANE_TORRENT) do
+        if IsPlayerSpell(id) then
+            return true
+        end
+    end
+    return false
+end
 
-Slab.utils.load_for('dispelIndicator', {
-    MAGE = magicDispel,
-    SHAMAN = magicDispel,
-    HUNTER = magicEnrageDispel,
-    ROGUE = magicEnrageDispel,
-    DRUID = enrageDispel,
-    EVOKER = Slab.apply_combinators(
-        enrageDispel,
-        Slab.combinators.enable_when_spell(374346)
-    ),
-})
+local classDispels = {
+    MAGE = { MAGIC },
+    SHAMAN = { MAGIC },
+    HUNTER = { MAGIC, ENRAGE },
+    ROGUE = { MAGIC, ENRAGE },
+    DRUID = { ENRAGE },
+    EVOKER = { ENRAGE }
+}
+
+local function autoDispelIndicator()
+    local dispelTypes = {}
+    local hasDispel = false
+    if hasArcaneTorrent() then
+        dispelTypes[MAGIC] = true
+        hasDispel = true
+    end
+
+    local className = select(2, UnitClass('player'))
+
+    local classTypes = classDispels[className] or {}
+
+    for _, type in ipairs(classTypes) do
+        dispelTypes[type] = true
+        hasDispel = true
+    end
+
+    if hasDispel then
+        Slab.RegisterComponent('dispelIndicator', dispelIndicator(dispelTypes))
+    end
+end
+
+autoDispelIndicator()
