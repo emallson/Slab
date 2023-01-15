@@ -22,16 +22,21 @@ local function dispelIndicator(typeMap)
     ---@class DispelIndicatorComponent:Component
     ---@field public frame DispelIndicator
     local component = {
-        dependencies = {'healthBar'}
+        dependencies = {'healthBar'},
+        optionalDependencies = {'debuffIndicator'}
     }
-    
+
     ---@param slab Slab
     ---@return DispelIndicator
     function component:build(slab)
         local parent = slab.components.healthBar.frame
         ---@class DispelIndicator:Frame
         local indicator = CreateFrame('Frame', parent:GetName() .. 'DispelIndicator', parent)
-        indicator:SetPoint('CENTER', parent, 'RIGHT', -5, 0)
+        local offset = -5
+        if slab.components['debuffIndicator'] ~= nil then
+            offset = -11
+        end
+        indicator:SetPoint('CENTER', parent, 'RIGHT', offset, 0)
         indicator:SetSize(Slab.scale(3), Slab.scale(3))
         indicator:SetFrameLevel(1)
 

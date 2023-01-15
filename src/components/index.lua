@@ -14,7 +14,10 @@ local baseComponent = {
     ---@param parent Frame
     ---@return Frame
     build = mustOverride,
+    ---Components that MUST be loaded before this one.
     dependencies = {},
+    ---Components that MUST be loaded before this one IF they are enabled. If disabled, they are ignored.
+    optionalDependencies = {},
 }
 
 ---Refresh the component's state using the provided settings, including the unit id.
@@ -143,7 +146,16 @@ local function generateBuildList()
 
         temp[key] = true
         for _, dep in ipairs(registry[key].dependencies) do
-            visit(dep)
+            if registry[dep] == nil then
+                print("WARNING: missing Slab component dependency " .. key)
+            else
+                visit(dep)
+            end
+        end
+        for _, dep in ipairs(registry[key].optionalDependencies) do
+            if registry[dep] ~= nil then
+                visit(dep)
+            end
         end
 
         temp[key] = false
