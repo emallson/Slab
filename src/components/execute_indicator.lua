@@ -88,6 +88,10 @@ Slab.utils.load_for('executeIndicator', {
     DEATHKNIGHT = Slab.apply_combinators(
         executeIndicator(0.35),
         Slab.combinators.enable_when_spell(343294, onSpellLearned)
+    ),
+    HUNTER = Slab.apply_combinators(
+        executeIndicator(0.2),
+        Slab.combinators.enable_when_spell(53351, onSpellLearned)
     )
 })
 
