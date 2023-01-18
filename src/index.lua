@@ -98,6 +98,8 @@ end
 ResetCVars()
 
 local function SetCustomCVars()
+    -- the NamePlateHorizontalScale setting is important
+    -- to make the mouseover target match the visible frame
     C_CVar.SetCVar("NamePlateHorizontalScale", 1.4)
 end
 
