@@ -117,6 +117,10 @@ function component:bind(settings)
     self:hideCastbar()
     self.frame:RegisterUnitEvent("UNIT_SPELLCAST_START", settings.tag)
     self.frame:RegisterUnitEvent("UNIT_SPELLCAST_STOP", settings.tag)
+    -- maybe these help with the cast -> kick + channel heisenbug?
+    -- leaving SUCCEEDED off because that breaks cast -> channel kicks unless i make this stateful
+    self.frame:RegisterUnitEvent("UNIT_SPELLCAST_FAILED", settings.tag)
+    self.frame:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", settings.tag)
     self.frame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_START", settings.tag)
     self.frame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", settings.tag)
     self.frame:RegisterUnitEvent("UNIT_SPELLCAST_DELAYED", settings.tag)
@@ -132,8 +136,11 @@ end
 
 ---@param settings SlabNameplateSettings
 function component:refresh(settings)
-    self:showCastbar(settings)
-    self:showCastbar(settings, true)
+    if UnitChannelInfo(settings.tag) then
+        self:showCastbar(settings, true)
+    elseif UnitCastingInfo(settings.tag) then
+        self:showCastbar(settings)
+    end
 end
 
 ---@param settings SlabNameplateSettings
@@ -180,7 +187,8 @@ end
 function component:update(eventName, ...)
     if eventName == "UNIT_SPELLCAST_START" then
         self:showCastbar(self.settings)
-    elseif eventName == "UNIT_SPELLCAST_STOP" or eventName == "UNIT_SPELLCAST_CHANNEL_STOP" then
+    elseif eventName == "UNIT_SPELLCAST_STOP" or eventName == "UNIT_SPELLCAST_CHANNEL_STOP"
+        or eventName == "UNIT_SPELLCAST_FAILED" or eventName == "UNIT_SPELLCAST_INTERRUPTED" then
         self:hideCastbar()
     elseif eventName == "UNIT_SPELLCAST_CHANNEL_START" then
         self:showCastbar(self.settings, true)
