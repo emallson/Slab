@@ -96,3 +96,9 @@ local function ResetCVars()
 end
 
 ResetCVars()
+
+local function SetCustomCVars()
+    C_CVar.SetCVar("NamePlateHorizontalScale", 1.4)
+end
+
+SetCustomCVars()
