@@ -47,32 +47,63 @@ function component:bind(settings)
     if not isBolsteringActive(affixes) then
         return
     end
+    self.bolsterIds = {}
+    self.stackCount = 0
     self.frame:RegisterUnitEvent("UNIT_AURA", settings.tag)
 end
 
 local BOLSTER = 209859
 
 function component:refreshAuras(settings)
-    local stackCount = 0
-    AuraUtil.ForEachAura(settings.tag, "HELPFUL", nil, function(name, icon, _, _, _, _, _, _, _, spellId, ...)
-        if spellId == BOLSTER then
-            stackCount = stackCount + 1
+    self.stackCount = 0
+    self.bolsterIds = {}
+    AuraUtil.ForEachAura(settings.tag, "HELPFUL", nil, function(aura)
+        if aura.spellId == BOLSTER then
+           self.stackCount = self.stackCount + 1
+           self.bolsterIds[aura.auraInstanceID] = true
         end
     end)
 
-    if stackCount > 0 then
-        self.frame.stackCount:SetText(stackCount)
+    if self.stackCount > 0 then
+        self.frame.stackCount:SetText(self.stackCount)
         if not self.frame:IsShown() then self.frame:Show() end
     elseif self.frame:IsShown() then
         self.frame:Hide()
     end
 end
 
-function component:update(eventName, unitTarget, isFullUpdate, updatedAuras)
-    if not AuraUtil.ShouldSkipAuraUpdate(isFullUpdate, updatedAuras, function(aura)
-        return aura.spellId == BOLSTER
-    end) then
+function component:update(eventName, unitTarget, updatedAuras)
+    if updatedAuras == nil or updatedAuras.isFullUpdate then
         self:refreshAuras(self.settings)
+    else
+        local changed = false
+        if updatedAuras.removedAuraInstanceIDs ~= nil then
+            for _, id in ipairs(updatedAuras.removedAuraInstanceIDs) do
+                if self.bolsterIds[id] then
+                    changed = true
+                    self.bolsterIds[id] = false
+                    self.stackCount = self.stackCount - 1
+                end
+            end
+        end
+        if updatedAuras.addedAuras ~= nil then
+            for _, aura in ipairs(updatedAuras.addedAuras) do
+                if aura.spellId == BOLSTER then
+                    self.bolsterIds[aura.auraInstanceID] = true
+                    self.stackCount = self.stackCount + 1
+                    changed = true
+                end
+            end
+        end
+
+        if not changed then return end
+
+        if self.stackCount > 0 then
+            self.frame.stackCount:SetText(self.stackCount)
+            self.frame:Show()
+        else
+            self.frame:Hide()
+        end
     end
 end
 
