@@ -1,7 +1,7 @@
-## Interface: 100000
+## Interface: 100007
 ## Title: Slab
 ## Notes: Minimal Nameplates
-## Version: 0.0.1-dev
+## Version: @project-version@
 ## X-Curse-Project-ID: 792980
 
 libs\LibStub\LibStub.lua
