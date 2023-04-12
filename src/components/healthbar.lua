@@ -98,10 +98,24 @@ function component:refreshName(settings)
     end
 end
 
+local function playerColor(unitName)
+    local classKey = select(2, UnitClass(unitName))
+    if classKey ~= nil then
+        return C_ClassColor.GetClassColor(classKey)
+    end
+    return nil 
+end
+
 ---@param settings SlabNameplateSettings
 function component:refreshColor(settings)
-    local saturation = threatSaturation('player', settings.tag)
-    local color = Slab.color.point_to_color(settings.point, saturation)
+    local color = nil
+    if UnitIsPlayer(settings.tag) then
+        color = playerColor(settings.tag)
+    end
+    if color == nil then
+        local saturation = threatSaturation('player', settings.tag)
+        color = Slab.color.point_to_color(settings.point, saturation)
+    end
     self.frame:SetStatusBarColor(color.r, color.g, color.b)
 end
 
