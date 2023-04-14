@@ -104,6 +104,13 @@ function Slab.RegisterComponent(key, component)
     registry[key] = Slab.Component(component)
 end
 
+---Deregister a component
+---@param key string
+---@param component Component
+function Slab.DeregisterComponent(key)
+  registry[key] = nil
+end
+
 ---@alias ComponentConstructed ComponentConstructor
 
 ---Construct a component.
