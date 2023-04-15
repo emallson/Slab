@@ -9,6 +9,8 @@ end
 ---@field public settings SlabNameplateSettings|nil
 ---@field public frame Frame
 ---@field public dependencies table<string>
+---@field public optionalDependencies table<string>
+---@field public conflictingComponents table<string>
 local baseComponent = {
     ---Construct the frames to be used for the component. They are not bound to any particular unit at this point.
     ---@param parent Frame
@@ -18,6 +20,8 @@ local baseComponent = {
     dependencies = {},
     ---Components that MUST be loaded before this one IF they are enabled. If disabled, they are ignored.
     optionalDependencies = {},
+    ---Components that MUST NOT be loaded if this one is to be loaded
+    conflictingComponents = {}
 }
 
 ---Refresh the component's state using the provided settings, including the unit id.
@@ -104,11 +108,17 @@ function Slab.RegisterComponent(key, component)
     registry[key] = Slab.Component(component)
 end
 
+--- the list of components to build with each new nameplate, in order
+local buildList = nil
+
 ---Deregister a component
 ---@param key string
----@param component Component
 function Slab.DeregisterComponent(key)
-  registry[key] = nil
+  if buildList ~= nil then
+    print("WARNING: cannot deregister already-loaded component", key)
+  else
+    registry[key] = nil
+  end
 end
 
 ---@alias ComponentConstructed ComponentConstructor
@@ -135,20 +145,32 @@ function Slab.BuildComponent(key, parent)
     return component.construct(parent)
 end
 
-local buildList = nil
 local function generateBuildList()
     if buildList ~= nil then return end
     -- topo sort the components
     buildList = {}
     local temp = {}
     local perm = {}
+    local excluded = {}
 
     local function visit(key)
         if perm[key] then return end
+        if excluded[key] then
+            print("WARNING: skipping component due to already-loaded conflicting component", key)
+            return
+        end
         if temp[key] then
             buildList = {}
             error('Slab: circular component dependency. Bailing. Key:' .. key)
             return
+        end
+
+        for _, dep in ipairs(registry[key].conflictingComponents) do
+            if perm[key] then
+                print("WARNING: skipping component due to conflict", key, dep)
+                return
+            end
+            excluded[dep] = true
         end
 
         temp[key] = true
