@@ -7,7 +7,7 @@ local frame = CreateFrame("Frame", "Slab")
 ---@param npcId integer
 ---@return boolean
 local function isSpecialUnit(npcId)
-    return npcId == 120651
+    return npcId == 120651 or npcId == 204560
 end
 
 ---@alias UnitId string
