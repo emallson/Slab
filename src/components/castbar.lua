@@ -139,7 +139,7 @@ function component:refresh(settings)
     if UnitChannelInfo(settings.tag) then
         self:showCastbar(settings, true)
     elseif UnitCastingInfo(settings.tag) then
-        self:showCastbar(settings)
+        self:showCastbar(settings, false)
     end
 end
 
@@ -186,7 +186,7 @@ end
 ---@vararg any
 function component:update(eventName, ...)
     if eventName == "UNIT_SPELLCAST_START" then
-        self:showCastbar(self.settings)
+        self:showCastbar(self.settings, false)
     elseif eventName == "UNIT_SPELLCAST_STOP" or eventName == "UNIT_SPELLCAST_CHANNEL_STOP"
         or eventName == "UNIT_SPELLCAST_FAILED" or eventName == "UNIT_SPELLCAST_INTERRUPTED" then
         self:hideCastbar()
@@ -197,6 +197,7 @@ function component:update(eventName, ...)
     elseif eventName == "UNIT_SPELLCAST_INTERRUPTIBLE" or eventName == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE" then
         self:updateCastColor(self.settings, eventName == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
     elseif eventName == "UNIT_TARGET" then
+        -- print("UNIT_TARGET", self.settings.tag)
         updateTargetName(self.settings.tag .. "target", self.frame.targetName)
     end
 end
@@ -231,7 +232,7 @@ function component:showCastbarDetails(settings, spellName, spellIcon, startTimeM
 end
 
 ---@param settings SlabNameplateSettings
----@param isChannel? boolean
+---@param isChannel boolean
 function component:showCastbar(settings, isChannel)
     local unitId = settings.tag
     local spellName, displayName, spellIcon, startTimeMS, endTimeMS, _isTrade, uninterruptible = getCastInfo(unitId, isChannel)
@@ -244,6 +245,7 @@ end
 
 function component:hideCastbar()
     self.frame.castAnimGroup:Stop()
+    -- self.frame.targetName:SetText("")
     self.frame:Hide()
 end
 

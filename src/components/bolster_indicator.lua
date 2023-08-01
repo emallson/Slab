@@ -40,6 +40,7 @@ end
 
 ---@param settings SlabNameplateSettings
 function component:bind(settings)
+    self.frame:Hide()
     -- if we aren't currently in a bolstering key, don't bind any events.
     -- this avoids spurious, and possibly expensive aura iteration
     local level, affixes, _ = C_ChallengeMode.GetActiveKeystoneInfo()
@@ -62,7 +63,7 @@ function component:refreshAuras(settings)
            self.stackCount = self.stackCount + 1
            self.bolsterIds[aura.auraInstanceID] = true
         end
-    end)
+    end, true)
 
     if self.stackCount > 0 then
         self.frame.stackCount:SetText(self.stackCount)
@@ -109,6 +110,7 @@ end
 
 function component:unbind()
     self.frame:UnregisterAllEvents()
+    self.frame:Hide()
 end
 
 function component:refresh(settings)

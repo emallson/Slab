@@ -72,7 +72,7 @@ local function dispelIndicator(typeMap)
             if self:auraMatches(aura) then
                 self.dispellableAuraIds[aura.auraInstanceID] = true
             end
-        end)
+        end, true)
 
         if shouldShow(self.dispellableAuraIds) then
             self.frame:Show()
