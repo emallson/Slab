@@ -4,32 +4,13 @@ local Slab = LibStub("Slab")
 
 local frame = CreateFrame("Frame", "Slab")
 
----@param npcId integer
----@return boolean
-local function isSpecialUnit(npcId)
-    return npcId == 120651 or npcId == 204560
-end
-
----@alias UnitId string
-
 local state  = {
     ---@type table<string, SlabNameplateSettings>
     settings = {}
 }
 function state:registerUnit(unitId)
-    local npcId = Slab.UnitNpcId(unitId)
-    local point
-
-    if isSpecialUnit(npcId) then
-        point = Slab.color.special_point
-    else
-        point = Slab.color.id_to_point(npcId)
-    end
-
     ---@class SlabNameplateSettings
     local setting = {
-        ---@type ColorPoint
-        point = point,
         ---@type UnitId
         tag = unitId
     }

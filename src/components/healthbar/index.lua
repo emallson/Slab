@@ -4,77 +4,6 @@ local Slab = LibStub("Slab")
 local WIDTH = 152
 local HEIGHT = 12
 
----stolen from plater
----@param unit UnitId
----@return integer
-local function UnitNpcId(unit)
-    local guid = UnitGUID(unit)
-    if guid == nil then
-        return 0
-    end
-    local npcID = select (6, strsplit ("-", guid))
-    return tonumber (npcID or "0") or 0
-end
-
-Slab.UnitNpcId = UnitNpcId
-
----determine if a unit is a tank pet
----@param unit UnitId
----@return boolean
-local function IsTankPet(unit)
-    local npcId = UnitNpcId(unit)
-
-    return
-        npcId == 61146 -- ox statue
-        or npcId == 103822 -- trees
-        or npcId == 15352 -- earth ele
-        or npcId == 95072 -- greater earth ele
-        or npcId == 61056 -- primal earth ele
-end
-
----@param unit UnitId
----@return boolean
-local function IsTankPlayer(unit)
-    local role = UnitGroupRolesAssigned(unit)
-    return role == "TANK"
-end
-
----determine if a unit is a tank player or pet
----@param unit UnitId
----@return boolean
-local function IsTank(unit)
-    return IsTankPlayer(unit) or IsTankPet(unit)
-end
-
----determine if the player is a tank spec
----@return boolean
-local function IsPlayerTank()
-    return GetSpecializationRole(GetSpecialization()) == "TANK"
-end
-
----Determine the appropriate saturation level to use for the source unit, based on threat.
----@param target UnitId
----@param source UnitId
----@return integer
-local function threatSaturation(target, source)
-    local threatStatus = UnitThreatSituation(target, source)
-    if threatStatus == nil then return 1 end
-    if IsPlayerTank() then
-        if threatStatus == 1 or threatStatus == 2 then
-            return 3
-        elseif threatStatus == 0 and not IsTank(source .. "target") then
-            return 6
-        elseif threatStatus == 0 and IsTank(source .. 'target') then
-            return 0.5
-        end
-    else
-        if threatStatus == 1 then
-            return 3
-        elseif threatStatus > 1 then
-            return 6
-        end
-    end
-end
 
 ---@class HealthBarComponent:Component
 ---@field public frame HealthBar
@@ -113,8 +42,10 @@ function component:refreshColor(settings)
         color = playerColor(settings.tag)
     end
     if color == nil then
-        local saturation = threatSaturation('player', settings.tag)
-        color = Slab.color.point_to_color(settings.point, saturation)
+        local enemyType = Slab.utils.enemies.type(settings.tag)
+        local threatStatus = Slab.threat.status(settings.tag)
+
+        color = Slab.color.threat[enemyType][threatStatus]
     end
     self.frame:SetStatusBarColor(color.r, color.g, color.b)
 end
@@ -143,17 +74,17 @@ end
 function component:refreshReaction(settings)
     local target = settings.tag .. 'target'
     local reaction = UnitReaction(settings.tag, 'player')
-    local threatStatus = UnitThreatSituation('player', settings.tag)
-    if reaction == 4 and threatStatus == nil then
+    local threatStatus = Slab.threat.status(settings.tag)
+    if reaction == 4 and threatStatus == "noncombat" then
         self.frame.reactionIndicator:SetText('N')
         -- stolen from plater
         self.frame.reactionIndicator:SetTextColor(0.9254901, 0.8, 0.2666666, 1)
         self.frame.reactionIndicator:Show()
-    elseif IsTankPet(target) then
+    elseif threatStatus == "pet" then
         self.frame.reactionIndicator:SetText('PET')
         self.frame.reactionIndicator:SetTextColor(0.75, 0.75, 0.5, 1)
         self.frame.reactionIndicator:Show()
-    elseif not UnitIsUnit("player", target) and IsPlayerTank() and IsTankPlayer(target) then
+    elseif threatStatus == "offtank" then
         self.frame.reactionIndicator:SetText('CO')
         self.frame.reactionIndicator:SetTextColor(0.44, 0.81, 0.37, 1)
         self.frame.reactionIndicator:Show()
@@ -192,6 +123,7 @@ function component:bind(settings)
     self.frame:RegisterUnitEvent('UNIT_HEALTH', settings.tag)
     self.frame:RegisterUnitEvent('UNIT_THREAT_LIST_UPDATE', settings.tag)
     self.frame:RegisterUnitEvent('UNIT_NAME_UPDATE', settings.tag)
+    self.frame:RegisterUnitEvent('UNIT_CLASSIFICATION_CHANGED', settings.tag)
     self.frame:RegisterEvent('RAID_TARGET_UPDATE')
     self.frame:RegisterEvent('PLAYER_TARGET_CHANGED')
 end
@@ -208,6 +140,8 @@ function component:update(eventName, ...)
         self:refreshTargetMarker(self.settings)
     elseif eventName == 'PLAYER_TARGET_CHANGED' then
         self:refreshPlayerTargetIndicator(self.settings)
+    elseif eventName == 'UNIT_CLASSIFICATION_CHANGED' then
+        self:refreshColor(self.settings)
     elseif eventName == 'UNIT_NAME_UPDATE' then
         self:refreshName(self.settings)
     end

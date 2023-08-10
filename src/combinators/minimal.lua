@@ -18,7 +18,7 @@ local function disable_minimal(baseComponent)
     setmetatable(component, { __index = baseComponent })
 
     function component:bind(settings)
-        if npcBlacklist[Slab.UnitNpcId(settings.tag)] then
+        if npcBlacklist[Slab.UnitNpcId(settings.tag)] or Slab.utils.enemies.type(settings.tag) == "trivial" then
             self.minimalMode = true
             return
         else

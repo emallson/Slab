@@ -6,12 +6,16 @@
 
 libs\LibStub\LibStub.lua
 src\lib.lua
+src\color.lua
 src\combinators\index.lua
 src\combinators\enable_when.lua
 src\combinators\minimal.lua
 src\utils\load_for.lua
 src\components\index.lua
-src\components\healthbar.lua
+src\components\healthbar\threat.lua
+src\components\healthbar\colors.lua
+src\components\healthbar\enemies.lua
+src\components\healthbar\index.lua
 src\components\castbar.lua
 src\components\tod_indicator.lua
 src\components\absorb.lua
@@ -21,5 +25,4 @@ src\components\bolster_indicator.lua
 src\components\dispel_indicator.lua
 src\components\mouseover.lua
 src\frame.lua
-src\color.lua
 src\index.lua
