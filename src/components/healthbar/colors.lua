@@ -28,11 +28,11 @@ end
 ---@type table<EnemyType, table<ThreatStatus, RGB>>
 local colors = {
     ["boss"] = colorTable(90, 4, 40, 1, 90),
-    ["lieutenant"] = colorTable(194, 25, 60),
-    ["caster"] = colorTable(259, 80, 65),
+    ["lieutenant"] = colorTable(194, 25, 65),
+    ["caster"] = colorTable(259, 60, 65),
     ["normal"] = colorTable(117, 60, 65),
-    ["trivial"] = colorTable(47, 81, 55),
-    ["special"] = colorTable(0, 100, 99),
+    ["trivial"] = colorTable(47, 25, 80),
+    ["special"] = colorTable(22, 100, 65, 55, 80),
 }
 
 Slab.color.threat = colors
