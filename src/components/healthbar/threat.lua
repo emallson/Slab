@@ -68,11 +68,14 @@ function threat.status(unit)
 
     local target = unit .. "target"
     local isPlayerTank = IsPlayerTank()
+    if not UnitExists(target) then
+        return "noncombat"
+    end
     if threatStatus == nil then
         -- we are not on the threat table. check if it is targetting an ally
         -- assuming that targetting => combat
-        if not UnitExists(target) then
-            return "noncombat"
+        if UnitIsUnit("player", target) then
+            return isPlayerTank and "active" or "danger" -- this can occur when you get targeted but are not on the threat table
         elseif UnitIsPlayer(target) and (UnitInParty(target) or UnitInRaid(target)) then
             if IsTankPlayer(target) then
                 return isPlayerTank and "offtank" or "active"

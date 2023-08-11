@@ -136,10 +136,12 @@ end
 
 ---@param settings SlabNameplateSettings
 function component:refresh(settings)
-    if UnitChannelInfo(settings.tag) then
+    if (select(5, UnitChannelInfo(settings.tag)) or 0) > GetTime() * 1000 then
         self:showCastbar(settings, true)
-    elseif UnitCastingInfo(settings.tag) then
+    elseif (select(5, UnitCastingInfo(settings.tag)) or 0) > GetTime() * 1000 then
         self:showCastbar(settings, false)
+    else
+        self:hideCastbar()
     end
 end
 

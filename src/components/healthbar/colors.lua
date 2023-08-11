@@ -27,10 +27,10 @@ end
 
 ---@type table<EnemyType, table<ThreatStatus, RGB>>
 local colors = {
-    ["boss"] = colorTable(90, 4, 40, 1, 90),
+    ["boss"] = colorTable(90, 10, 45, 1, 90),
     ["lieutenant"] = colorTable(194, 25, 65),
     ["caster"] = colorTable(259, 60, 65),
-    ["normal"] = colorTable(117, 60, 65),
+    ["normal"] = colorTable(130, 60, 65),
     ["trivial"] = colorTable(47, 25, 80),
     ["special"] = colorTable(22, 100, 65, 55, 80),
 }

@@ -9,7 +9,9 @@ local enemies = {}
 ---@param npcId integer
 ---@return boolean
 local function isSpecialUnit(npcId)
-    return npcId == 120651 or npcId == 204560
+    return npcId == 120651
+        or npcId == 204560
+        or npcId == 137458 -- Rotting Spore in Underrot
 end
 
 ---comment
@@ -27,11 +29,13 @@ function enemies.type(unit)
     -- we have a (non?)-boss elite
     local inInstance, instanceType = IsInInstance()
 
+    local playerLevel = UnitLevel("player")
+    local level = UnitLevel(unit)
     local cls = UnitClassification(unit)
     if cls == "minus" or cls == "trivial" then
         return "trivial"
     elseif cls == "normal" then
-        return inInstance and "trivial" or "normal"
+        return (inInstance or level < playerLevel - 10) and "trivial" or "normal"
     elseif cls == "rare" then
         return "caster"
     elseif cls == "worldboss" or cls == "rareelite" then
@@ -52,8 +56,6 @@ function enemies.type(unit)
         offset = 0
     end
 
-    local level = UnitLevel(unit)
-    local playerLevel = UnitLevel("player")
     local diff = level - playerLevel + offset
     if inInstance and diff == 3 then
         return "boss"
