@@ -36,9 +36,7 @@ function enemies.type(unit)
         return "trivial"
     elseif cls == "normal" then
         return (inInstance or level < playerLevel - 10) and "trivial" or "normal"
-    elseif cls == "rare" then
-        return "caster"
-    elseif cls == "worldboss" or cls == "rareelite" then
+    elseif cls == "worldboss" or cls == "rareelite" or cls == "rare" then
         return "boss"
     end
 
