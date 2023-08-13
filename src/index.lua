@@ -59,7 +59,7 @@ if NamePlateDriverFrame and NamePlateDriverFrame.AcquireUnitFrame then
     hooksecurefunc(NamePlateDriverFrame,'AcquireUnitFrame', Slab.HookAcquireUnitFrame)
 end
 
-Slab.font = "Fonts\\FRIZQT__.TTF"
+Slab.font = [[Interface\addons\Slab\resources\fonts\FiraSans-Regular.otf]]
 
 local relevantCVars = {
     "NamePlateMinAlpha",
@@ -82,6 +82,7 @@ local function SetCustomCVars()
     -- the NamePlateHorizontalScale setting is important
     -- to make the mouseover target match the visible frame
     C_CVar.SetCVar("NamePlateHorizontalScale", 1.4)
+    C_CVar.SetCVar("NamePLateVerticalScale", 0.5)
 end
 
 SetCustomCVars()

@@ -2,7 +2,7 @@
 local Slab = LibStub("Slab")
 
 local WIDTH = 152
-local HEIGHT = 12
+local HEIGHT = 10
 
 
 ---@class HealthBarComponent:Component
@@ -190,7 +190,7 @@ function component:build(parent)
     raidMarker:Hide()
 
     local name = healthBar:CreateFontString(healthBar:GetName() .. 'NameText', 'OVERLAY')
-    name:SetPoint('BOTTOM', healthBar, 'TOP', 0, 2)
+    name:SetPoint('BOTTOM', healthBar, 'TOP', 0, 1)
     name:SetFont(Slab.font, Slab.scale(8), "OUTLINE")
 
     local reactionIndicator = healthBar:CreateFontString(healthBar:GetName() .. 'IndicatorText', 'OVERLAY')
