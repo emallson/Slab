@@ -10,7 +10,10 @@ local enemies = {}
 local function isSpecialUnit(npcId)
     return npcId == 120651
         or npcId == 204560
-        or npcId == 137458 -- Rotting Spore in Underrot
+end
+
+local function isTrivialUnit(npcId)
+    return npcId == 137458 -- Rotting Spore in Underrot
 end
 
 ---comment
@@ -23,6 +26,8 @@ function enemies.type(unit)
     local npcId = Slab.UnitNpcId(unit)
     if isSpecialUnit(npcId) then
         return "special"
+    elseif isTrivialUnit(npcId) then
+        return "trivial"
     end
 
     -- we have a (non?)-boss elite
