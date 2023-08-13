@@ -3,6 +3,7 @@
 ## Notes: Minimal Nameplates
 ## Version: @project-version@
 ## X-Curse-Project-ID: 792980
+## OptionalDeps: Mythic Dungeon Tools, BigWigs
 
 libs\LibStub\LibStub.lua
 src\lib.lua
@@ -15,6 +16,7 @@ src\components\index.lua
 src\components\healthbar\threat.lua
 src\components\healthbar\colors.lua
 src\components\healthbar\enemies.lua
+src\components\healthbar\caster.lua
 src\components\healthbar\index.lua
 src\components\castbar.lua
 src\components\tod_indicator.lua

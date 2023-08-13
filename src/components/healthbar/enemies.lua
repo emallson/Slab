@@ -1,7 +1,6 @@
 ---@class LibSlab
 local Slab = LibStub("Slab")
 
-
 ---@alias EnemyType "boss" | "lieutenant" | "caster" | "normal" | "trivial" | "special"
 
 local enemies = {}
@@ -59,6 +58,8 @@ function enemies.type(unit)
         return "boss"
     elseif diff == 2 or not inInstance then
         return "lieutenant"
+    elseif Slab.utils.enemies.isCaster(npcId) then
+        return "caster"
     else
         return "normal"
     end
