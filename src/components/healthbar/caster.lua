@@ -47,7 +47,6 @@ local function addCastersFromBigWigsModule(_msg, _moduleName, module)
           end
        end
     end
-    DevTools_Dump(casters)
 end
 
 -- try to identify enemies that are kickable
