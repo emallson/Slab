@@ -28,10 +28,17 @@ end
 ---@type table<EnemyType, table<ThreatStatus, RGB>>
 local colors = {
     ["boss"] = colorTable(90, 10, 45, 1, 90),
-    ["lieutenant"] = colorTable(194, 25, 65),
+    ["lieutenant"] = colorTable(194, 25, 65, 10, 90),
     ["caster"] = colorTable(259, 60, 65),
     ["normal"] = colorTable(130, 60, 65),
-    ["trivial"] = colorTable(47, 25, 80),
+    ["trivial"] = {
+        active = Slab.color.hsl_to_srgb(47, 25, 80),
+        noncombat = Slab.color.hsl_to_srgb(47, 25, 80),
+        offtank = Slab.color.hsl_to_srgb(47, 25, 80),
+        pet = Slab.color.hsl_to_srgb(47, 25, 80),
+        warning = Slab.color.hsl_to_srgb(47, 25, 80),
+        danger = Slab.color.hsl_to_srgb(47, 25, 80),
+    },
     ["special"] = colorTable(22, 100, 65, 55, 80),
 }
 

@@ -16,6 +16,10 @@ local function isTrivialUnit(npcId)
     return npcId == 137458 -- Rotting Spore in Underrot
 end
 
+function enemies.isTrivial(unit)
+    return unit and isTrivialUnit(Slab.UnitNpcId(unit))
+end
+
 ---comment
 ---@param unit UnitId
 ---@return EnemyType

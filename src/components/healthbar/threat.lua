@@ -95,6 +95,9 @@ function threat.status(unit)
         -- we tank. we want threat. or want OT to have threat.
         if threatStatus == THREAT_HIGHEST or not UnitIsFriend("player", target) then
             return "active"
+        elseif threatStatus == THREAT_NOT_TANKING and UnitIsUnit("player", target) then
+            -- blizzard bug
+            return "active"
         elseif threatStatus == THREAT_NOT_TANKING and IsTank(target) then
             return IsTankPet(target) and "pet" or "offtank"
         elseif threatStatus == THREAT_NOT_TANKING then

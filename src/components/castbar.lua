@@ -134,11 +134,15 @@ function component:unbind()
     self:hideCastbar()
 end
 
+local function castAlreadyOver(endTimeMS)
+    return endTimeMS < GetTime() * 1000
+end
+
 ---@param settings SlabNameplateSettings
 function component:refresh(settings)
-    if (select(5, UnitChannelInfo(settings.tag)) or 0) > GetTime() * 1000 then
+    if not castAlreadyOver(select(5, UnitChannelInfo(settings.tag)) or 0) then
         self:showCastbar(settings, true)
-    elseif (select(5, UnitCastingInfo(settings.tag)) or 0) > GetTime() * 1000 then
+    elseif not castAlreadyOver(select(5, UnitCastingInfo(settings.tag)) or 0) then
         self:showCastbar(settings, false)
     else
         self:hideCastbar()
@@ -239,7 +243,8 @@ function component:showCastbar(settings, isChannel)
     local unitId = settings.tag
     local spellName, displayName, spellIcon, startTimeMS, endTimeMS, _isTrade, uninterruptible = getCastInfo(unitId, isChannel)
 
-    if spellName == nil then
+    if spellName == nil or castAlreadyOver(endTimeMS) then
+        self:hideCastbar()
         return
     end
     self:showCastbarDetails(settings, spellName, spellIcon, startTimeMS, endTimeMS, isChannel, uninterruptible)
