@@ -256,4 +256,4 @@ function component:hideCastbar()
     self.frame:Hide()
 end
 
-Slab.RegisterComponent('castBar', Slab.apply_combinators(component, Slab.combinators.disable_minimal()))
+Slab.RegisterComponent('castBar', component)
