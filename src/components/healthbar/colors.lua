@@ -25,21 +25,28 @@ local function colorTable(hue, saturation, lightness, otSaturation, otLightness)
     }
 end
 
+local function trivialTable(hue, saturation, lightness)
+    local color = Slab.color.hsl_to_srgb(hue, saturation, lightness)
+    return {
+        active = color,
+        noncombat = color,
+        offtank = color,
+        pet = color,
+        warning = color,
+        danger = color,
+    }
+end
+
 ---@type table<EnemyType, table<ThreatStatus, RGB>>
 local colors = {
     ["boss"] = colorTable(90, 10, 45, 1, 90),
     ["lieutenant"] = colorTable(194, 25, 65, 10, 90),
     ["caster"] = colorTable(259, 60, 65),
     ["normal"] = colorTable(130, 60, 65),
-    ["trivial"] = {
-        active = Slab.color.hsl_to_srgb(47, 25, 80),
-        noncombat = Slab.color.hsl_to_srgb(47, 25, 80),
-        offtank = Slab.color.hsl_to_srgb(47, 25, 80),
-        pet = Slab.color.hsl_to_srgb(47, 25, 80),
-        warning = Slab.color.hsl_to_srgb(47, 25, 80),
-        danger = Slab.color.hsl_to_srgb(47, 25, 80),
-    },
+    ["minor"] = colorTable(130, 60, 65),
+    ["trivial"] = trivialTable(47, 25, 80),
     ["special"] = colorTable(22, 100, 65, 55, 80),
+    ["tapped"] = trivialTable(47, 11, 64)
 }
 
 Slab.color.threat = colors

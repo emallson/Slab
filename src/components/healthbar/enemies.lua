@@ -1,7 +1,7 @@
 ---@class LibSlab
 local Slab = LibStub("Slab")
 
----@alias EnemyType "boss" | "lieutenant" | "caster" | "normal" | "trivial" | "special"
+---@alias EnemyType "boss" | "lieutenant" | "caster" | "normal" | "trivial" | "special" | "tapped"
 
 local enemies = {}
 
@@ -26,6 +26,9 @@ end
 function enemies.type(unit)
     if UnitIsBossMob(unit) then
         return "boss"
+    end
+    if UnitIsTapDenied(unit) then
+        return "tapped"
     end
     local npcId = Slab.UnitNpcId(unit)
     if isSpecialUnit(npcId) then
