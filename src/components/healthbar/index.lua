@@ -32,7 +32,7 @@ local function playerColor(unitName)
     if classKey ~= nil then
         return C_ClassColor.GetClassColor(classKey)
     end
-    return nil 
+    return nil
 end
 
 ---@param settings SlabNameplateSettings
