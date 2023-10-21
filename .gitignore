@@ -1,3 +1,4 @@
 .release
 release.sh
 .vscode/settings.json
+.direnv/
