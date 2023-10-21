@@ -8,16 +8,22 @@ local enemies = {}
 ---@param npcId integer
 ---@return boolean
 local function isSpecialUnit(npcId)
-  return npcId == 120651   -- Explosive
-      or npcId == 204560   -- Incorporeal
+  return npcId == 120651 -- Explosive
+      or npcId == 204560 -- Incorporeal
 end
 
 local function isTrivialUnit(npcId)
-  return npcId == 137458   -- Rotting Spore in Underrot
+  return npcId == 137458 -- Rotting Spore in Underrot
 end
 
 function enemies.isTrivial(unit)
   return unit and isTrivialUnit(Slab.UnitNpcId(unit))
+end
+
+---@param unit UnitId
+---@return boolean
+function enemies.isMinor(unit)
+  return unit and UnitClassification(unit) == "minus"
 end
 
 ---comment
@@ -43,7 +49,7 @@ function enemies.type(unit)
   local playerLevel = UnitLevel("player")
   local level = UnitLevel(unit)
   local cls = UnitClassification(unit)
-  if cls == "minus" or cls == "trivial" then
+  if cls == "trivial" then
     return "trivial"
   elseif cls == "normal" then
     return (inInstance or level < playerLevel - 10) and "trivial" or "normal"
@@ -82,4 +88,3 @@ end
 Slab.utils.enemies = enemies
 
 -- so the idea is to scan MDT.dungeonEnemies for enemies with the "Silence" tag, then cross reference that with BigWigs to check if a spell is important enough to have a notification. Silence Tag + important spell = caster
-

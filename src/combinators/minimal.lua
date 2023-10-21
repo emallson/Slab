@@ -4,10 +4,10 @@
 local Slab = select(2, ...)
 
 local npcBlacklist = {
-  [183669] = true,   -- Fiendish Souls
-  [189707] = true,   -- Chaotic Motes
-  [167999] = true,   -- Echo of Sin
-  [182053] = true,   -- Degeneration Automata
+  [183669] = true, -- Fiendish Souls
+  [189707] = true, -- Chaotic Motes
+  [167999] = true, -- Echo of Sin
+  [182053] = true, -- Degeneration Automata
 }
 
 ---comment
@@ -18,7 +18,9 @@ local function disable_minimal(baseComponent)
   setmetatable(component, { __index = baseComponent })
 
   function component:bind(settings)
-    if npcBlacklist[Slab.UnitNpcId(settings.tag)] or Slab.utils.enemies.type(settings.tag) == "trivial" then
+    if npcBlacklist[Slab.UnitNpcId(settings.tag)]
+        or Slab.utils.enemies.isTrivial(settings.tag)
+        or Slab.utils.enemies.isMinor(settings.tag) then
       self.minimalMode = true
       return
     else
@@ -38,4 +40,3 @@ local function disable_minimal(baseComponent)
 end
 
 Slab.combinators.disable_minimal = Slab.combinator(disable_minimal)
-

@@ -3,6 +3,7 @@ local Slab = select(2, ...)
 
 local WIDTH = 152
 local HEIGHT = 10
+local MINOR_SCALE = 0.5
 
 
 ---@class HealthBarComponent:Component
@@ -12,6 +13,10 @@ local component = {
 
 ---@param settings SlabNameplateSettings
 function component:refreshName(settings)
+  if Slab.utils.enemies.isMinor(settings.tag) then
+    self.frame.name:Hide()
+  end
+
   local name = UnitName(settings.tag)
   if name == UNKNOWNOBJECT then
     local tag = settings.tag
@@ -109,6 +114,19 @@ function component:refreshPlayerTargetIndicator(settings)
 end
 
 ---@param settings SlabNameplateSettings
+function component:refreshClassification(settings)
+  if Slab.utils.enemies.isMinor(settings.tag) then
+    self.frame.name:Hide()
+    self.frame:SetHeight(HEIGHT * MINOR_SCALE)
+  else
+    self.frame.name:Show()
+    self.frame:SetHeight(HEIGHT)
+  end
+
+  self:refreshColor(settings)
+end
+
+---@param settings SlabNameplateSettings
 function component:refresh(settings)
   self:refreshName(settings)
   self:refreshColor(settings)
@@ -116,6 +134,7 @@ function component:refresh(settings)
   self:refreshTargetMarker(settings)
   self:refreshReaction(settings)
   self:refreshPlayerTargetIndicator(settings)
+  self:refreshClassification(settings)
 end
 
 ---@param settings SlabNameplateSettings
@@ -141,7 +160,7 @@ function component:update(eventName, ...)
   elseif eventName == 'PLAYER_TARGET_CHANGED' then
     self:refreshPlayerTargetIndicator(self.settings)
   elseif eventName == 'UNIT_CLASSIFICATION_CHANGED' then
-    self:refreshColor(self.settings)
+    self:refreshClassification(self.settings)
   elseif eventName == 'UNIT_NAME_UPDATE' then
     self:refreshName(self.settings)
   end
@@ -211,4 +230,3 @@ function component:build(parent)
 end
 
 Slab.RegisterComponent('healthBar', component)
-
