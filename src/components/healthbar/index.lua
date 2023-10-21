@@ -8,6 +8,7 @@ local MINOR_SCALE = 0.5
 
 ---@class HealthBarComponent:Component
 ---@field public frame HealthBar
+---@field private wasSmallMode? boolean
 local component = {
 }
 
@@ -75,9 +76,12 @@ function component:refreshTargetMarker(settings)
   end
 end
 
+local function smallMode(unit)
+  return Slab.utils.enemies.isMinor(unit) or Slab.utils.enemies.isTrivial(unit)
+end
+
 ---@param settings SlabNameplateSettings
 function component:refreshReaction(settings)
-  local target = settings.tag .. 'target'
   local reaction = UnitReaction(settings.tag, 'player')
   local threatStatus = Slab.threat.status(settings.tag)
   if reaction == 4 and threatStatus == "noncombat" then
@@ -98,6 +102,7 @@ function component:refreshReaction(settings)
   end
 end
 
+
 ---@param settings SlabNameplateSettings
 function component:refreshPlayerTargetIndicator(settings)
   if UnitIsUnit('target', settings.tag) then
@@ -105,22 +110,38 @@ function component:refreshPlayerTargetIndicator(settings)
     for _, pin in ipairs(self.frame.targetPins) do
       pin:Show()
     end
+    if smallMode(settings.tag) then
+      self.frame.name:Show()
+    end
   else
     self.frame.bg:SetAlpha(0.5)
     for _, pin in ipairs(self.frame.targetPins) do
       pin:Hide()
+    end
+    if smallMode(settings.tag) then
+      self.frame.name:Hide()
     end
   end
 end
 
 ---@param settings SlabNameplateSettings
 function component:refreshClassification(settings)
-  if Slab.utils.enemies.isMinor(settings.tag) then
-    self.frame.name:Hide()
-    self.frame:SetHeight(HEIGHT * MINOR_SCALE)
-  else
+  if smallMode(settings.tag) then
+    self.wasSmallMode = true
+    if not UnitIsUnit(settings.tag, "target") then
+      self.frame.name:Hide()
+    end
+    self.frame:SetHeight(Slab.scale(HEIGHT * MINOR_SCALE))
+    for i, pin in pairs(self.frame.targetPins) do
+      pin:SetSize(3, 3)
+    end
+  elseif self.wasSmallMode then
+    self.wasSmallMode = false
     self.frame.name:Show()
-    self.frame:SetHeight(HEIGHT)
+    self.frame:SetHeight(Slab.scale(HEIGHT))
+    for i, pin in pairs(self.frame.targetPins) do
+      pin:SetSize(3, 3)
+    end
   end
 
   self:refreshColor(settings)

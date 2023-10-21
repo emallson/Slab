@@ -17,7 +17,7 @@ local function isTrivialUnit(npcId)
 end
 
 function enemies.isTrivial(unit)
-  return unit and isTrivialUnit(Slab.UnitNpcId(unit))
+  return unit and (isTrivialUnit(Slab.UnitNpcId(unit)) or UnitClassification(unit) == "trivial" or (UnitLevel("player") - UnitLevel(unit) >= 3))
 end
 
 ---@param unit UnitId
