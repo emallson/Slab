@@ -39,14 +39,14 @@ local function hsl_to_srgb(hue, saturation, lightness)
 
   ---@class RGB
   return {
-    r = hue_to_rgb_component(var1, var2, hue + 1/3),
+    r = hue_to_rgb_component(var1, var2, hue + 1 / 3),
     g = hue_to_rgb_component(var1, var2, hue),
-    b = hue_to_rgb_component(var1, var2, hue - 1/3),
+    b = hue_to_rgb_component(var1, var2, hue - 1 / 3),
   }
 end
 ---@class LibSlab
-local Slab = LibStub("Slab")
+local Slab = select(2, ...)
 
 Slab.color = {
-    hsl_to_srgb = hsl_to_srgb,
+  hsl_to_srgb = hsl_to_srgb,
 }

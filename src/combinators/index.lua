@@ -1,5 +1,5 @@
 ---@class LibSlab
-local Slab = LibStub("Slab")
+local Slab = select(2, ...)
 
 
 ---@alias ComponentTransform fun(component: ComponentConstructor): ComponentConstructor
@@ -9,16 +9,16 @@ local Slab = LibStub("Slab")
 ---@param f fun(component: ComponentConstructor, ...: any): ComponentConstructor
 ---@return SlabCombinator
 function Slab.combinator(f)
-    ---@param ... any
-    ---@return fun(component: ComponentConstructor): ComponentConstructor
-    return function(...)
-        local varargs = {...}
-        ---@param component ComponentConstructor
-        ---@return ComponentConstructor
-        return function(component)
-            return f(component, unpack(varargs))
-        end
+  ---@param ... any
+  ---@return fun(component: ComponentConstructor): ComponentConstructor
+  return function(...)
+    local varargs = { ... }
+    ---@param component ComponentConstructor
+    ---@return ComponentConstructor
+    return function(component)
+      return f(component, unpack(varargs))
     end
+  end
 end
 
 ---Apply a stack of transforms to a component constructor.
@@ -26,11 +26,12 @@ end
 ---@param ... ComponentTransform[]
 ---@return ComponentConstructor
 function Slab.apply_combinators(component, ...)
-    for i=1,select("#", ...) do
-        local transform = select(i, ...)
-        component = transform(component)
-    end
-    return component
+  for i = 1, select("#", ...) do
+    local transform = select(i, ...)
+    component = transform(component)
+  end
+  return component
 end
 
 Slab.combinators = {}
+

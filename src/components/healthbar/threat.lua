@@ -1,5 +1,5 @@
 ---@class LibSlab
-local Slab = LibStub("Slab")
+local Slab = select(2, ...)
 
 local threat = {}
 
@@ -29,11 +29,11 @@ local function IsTankPet(unit)
   local npcId = UnitNpcId(unit)
 
   return
-      npcId == 61146       -- ox statue
-      or npcId == 103822   -- trees
-      or npcId == 15352    -- earth ele
-      or npcId == 95072    -- greater earth ele
-      or npcId == 61056    -- primal earth ele
+      npcId == 61146     -- ox statue
+      or npcId == 103822 -- trees
+      or npcId == 15352  -- earth ele
+      or npcId == 95072  -- greater earth ele
+      or npcId == 61056  -- primal earth ele
 end
 
 ---@param unit UnitId
@@ -65,21 +65,21 @@ local any = {}
 
 local ThreatRules = {
   -- isOnThreatTable, isPlayerTank, isPrimaryTarget, isHighestThreat, primaryTargetIsHigherThreat, primaryTargetIsTank, primaryTargetIsPet, noPrimaryTarget
-  { false, any,   any,   any,   any,   any,   any,   any,  "noncombat" },  -- 1
+  { false, any,   any,   any,   any,   any,   any,   any,  "noncombat" }, -- 1
 
-  { true,  true,  true,  true,  any,   any,   any,   any,  "active" },     -- 4 done
-  { true,  true,  false, true,  any,   any,   any,   true, "active" },     -- 5 done
-  { true,  true,  true,  false, any,   any,   any,   any,  "warning" },    -- 4 done
-  { true,  true,  false, false, any,   any,   any,   true, "warning" },    -- 5 done
-  { true,  true,  false, false, any,   true,  false, any,  "offtank" },    -- 6
-  { true,  true,  false, false, any,   false, true,  any,  "pet" },        -- 6
-  { true,  true,  false, true,  any,   true,  false, any,  "warning" },    -- 6 done
-  { true,  true,  false, any,   true,  false, any,   any,  "danger" },     -- 5 done
-  { true,  true,  false, any,   false, false, any,   any,  "warning" },    -- 5 done
+  { true,  true,  true,  true,  any,   any,   any,   any,  "active" },    -- 4 done
+  { true,  true,  false, true,  any,   any,   any,   true, "active" },    -- 5 done
+  { true,  true,  true,  false, any,   any,   any,   any,  "warning" },   -- 4 done
+  { true,  true,  false, false, any,   any,   any,   true, "warning" },   -- 5 done
+  { true,  true,  false, false, any,   true,  false, any,  "offtank" },   -- 6
+  { true,  true,  false, false, any,   false, true,  any,  "pet" },       -- 6
+  { true,  true,  false, true,  any,   true,  false, any,  "warning" },   -- 6 done
+  { true,  true,  false, any,   true,  false, any,   any,  "danger" },    -- 5 done
+  { true,  true,  false, any,   false, false, any,   any,  "warning" },   -- 5 done
 
-  { true,  false, true,  any,   any,   any,   any,   any,  "danger" },     -- 3 done
-  { true,  false, false, true,  any,   any,   any,   any,  "warning" },    -- 4 done
-  { true,  false, false, false, any,   any,   any,   any,  "active" },     -- 4 done
+  { true,  false, true,  any,   any,   any,   any,   any,  "danger" },    -- 3 done
+  { true,  false, false, true,  any,   any,   any,   any,  "warning" },   -- 4 done
+  { true,  false, false, false, any,   any,   any,   any,  "active" },    -- 4 done
 }
 
 ---determine the threat status for the `mobUnit`
@@ -92,7 +92,7 @@ local function applyRulesInline(mobUnit)
   local primaryTargetIsHigherThreat = (targetThreat or 0) > (rawThreatValue or 0)
   local noPrimaryTarget = not UnitExists(target) or not UnitIsFriend("player", target)
   local isTargettingFriendly = not noPrimaryTarget and UnitIsUnit("player", target) or UnitPlayerOrPetInParty(target) or
-  UnitPlayerOrPetInRaid(target)
+      UnitPlayerOrPetInRaid(target)
   -- true if the player or any player in the party/raid is on the threat table or the current target
   local isOnThreatTable = isTargettingFriendly or (rawThreatValue ~= nil and rawThreatValue > 0)
 
@@ -161,7 +161,7 @@ local function applyRules(mobUnit)
   local primaryTargetIsHigherThreat = (targetThreat or 0) > (rawThreatValue or 0)
   local noPrimaryTarget = not UnitExists(target) or not UnitIsFriend("player", target)
   local isTargettingFriendly = not noPrimaryTarget and UnitIsUnit("player", target) or UnitPlayerOrPetInParty(target) or
-  UnitPlayerOrPetInRaid(target)
+      UnitPlayerOrPetInRaid(target)
   -- true if the player or any player in the party/raid is on the threat table or the current target
   local isOnThreatTable = isTargettingFriendly or (rawThreatValue ~= nil and rawThreatValue > 0)
 
@@ -193,4 +193,3 @@ end
 threat.status = applyRulesInline
 
 Slab.threat = threat
-
