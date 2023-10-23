@@ -12,9 +12,13 @@ local MINOR_SCALE = 0.5
 local component = {
 }
 
+local function smallMode(unit)
+  return Slab.utils.enemies.isMinor(unit) or Slab.utils.enemies.isTrivial(unit)
+end
+
 ---@param settings SlabNameplateSettings
 function component:refreshName(settings)
-  if Slab.utils.enemies.isMinor(settings.tag) then
+  if smallMode(settings.tag) then
     self.frame.name:Hide()
   end
 
@@ -76,10 +80,6 @@ function component:refreshTargetMarker(settings)
   end
 end
 
-local function smallMode(unit)
-  return Slab.utils.enemies.isMinor(unit) or Slab.utils.enemies.isTrivial(unit)
-end
-
 ---@param settings SlabNameplateSettings
 function component:refreshReaction(settings)
   local reaction = UnitReaction(settings.tag, 'player')
@@ -125,7 +125,7 @@ function component:refreshPlayerTargetIndicator(settings)
 end
 
 ---@param settings SlabNameplateSettings
-function component:refreshClassification(settings)
+function component:refreshClassification(settings, forceFresh)
   if smallMode(settings.tag) then
     self.wasSmallMode = true
     if not UnitIsUnit(settings.tag, "target") then
@@ -135,12 +135,12 @@ function component:refreshClassification(settings)
     for i, pin in pairs(self.frame.targetPins) do
       pin:SetSize(3, 3)
     end
-  elseif self.wasSmallMode then
+  elseif self.wasSmallMode or forceFresh then
     self.wasSmallMode = false
     self.frame.name:Show()
     self.frame:SetHeight(Slab.scale(HEIGHT))
     for i, pin in pairs(self.frame.targetPins) do
-      pin:SetSize(3, 3)
+      pin:SetSize(4, 4)
     end
   end
 
@@ -155,7 +155,7 @@ function component:refresh(settings)
   self:refreshTargetMarker(settings)
   self:refreshReaction(settings)
   self:refreshPlayerTargetIndicator(settings)
-  self:refreshClassification(settings)
+  self:refreshClassification(settings, true)
 end
 
 ---@param settings SlabNameplateSettings
