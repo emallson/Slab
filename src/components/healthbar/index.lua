@@ -12,13 +12,15 @@ local MINOR_SCALE = 0.5
 local component = {
 }
 
-local function smallMode(unit)
+---@param unit UnitId
+---@return boolean
+function component.smallMode(unit)
   return Slab.utils.enemies.isMinor(unit) or Slab.utils.enemies.isTrivial(unit)
 end
 
 ---@param settings SlabNameplateSettings
 function component:refreshName(settings)
-  if smallMode(settings.tag) then
+  if component.smallMode(settings.tag) then
     self.frame.name:Hide()
   end
 
@@ -102,7 +104,6 @@ function component:refreshReaction(settings)
   end
 end
 
-
 ---@param settings SlabNameplateSettings
 function component:refreshPlayerTargetIndicator(settings)
   if UnitIsUnit('target', settings.tag) then
@@ -110,7 +111,7 @@ function component:refreshPlayerTargetIndicator(settings)
     for _, pin in ipairs(self.frame.targetPins) do
       pin:Show()
     end
-    if smallMode(settings.tag) then
+    if component.smallMode(settings.tag) then
       self.frame.name:Show()
     end
   else
@@ -118,7 +119,7 @@ function component:refreshPlayerTargetIndicator(settings)
     for _, pin in ipairs(self.frame.targetPins) do
       pin:Hide()
     end
-    if smallMode(settings.tag) then
+    if component.smallMode(settings.tag) then
       self.frame.name:Hide()
     end
   end
@@ -126,7 +127,7 @@ end
 
 ---@param settings SlabNameplateSettings
 function component:refreshClassification(settings, forceFresh)
-  if smallMode(settings.tag) then
+  if component.smallMode(settings.tag) then
     self.wasSmallMode = true
     if not UnitIsUnit(settings.tag, "target") then
       self.frame.name:Hide()
