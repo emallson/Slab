@@ -13,8 +13,10 @@ function component:build(slab)
   local parent = slab.components.healthBar.frame
   ---@class ThresholdIndicator:Frame
   local indicator = CreateFrame('Frame', parent:GetName() .. 'ToDIndicator', parent)
-  indicator:SetPoint('LEFT', parent, 'LEFT', 0, 0)
-  indicator:SetSize(Slab.scale(1), parent:GetHeight())
+
+  indicator:SetPoint('TOPLEFT', parent, 'TOPLEFT', 0, 0)
+  indicator:SetPoint('BOTTOMLEFT', parent, 'BOTTOMLEFT', 0, 0)
+  indicator:SetWidth(Slab.scale(1))
   indicator:SetFrameLevel(1)
 
   local tex = indicator:CreateTexture(nil, 'OVERLAY')
@@ -54,7 +56,8 @@ function component:refresh(settings)
 
   local offset = math.floor(ratio * self.frame.baseWidth) + 1
 
-  self.frame:SetPoint('LEFT', self.frame:GetParent(), 'LEFT', offset, 0)
+  self.frame:SetPoint('TOPLEFT', self.frame:GetParent(), 'TOPLEFT', offset, 0)
+  self.frame:SetPoint('BOTTOMLEFT', self.frame:GetParent(), 'BOTTOMLEFT', offset, 0)
 
   self.frame:Raise()
   self.frame:Show()
