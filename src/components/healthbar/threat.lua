@@ -127,7 +127,7 @@ local function applyRulesInline(mobUnit)
     elseif noPrimaryTarget then
       -- handle RP / AoE casts that bosses often do
       -- ex: Sark Fire Breath clears target, don't warn if we're definitely still tanking
-      if isHighestThreat then
+      if threatStatus == THREAT_HIGHEST or rawPct >= 110 then
         return "active"
       else
         return "warning"
