@@ -1,6 +1,6 @@
 # Slab
 
-![Slab v2 in brackenhide hollow](readme/brackenhide_casts.png)
+![Slab v2 in brackenhide hollow](readme/brackenhide_cast.png)
 
 Slab is a slim and colorful nameplate addon for Retail World of Warcraft with a focus on being clear, simple & efficient. It uses color to distinguish different classes of enemies, with high-visibility colors for dangerous threat states.
 
@@ -17,7 +17,7 @@ Slab is a slim and colorful nameplate addon for Retail World of Warcraft with a 
 ### Enemy Classes
 
 <p align="center">
-<img alt="Slab v2 Colors" src="readme/v2_color_grid.png" />
+<img alt="Slab v2 Colors" src="readme/v2_grid.png" />
 </p>
 
 - Boss: A Dungeon or Raid boss (or world boss, in open world content)
