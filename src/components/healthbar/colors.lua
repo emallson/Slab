@@ -44,7 +44,7 @@ local colors = {
   ["caster"] = colorTable(259, 60, 65),
   ["normal"] = colorTable(130, 60, 65),
   ["minor"] = colorTable(130, 60, 65),
-  ["trivial"] = trivialTable(47, 25, 80),
+  ["trivial"] = colorTable(47, 25, 80),
   ["special"] = colorTable(22, 100, 65, 55, 80),
   ["tapped"] = trivialTable(47, 11, 64)
 }
