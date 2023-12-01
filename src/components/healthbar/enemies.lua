@@ -14,6 +14,8 @@ end
 
 local function isTrivialUnit(npcId)
   return npcId == 137458 -- Rotting Spore in Underrot
+      or npcId == 210231 -- Lashers on Gnarlroot
+      or npcId == 211306 -- Fiery Vines on Tindral
 end
 
 ---@param unit UnitId
