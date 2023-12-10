@@ -3,7 +3,7 @@ local Slab = select(2, ...)
 
 local threat = {}
 
-local REQUIRE_RULES = true
+local REQUIRE_RULES = false
 
 ---Descriptor for current threat status. "active" means active tank. "offtank" means another tank has threat. "warning" means you are tanking it but not highest threat. "danger" means a non-tank is tanking it. "noncombat" is any unit not in combat with you or your party.
 ---@alias ThreatStatus "active" | "offtank" | "pet" | "warning" | "danger" | "noncombat"
@@ -36,6 +36,15 @@ local function IsTankPet(unit)
       or npcId == 61056  -- primal earth ele
 end
 
+local WELL_KNOWN_FIXATES = {
+  [174773] = true, -- Spiteful
+  [201756] = true, -- Morchie (Familiar Face)
+}
+
+local function isFixating(npcId, primaryTarget, rawPct)
+  return WELL_KNOWN_FIXATES[npcId] or ((rawPct or 0) > 121 and not primaryTarget)
+end
+
 ---@param unit UnitId
 ---@return boolean
 local function IsTankPlayer(unit)
@@ -61,27 +70,6 @@ local THREAT_WARNING_TANKING = 2
 local THREAT_WARNING_NOT_TANKING = 1
 local THREAT_NOT_TANKING = 0
 
-local any = {}
-
-local ThreatRules = {
-  -- isOnThreatTable, isPlayerTank, isPrimaryTarget, isHighestThreat, primaryTargetIsHigherThreat, primaryTargetIsTank, primaryTargetIsPet, noPrimaryTarget
-  { false, any,   any,   any,   any,   any,   any,   any,  "noncombat" }, -- 1
-
-  { true,  true,  true,  true,  any,   any,   any,   any,  "active" },    -- 4 done
-  { true,  true,  false, true,  any,   any,   any,   true, "active" },    -- 5 done
-  { true,  true,  true,  false, any,   any,   any,   any,  "warning" },   -- 4 done
-  { true,  true,  false, false, any,   any,   any,   true, "warning" },   -- 5 done
-  { true,  true,  false, false, any,   true,  false, any,  "offtank" },   -- 6
-  { true,  true,  false, false, any,   false, true,  any,  "pet" },       -- 6
-  { true,  true,  false, true,  any,   true,  false, any,  "warning" },   -- 6 done
-  { true,  true,  false, any,   true,  false, any,   any,  "danger" },    -- 5 done
-  { true,  true,  false, any,   false, false, any,   any,  "warning" },   -- 5 done
-
-  { true,  false, true,  any,   any,   any,   any,   any,  "danger" },    -- 3 done
-  { true,  false, false, true,  any,   any,   any,   any,  "warning" },   -- 4 done
-  { true,  false, false, false, any,   any,   any,   any,  "active" },    -- 4 done
-}
-
 ---determine the threat status for the `mobUnit`
 ---@param mobUnit UnitId
 ---@return ThreatStatus
@@ -98,6 +86,7 @@ local function applyRulesInline(mobUnit)
 
   local isHighestThreat = threatStatus == THREAT_WARNING_NOT_TANKING or threatStatus == THREAT_HIGHEST
   local isPlayerTank = IsPlayerTank()
+  -- TODO target != primaryTarget. how do we determine the primary target without enumerating the raid/party?
   local primaryTargetIsTank = not noPrimaryTarget and IsTankPlayer(target)
   local primaryTargetIsPet = not noPrimaryTarget and IsTankPet(target)
 
@@ -133,14 +122,16 @@ local function applyRulesInline(mobUnit)
         return "warning"
       end
     else
-      if isHighestThreat and primaryTargetIsTank and not primaryTargetIsPet then
+      if isFixating(UnitNpcId(mobUnit), false, rawPct) then
+        return "active"
+      elseif isHighestThreat and primaryTargetIsTank and not primaryTargetIsPet then
         -- not primary target, but highest threat
         -- don't warn on pets because many have fixate rules that ignore threat (e.g. treants, earth ele both taunt)
         return "warning"
       elseif not primaryTargetIsTank then
         -- handle non-tank primary targets
         return primaryTargetIsHigherThreat and "danger" or "warning"
-      elseif primaryTargetIsTank then
+      elseif primaryTargetIsTank and not UnitIsUnit(target, "player") then
         return "offtank"
       elseif primaryTargetIsPet then
         return "pet"
@@ -151,43 +142,6 @@ local function applyRulesInline(mobUnit)
       end
     end
   end
-end
-
-local function applyRules(mobUnit)
-  local isPrimaryTarget, threatStatus, scaledPct, rawPct, rawThreatValue = UnitDetailedThreatSituation("player", mobUnit)
-
-  local target = mobUnit .. "target"
-  local targetThreat = UnitExists(target) and select(5, UnitDetailedThreatSituation(target, mobUnit))
-  local primaryTargetIsHigherThreat = (targetThreat or 0) > (rawThreatValue or 0)
-  local noPrimaryTarget = not UnitExists(target) or not UnitIsFriend("player", target)
-  local isTargettingFriendly = not noPrimaryTarget and UnitIsUnit("player", target) or UnitPlayerOrPetInParty(target) or
-      UnitPlayerOrPetInRaid(target)
-  -- true if the player or any player in the party/raid is on the threat table or the current target
-  local isOnThreatTable = isTargettingFriendly or (rawThreatValue ~= nil and rawThreatValue > 0)
-
-  local isHighestThreat = threatStatus == THREAT_WARNING_NOT_TANKING or threatStatus == THREAT_HIGHEST
-  local isPlayerTank = IsPlayerTank()
-  local primaryTargetIsTank = not noPrimaryTarget and IsTankPlayer(target)
-  local primaryTargetIsPet = not noPrimaryTarget and IsTankPet(target)
-
-  local state = { isOnThreatTable, isPlayerTank, isPrimaryTarget, isHighestThreat, primaryTargetIsHigherThreat,
-    primaryTargetIsTank, primaryTargetIsPet, noPrimaryTarget }
-
-  for _, rule in ipairs(ThreatRules) do
-    local isMatch = true
-    for i, s in ipairs(state) do
-      if rule[i] ~= any and rule[i] ~= s then
-        isMatch = false
-        break
-      end
-    end
-
-    if isMatch then
-      return rule[#rule]
-    end
-  end
-
-  error("Unable to determine threat from rules")
 end
 
 threat.status = applyRulesInline
