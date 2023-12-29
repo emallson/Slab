@@ -92,7 +92,11 @@ Slab.utils.load_for('executeIndicator', {
   HUNTER = Slab.apply_combinators(
     executeIndicator(0.2),
     Slab.combinators.enable_when_spell(53351, onSpellLearned)
-  )
+  ),
+  PRIEST = Slab.apply_combinators(
+    executeIndicator(0.2),
+    Slab.combinators.enable_when_spell(32379, onSpellLearned)
+  ),
 })
 
 Slab.utils.load_for('antiExecuteIndicator', {
