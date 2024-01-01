@@ -8,6 +8,8 @@ local npcBlacklist = {
   [189707] = true, -- Chaotic Motes
   [167999] = true, -- Echo of Sin
   [182053] = true, -- Degeneration Automata
+  [214441] = true, -- Scorched Treant, Tindral
+  [211306] = true, -- Fiery Vines, Tindral
 }
 
 ---comment
