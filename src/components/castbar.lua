@@ -274,6 +274,8 @@ end
 function component:hideCastbar()
   self.frame.castAnimGroup:Stop()
   self.frame:Hide()
+  self.frame.targetName:Hide()
+  self.frame.targetName:SetText("")
   cancelWatch(self.frame.targetName)
 end
 
