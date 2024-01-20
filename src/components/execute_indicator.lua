@@ -53,7 +53,7 @@ local function executeIndicator(executeThreshold)
       return
     end
 
-    local offset = math.floor(ratio * self.frame.baseWidth) + 1
+    local offset = math.floor(ratio * self.frame.baseWidth)
     self.frame:SetPoint('TOPLEFT', self.frame:GetParent(), 'TOPLEFT', offset, 0)
     self.frame:SetPoint('BOTTOMLEFT', self.frame:GetParent(), 'BOTTOMLEFT', offset, 0)
 

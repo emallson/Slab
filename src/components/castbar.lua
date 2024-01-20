@@ -170,11 +170,13 @@ end
 
 ---@param targetUnit UnitId
 ---@param frame FontString
-local function updateTargetName(targetUnit, frame)
+local function updateTargetName(targetUnit, frame, lastKnownName)
   if targetUnit == nil then return end
 
   local targetName = UnitName(targetUnit)
-  if targetName ~= nil and UnitIsPlayer(targetUnit) then
+  if targetName == lastKnownName then
+    return targetName
+  elseif targetName ~= nil and UnitIsPlayer(targetUnit) then
     frame:SetText(targetName)
     local classColor = C_ClassColor.GetClassColor(select(2, UnitClass(targetUnit)))
 
@@ -187,6 +189,27 @@ local function updateTargetName(targetUnit, frame)
   else
     frame:Hide()
   end
+  return targetName
+end
+
+local function cancelWatch(frame)
+  if frame.timer ~= nil then
+    frame.timer:Cancel()
+    frame.timer = nil
+  end
+end
+
+local function watchTargetName(targetUnit, frame)
+  -- always cancel before starting a new watch to prevent double-watches conflicting.
+  -- the watch closes over the target unit and frame reference, which may go out of sync if the nameplate is re-used but the watch is somehow not canceled
+  cancelWatch(frame)
+  local lastKnownName = updateTargetName(targetUnit, frame, nil)
+  local timer = C_Timer.NewTicker(0.1, function()
+    lastKnownName = updateTargetName(targetUnit, frame, lastKnownName)
+  end)
+
+  frame.timer = timer
+  return timer
 end
 
 ---@param eventName string
@@ -204,7 +227,6 @@ function component:update(eventName, ...)
   elseif eventName == "UNIT_SPELLCAST_INTERRUPTIBLE" or eventName == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE" then
     self:updateCastColor(self.settings, eventName == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
   elseif eventName == "UNIT_TARGET" then
-    -- print("UNIT_TARGET", self.settings.tag)
     updateTargetName(self.settings.tag .. "target", self.frame.targetName)
   end
 end
@@ -229,10 +251,7 @@ function component:showCastbarDetails(settings, spellName, spellIcon, startTimeM
   end
 
   local targetUnit = settings.tag .. 'target'
-  updateTargetName(targetUnit, self.frame.targetName)
-  -- self.frame.targetName:Hide()
-
-  -- C_Timer.After(0.3, function() updateTargetName(targetUnit, self.frame.targetName) end)
+  watchTargetName(targetUnit, self.frame.targetName)
 
   self.frame:Raise()
   self.frame:Show()
@@ -254,8 +273,8 @@ end
 
 function component:hideCastbar()
   self.frame.castAnimGroup:Stop()
-  -- self.frame.targetName:SetText("")
   self.frame:Hide()
+  cancelWatch(self.frame.targetName)
 end
 
 Slab.RegisterComponent('castBar', component)
