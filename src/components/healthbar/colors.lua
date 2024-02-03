@@ -18,8 +18,7 @@ local function colorTable(hue, saturation, lightness, otSaturation, otLightness)
   return {
     ["active"] = active,
     ["noncombat"] = active,
-    ["offtank"] = offtank,
-    ["pet"] = offtank,
+    ["other-tank"] = offtank,
     ["warning"] = WARNING_COLOR,
     ["danger"] = DANGER_COLOR
   }
@@ -30,8 +29,7 @@ local function trivialTable(hue, saturation, lightness)
   return {
     active = color,
     noncombat = color,
-    offtank = color,
-    pet = color,
+    ["other-tank"] = color,
     warning = color,
     danger = color,
   }

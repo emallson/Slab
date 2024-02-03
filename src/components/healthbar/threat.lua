@@ -5,14 +5,15 @@ local threat = {}
 
 local REQUIRE_RULES = false
 
----Descriptor for current threat status. "active" means active tank. "offtank" means another tank has threat. "warning" means you are tanking it but not highest threat. "danger" means a non-tank is tanking it. "noncombat" is any unit not in combat with you or your party.
----@alias ThreatStatus "active" | "offtank" | "pet" | "warning" | "danger" | "noncombat"
+---Descriptor for current threat status. "active" means active tank. "other-tank" means another tank has threat. "warning" means you are tanking it but not highest threat, or another is tanking it but you are the highest threat. "danger" means a non-tank is tanking it. "noncombat" is any unit not in combat with you or your party.
+---@alias ThreatStatus "active" | "other-tank" | "warning" | "danger" | "noncombat"
 
 ---stolen from plater
----@param unit UnitId
+---@param unit UnitId|string
+---@param isGuid boolean?
 ---@return integer
-local function UnitNpcId(unit)
-  local guid = UnitGUID(unit)
+local function UnitNpcId(unit, isGuid)
+  local guid = isGuid and unit or UnitGUID(unit)
   if guid == nil then
     return 0
   end
@@ -23,10 +24,11 @@ end
 Slab.UnitNpcId = UnitNpcId
 
 ---determine if a unit is a tank pet
----@param unit UnitId
+---@param unit UnitId|string
+---@param isGuid boolean?
 ---@return boolean
-local function IsTankPet(unit)
-  local npcId = UnitNpcId(unit)
+local function IsTankPet(unit, isGuid)
+  local npcId = UnitNpcId(unit, isGuid)
 
   return
       npcId == 61146     -- ox statue
@@ -70,80 +72,181 @@ local THREAT_WARNING_TANKING = 2
 local THREAT_WARNING_NOT_TANKING = 1
 local THREAT_NOT_TANKING = 0
 
----determine the threat status for the `mobUnit`
----@param mobUnit UnitId
----@return ThreatStatus
-local function applyRulesInline(mobUnit)
-  local isPrimaryTarget, threatStatus, scaledPct, rawPct, rawThreatValue = UnitDetailedThreatSituation("player", mobUnit)
-  local target = mobUnit .. "target"
-  local targetThreat = UnitExists(target) and select(5, UnitDetailedThreatSituation(target, mobUnit))
-  local primaryTargetIsHigherThreat = (targetThreat or 0) > (rawThreatValue or 0)
-  local noPrimaryTarget = not UnitExists(target) or not UnitIsFriend("player", target)
-  local isTargettingFriendly = not noPrimaryTarget and UnitIsUnit("player", target) or UnitPlayerOrPetInParty(target) or
-      UnitPlayerOrPetInRaid(target)
-  -- true if the player or any player in the party/raid is on the threat table or the current target
-  local isOnThreatTable = isTargettingFriendly or (rawThreatValue ~= nil and rawThreatValue > 0)
+local primaryTargetCache = {}
 
-  local isHighestThreat = threatStatus == THREAT_WARNING_NOT_TANKING or threatStatus == THREAT_HIGHEST
-  local isPlayerTank = IsPlayerTank()
-  -- TODO target != primaryTarget. how do we determine the primary target without enumerating the raid/party?
-  local primaryTargetIsTank = not noPrimaryTarget and IsTankPlayer(target)
-  local primaryTargetIsPet = not noPrimaryTarget and IsTankPet(target)
-
-  -- this is translated from a truth table, so its a bit awkward to structure
-
-  if not isOnThreatTable then
-    return "noncombat"
-  end
-
-  if not isPlayerTank then
-    if isPrimaryTarget then
-      return "danger"
-    else
-      if isHighestThreat then
-        return "warning"
+local function groupMembers()
+  if IsInRaid() then
+    local i = 0
+    return function()
+      i = i + 1
+      if i > MAX_RAID_MEMBERS then
+        return
+      end
+      return "raid" .. i
+    end
+  elseif IsInGroup() then
+    local i = 0
+    return function()
+      i = i + 1
+      if i == 5 then
+        return "player"
+      elseif i < 5 then
+        return "party" .. i
       else
-        return "active"
+        return nil
       end
     end
   else
-    if isPrimaryTarget then
-      if isHighestThreat then
-        return "active"
-      else
-        return "warning"
+    local i = 0
+    return function()
+      i = i + 1
+      if i <= 1 then
+        return "player"
       end
-    elseif noPrimaryTarget then
-      -- handle RP / AoE casts that bosses often do
-      -- ex: Sark Fire Breath clears target, don't warn if we're definitely still tanking
-      if threatStatus == THREAT_HIGHEST or rawPct >= 110 then
-        return "active"
-      else
-        return "warning"
-      end
-    else
-      if isFixating(UnitNpcId(mobUnit), false, rawPct) then
-        return "active"
-      elseif isHighestThreat and primaryTargetIsTank and not primaryTargetIsPet then
-        -- not primary target, but highest threat
-        -- don't warn on pets because many have fixate rules that ignore threat (e.g. treants, earth ele both taunt)
-        return "warning"
-      elseif not primaryTargetIsTank then
-        -- handle non-tank primary targets
-        return primaryTargetIsHigherThreat and "danger" or "warning"
-      elseif primaryTargetIsTank and not UnitIsUnit(target, "player") then
-        return "offtank"
-      elseif primaryTargetIsPet then
-        return "pet"
-      else
-        -- catchall.
-        if REQUIRE_RULES then error("Unable to determine threat from rules") end
-        return "warning"
-      end
+      return nil
     end
   end
 end
 
-threat.status = applyRulesInline
+--- @param mobUnit UnitId
+--- @return string?
+local function primaryTargetGuid(mobUnit)
+  local guid = UnitGUID(mobUnit)
+  if guid == nil then return nil end
+
+  local currentTarget = mobUnit .. "target"
+  if UnitExists(currentTarget) then
+    local status = UnitThreatSituation(currentTarget, mobUnit)
+    if status == nil or status == THREAT_WARNING_TANKING or status == THREAT_HIGHEST then
+      primaryTargetCache[guid] = UnitGUID(currentTarget)
+      return primaryTargetCache[guid]
+    end
+  end
+
+  local cached = primaryTargetCache[guid]
+  if cached ~= nil then
+    return cached
+  else
+    for member in groupMembers() do
+      local status = UnitThreatSituation(member, mobUnit)
+      if status == THREAT_WARNING_TANKING or status == THREAT_HIGHEST then
+        primaryTargetCache[guid] = UnitGUID(member)
+        return primaryTargetCache[guid]
+      end
+    end
+  end
+  return nil
+end
+
+---attempt to convert a player guid into a unitid
+---@param guid string
+---@return UnitId?
+local function getPlayerUnitByGuid(guid)
+  local location = PlayerLocation:CreateFromGUID(guid)
+  if location ~= nil and location:IsValid() then
+    return location:GetUnit()
+  end
+  return nil
+end
+
+local function primaryTargetKind(mobUnit)
+  local primaryTarget = primaryTargetGuid(mobUnit)
+
+  if primaryTarget == nil then
+    return nil
+  end
+
+  if IsTankPet(primaryTarget, true) then
+    return "pet"
+  end
+
+  local playerUnit = getPlayerUnitByGuid(primaryTarget)
+  if playerUnit == nil then
+    return nil
+  end
+
+  return IsTankPlayer(playerUnit) and "tank" or nil
+end
+
+local function isPrimaryTargetTank(mobUnit)
+  return primaryTargetKind(mobUnit) ~= nil
+end
+
+local function str_startswith(str, sub)
+  return str:sub(1, #sub) == sub
+end
+
+local function unitIsGuardianOfGroupMember(unit)
+  if not UnitIsFriend('player', unit) then
+    return false
+  end
+  for member in groupMembers() do
+    if UnitIsOwnerOrControllerOfUnit(member, unit) then
+      return true
+    end
+  end
+end
+
+local function isPrimaryTargetPlayerOrPet(mobUnit)
+  local guid = primaryTargetGuid(mobUnit)
+
+  if guid == nil then
+    return false
+  end
+
+  local unit = UnitTokenFromGUID(guid)
+  if unit == nil then
+    return false
+  end
+  return UnitPlayerOrPetInParty(unit) or UnitPlayerOrPetInRaid(unit) or unitIsGuardianOfGroupMember(unit)
+end
+
+local frame = CreateFrame("Frame", "SlabThreatInvalidationFrame")
+frame:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
+frame:SetScript("OnEvent", function(eventName, unitTarget)
+  -- invalidate the primary target cache when the threat situation changes for a unit
+  local guid = UnitGUID(unitTarget)
+  if guid ~= nil then
+    primaryTargetCache[guid] = nil
+  end
+end)
+
+
+--- determine the threat status of the mobUnit vs the player
+--- @param mobUnit UnitId
+--- @return ThreatStatus
+function threat.status(mobUnit)
+  if not UnitAffectingCombat(mobUnit) then
+    return "noncombat"
+  end
+
+  local status = UnitThreatSituation("player", mobUnit)
+
+  if IsPlayerTank() then
+    if status == THREAT_HIGHEST then
+      return "active"
+    elseif status == THREAT_WARNING_TANKING or status == THREAT_WARNING_NOT_TANKING then
+      return "warning"
+    elseif isPrimaryTargetTank(mobUnit) then
+      return "other-tank"
+    elseif isFixating(mobUnit, false, select(4, UnitDetailedThreatSituation("player", mobUnit))) then
+      return "active" -- treat fixates as actively tanked
+    elseif isPrimaryTargetPlayerOrPet(mobUnit) then
+      return "danger"
+    else
+      return "noncombat"
+    end
+  else
+    if status == THREAT_HIGHEST or status == THREAT_WARNING_TANKING then
+      return "danger"
+    elseif status == THREAT_WARNING_NOT_TANKING then
+      return "warning"
+    else
+      return "active"
+    end
+  end
+end
+
+threat.primaryTargetKind = primaryTargetKind
 
 Slab.threat = threat

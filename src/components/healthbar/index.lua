@@ -91,11 +91,11 @@ function component:refreshReaction(settings)
     -- stolen from plater
     self.frame.reactionIndicator:SetTextColor(0.9254901, 0.8, 0.2666666, 1)
     self.frame.reactionIndicator:Show()
-  elseif threatStatus == "pet" then
+  elseif threatStatus == "other-tank" and Slab.threat.primaryTargetKind(settings.tag) == "pet" then
     self.frame.reactionIndicator:SetText('PET')
     self.frame.reactionIndicator:SetTextColor(0.75, 0.75, 0.5, 1)
     self.frame.reactionIndicator:Show()
-  elseif threatStatus == "offtank" then
+  elseif threatStatus == "other-tank" and Slab.threat.primaryTargetKind(settings.tag) == "offtank" then
     self.frame.reactionIndicator:SetText('CO')
     self.frame.reactionIndicator:SetTextColor(0.44, 0.81, 0.37, 1)
     self.frame.reactionIndicator:Show()
@@ -167,6 +167,8 @@ function component:bind(settings)
   self.frame:RegisterUnitEvent('UNIT_CLASSIFICATION_CHANGED', settings.tag)
   self.frame:RegisterEvent('RAID_TARGET_UPDATE')
   self.frame:RegisterEvent('PLAYER_TARGET_CHANGED')
+  self.frame:RegisterEvent('PLAYER_REGEN_DISABLED')
+  self.frame:RegisterEvent('PLAYER_REGEN_ENABLED')
 end
 
 ---@param eventName string
@@ -174,7 +176,7 @@ end
 function component:update(eventName, ...)
   if eventName == 'UNIT_HEALTH' then
     self:refreshHealth(self.settings)
-  elseif eventName == 'UNIT_THREAT_LIST_UPDATE' then
+  elseif eventName == 'UNIT_THREAT_LIST_UPDATE' or eventName == 'PLAYER_REGEN_DISABLED' or eventName == 'PLAYER_REGEN_DISABLED' then
     self:refreshColor(self.settings)
     self:refreshReaction(self.settings)
   elseif eventName == 'RAID_TARGET_UPDATE' then
