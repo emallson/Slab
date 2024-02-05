@@ -141,18 +141,13 @@ end
 ---attempt to convert a player guid into a unitid
 ---@param guid string
 ---@return UnitId?
-local function getPlayerUnitByGuid(guid)
-  local location = PlayerLocation:CreateFromGUID(guid)
-  if location ~= nil and location:IsValid() then
-    return location:GetUnit()
-  end
-  return nil
-end
+local getPlayerUnitByGuid = UnitTokenFromGUID
 
-local function primaryTargetKind(mobUnit)
+local function primaryTargetKind(mobUnit, debug)
   local primaryTarget = primaryTargetGuid(mobUnit)
 
   if primaryTarget == nil then
+    if debug then print("no primary target") end
     return nil
   end
 
@@ -162,6 +157,7 @@ local function primaryTargetKind(mobUnit)
 
   local playerUnit = getPlayerUnitByGuid(primaryTarget)
   if playerUnit == nil then
+    if debug then print("no player unit") end
     return nil
   end
 

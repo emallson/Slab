@@ -95,7 +95,7 @@ function component:refreshReaction(settings)
     self.frame.reactionIndicator:SetText('PET')
     self.frame.reactionIndicator:SetTextColor(0.75, 0.75, 0.5, 1)
     self.frame.reactionIndicator:Show()
-  elseif threatStatus == "other-tank" and Slab.threat.primaryTargetKind(settings.tag) == "offtank" then
+  elseif threatStatus == "other-tank" and Slab.threat.primaryTargetKind(settings.tag) == "tank" then
     self.frame.reactionIndicator:SetText('CO')
     self.frame.reactionIndicator:SetTextColor(0.44, 0.81, 0.37, 1)
     self.frame.reactionIndicator:Show()
