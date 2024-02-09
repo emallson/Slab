@@ -38,13 +38,9 @@ local function IsTankPet(unit, isGuid)
       or npcId == 61056  -- primal earth ele
 end
 
-local WELL_KNOWN_FIXATES = {
-  [174773] = true, -- Spiteful
-  [201756] = true, -- Morchie (Familiar Face)
-}
 
 local function isFixating(npcId, primaryTarget, rawPct)
-  return WELL_KNOWN_FIXATES[npcId] or ((rawPct or 0) > 121 and not primaryTarget)
+  return Slab.utils.enemies.fixateNpcs[npcId] or ((rawPct or 0) > 121 and not primaryTarget)
 end
 
 ---@param unit UnitId

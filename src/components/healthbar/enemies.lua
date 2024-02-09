@@ -5,11 +5,20 @@ local Slab = select(2, ...)
 
 local enemies = {}
 
+
+local WELL_KNOWN_FIXATES = {
+  [174773] = true, -- Spiteful
+  [201756] = true, -- Morchie (Familiar Face)
+}
+
+enemies.fixateNpcs = WELL_KNOWN_FIXATES
+
 ---@param npcId integer
 ---@return boolean
 local function isSpecialUnit(npcId)
   return npcId == 120651 -- Explosive
       or npcId == 204560 -- Incorporeal
+      or WELL_KNOWN_FIXATES[npcId]
 end
 
 local function isTrivialUnit(npcId)
