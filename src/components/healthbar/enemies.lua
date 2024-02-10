@@ -18,7 +18,7 @@ enemies.fixateNpcs = WELL_KNOWN_FIXATES
 local function isSpecialUnit(npcId)
   return npcId == 120651 -- Explosive
       or npcId == 204560 -- Incorporeal
-      or WELL_KNOWN_FIXATES[npcId]
+      or npcId == 174773 -- Spiteful
 end
 
 local function isTrivialUnit(npcId)
