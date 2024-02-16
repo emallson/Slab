@@ -68,10 +68,14 @@ local function debuffIndicator(debuffSpellId, anchor)
   function component:update(eventName, unitTarget, updatedAuras)
     if updatedAuras == nil or updatedAuras.isFullUpdate then
       self:fullRefresh(self.settings)
-    elseif containsId(updatedAuras.removedAuraInstanceIDs, self.auraInstanceId) then
+      return
+    end
+
+    if containsId(updatedAuras.removedAuraInstanceIDs, self.auraInstanceId) then
       self.auraInstanceId = nil
       self.frame:Show()
-    elseif updatedAuras.addedAuras ~= nil then
+    end
+    if updatedAuras.addedAuras ~= nil then
       local aura = nil
       for _, v in ipairs(updatedAuras.addedAuras) do
         if v.spellId == debuffSpellId then
@@ -104,7 +108,13 @@ local ww_motc_debuff = Slab.apply_combinators(
   Slab.combinators.enable_when_spell(115636)
 )
 
+local spriest_vamp_touch = Slab.apply_combinators(
+  debuffIndicator(34914, 'RIGHT'),
+  Slab.combinators.enable_when_spell(34914)
+)
+
 Slab.utils.load_for('debuffIndicator', {
-  MONK = ww_motc_debuff
+  MONK = ww_motc_debuff,
+  PRIEST = spriest_vamp_touch,
 })
 
