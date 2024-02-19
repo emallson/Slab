@@ -108,13 +108,13 @@ local ww_motc_debuff = Slab.apply_combinators(
   Slab.combinators.enable_when_spell(115636)
 )
 
-local spriest_vamp_touch = Slab.apply_combinators(
-  debuffIndicator(34914, 'RIGHT'),
-  Slab.combinators.enable_when_spell(34914)
-)
+-- local spriest_vamp_touch = Slab.apply_combinators(
+--   debuffIndicator(34914, 'RIGHT'),
+--   Slab.combinators.enable_when_spell(34914)
+-- )
 
 Slab.utils.load_for('debuffIndicator', {
   MONK = ww_motc_debuff,
-  PRIEST = spriest_vamp_touch,
+  -- PRIEST = spriest_vamp_touch,
 })
 
