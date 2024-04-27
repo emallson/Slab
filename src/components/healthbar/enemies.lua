@@ -1,7 +1,7 @@
 ---@class LibSlab
 local Slab = select(2, ...)
 
----@alias EnemyType "boss" | "lieutenant" | "caster" | "normal" | "trivial" | "special" | "tapped"
+---@alias EnemyType "boss" | "lieutenant" | "important" | "normal" | "trivial" | "special" | "tapped"
 
 local enemies = {}
 
@@ -39,6 +39,8 @@ function enemies.isMinor(unit)
   return unit and UnitClassification(unit) == "minus"
 end
 
+local importantNpcIds = {}
+
 ---comment
 ---@param unit UnitId
 ---@return EnemyType
@@ -50,7 +52,9 @@ function enemies.type(unit)
     return "tapped"
   end
   local npcId = Slab.UnitNpcId(unit)
-  if isSpecialUnit(npcId) then
+  if importantNpcIds[npcId] ~= nil then
+    return "important"
+  elseif isSpecialUnit(npcId) then
     return "special"
   elseif isTrivialUnit(npcId) then
     return "trivial"
@@ -92,8 +96,14 @@ function enemies.type(unit)
   else
     return "normal"
   end
+end
 
-  -- TODO casters
+function enemies.addImportantNpc(npcId)
+  importantNpcIds[npcId] = true
+end
+
+function enemies.removeImportantNpc(npcId)
+  importantNpcIds[npcId] = nil
 end
 
 Slab.utils.enemies = enemies

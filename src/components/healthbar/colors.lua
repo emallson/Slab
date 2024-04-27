@@ -39,7 +39,7 @@ end
 local colors = {
   ["boss"] = colorTable(90, 10, 45, 1, 90),
   ["lieutenant"] = colorTable(194, 25, 65, 10, 90),
-  ["caster"] = colorTable(259, 60, 65),
+  ["important"] = colorTable(259, 60, 65),
   ["normal"] = colorTable(130, 60, 65),
   ["minor"] = colorTable(130, 60, 65),
   ["trivial"] = colorTable(47, 25, 80),
