@@ -161,6 +161,7 @@ end
 
 ---@param settings SlabNameplateSettings
 function component:bind(settings)
+  self.threatUpdated = false
   self.frame:RegisterUnitEvent('UNIT_HEALTH', settings.tag)
   self.frame:RegisterUnitEvent('UNIT_THREAT_LIST_UPDATE', settings.tag)
   self.frame:RegisterUnitEvent('UNIT_NAME_UPDATE', settings.tag)
@@ -176,9 +177,17 @@ end
 function component:update(eventName, ...)
   if eventName == 'UNIT_HEALTH' then
     self:refreshHealth(self.settings)
+    if not self.threatUpdated then
+      -- this is a workaround for a race condition where an enemy starts off targeting another player, then you get aggro before the threat table is propagated (i think?) and then never lose threat. 
+      -- UNIT_THREAT_LIST_UPDATE is never fired and you're stuck tanking a mob with a red nameplate
+      self:refreshColor(self.settings)
+    end
   elseif eventName == 'UNIT_THREAT_LIST_UPDATE' or eventName == 'PLAYER_REGEN_DISABLED' or eventName == 'PLAYER_REGEN_DISABLED' then
     self:refreshColor(self.settings)
     self:refreshReaction(self.settings)
+    if eventName == 'UNIT_THREAT_LIST_UPDATE' then
+      self.threatUpdated = true
+    end
   elseif eventName == 'RAID_TARGET_UPDATE' then
     self:refreshTargetMarker(self.settings)
   elseif eventName == 'PLAYER_TARGET_CHANGED' then
