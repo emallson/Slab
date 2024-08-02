@@ -10,7 +10,6 @@ local component = {
 
 local function isBolsteringActive(affixes)
   if affixes == nil then
-    print("no affixes")
     return false
   end
   for _, affix in ipairs(affixes) do
