@@ -78,11 +78,21 @@ local function onSpellLearned(self, settings)
   self:updateLocation(settings)
 end
 
+local scorchExecute = Slab.apply_combinators(
+  executeIndicator(0.3),
+  Slab.combinators.enable_when_spell(2948, function(self, settings)
+    if IsPlayerSpell(449349) then
+      -- Sunfury Execution
+      self.executeThreshold = 0.35
+    else
+      self.executeThreshold = 0.3
+    end
+    onSpellLearned(self, settings)
+  end)
+)
+
 Slab.utils.load_for('executeIndicator', {
-  MAGE = Slab.apply_combinators(
-    executeIndicator(0.3),
-    Slab.combinators.enable_when_spell(269644, onSpellLearned)
-  ),
+  MAGE = scorchExecute,
   PALADIN = executeIndicator(0.2),
   WARRIOR = executeIndicator(0.2),
   DEATHKNIGHT = Slab.apply_combinators(
