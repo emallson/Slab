@@ -26,6 +26,9 @@ local function isTrivialUnit(npcId)
       or npcId == 210231 -- Lashers on Gnarlroot
       or npcId == 211306 -- Fiery Vines on Tindral
       or npcId == 220626 -- Parasites, Ovinax
+      or npcId == 223674 -- Caustic Skitterer, Ansurek
+      or npcId == 221344 -- Gloom Hatchling, Ansurek
+      or npcId == 219746 -- Silken Tomb, Ansurek
 end
 
 ---@param unit UnitId
