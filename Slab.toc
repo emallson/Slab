@@ -20,8 +20,6 @@ src\components\castbar.lua
 src\components\tod_indicator.lua
 src\components\absorb.lua
 src\components\execute_indicator.lua
-src\components\debuff_indicator.lua
-src\components\bolster_indicator.lua
 src\components\dispel_indicator.lua
 src\components\mouseover.lua
 src\frame.lua

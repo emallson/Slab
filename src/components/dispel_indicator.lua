@@ -30,9 +30,7 @@ local function dispelIndicator(typeMap)
     ---@class DispelIndicator:Frame
     local indicator = CreateFrame('Frame', parent:GetName() .. 'DispelIndicator', parent)
     local offset = -5
-    if slab.components['debuffIndicator'] ~= nil then
-      offset = -11
-    end
+
     indicator:SetPoint('CENTER', parent, 'RIGHT', offset, 0)
     indicator:SetSize(Slab.scale(3), Slab.scale(3))
     indicator:SetFrameLevel(1)
