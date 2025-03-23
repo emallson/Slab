@@ -137,6 +137,7 @@ local classDispels = {
   DRUID = { ENRAGE },
   EVOKER = { ENRAGE },
   PRIEST = { MAGIC },
+  MONK = { ENRAGE },
 }
 
 local function autoDispelIndicator()
