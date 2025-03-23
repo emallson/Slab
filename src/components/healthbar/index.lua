@@ -231,27 +231,31 @@ function component:build(parent)
   healthBar:SetSize(Slab.scale(WIDTH), Slab.scale(HEIGHT))
   healthBar:SetPoint('CENTER')
 
+  local overlay = CreateFrame('Frame', healthBar:GetName() .. 'Overlay', healthBar)
+  overlay:SetFrameStrata('HIGH')
+  overlay:SetAllPoints(healthBar)
+
   local bg = healthBar:CreateTexture(healthBar:GetName() .. 'Background', 'BACKGROUND')
   bg:SetTexture('interface/buttons/white8x8')
   bg:SetVertexColor(0.01, 0, 0, 0.5)
   bg:SetPoint('TOPLEFT', healthBar, 'TOPLEFT', 0, 0)
   bg:SetPoint('BOTTOMRIGHT', healthBar, 'BOTTOMRIGHT', 0, 0)
 
-  local raidMarker = healthBar:CreateTexture(healthBar:GetName() .. 'RaidMarker', 'OVERLAY')
+  local raidMarker = overlay:CreateTexture(healthBar:GetName() .. 'RaidMarker', 'OVERLAY')
   raidMarker:SetPoint('LEFT', healthBar, 'LEFT', 2, 0)
   raidMarker:SetSize(Slab.scale(HEIGHT) - 2, Slab.scale(HEIGHT) - 2)
   raidMarker:Hide()
 
-  local name = healthBar:CreateFontString(healthBar:GetName() .. 'NameText', 'OVERLAY')
+  local name = overlay:CreateFontString(healthBar:GetName() .. 'NameText', 'OVERLAY')
   name:SetPoint('BOTTOM', healthBar, 'TOP', 0, 1)
   name:SetFont(Slab.font, Slab.scale(8), "OUTLINE")
 
-  local reactionIndicator = healthBar:CreateFontString(healthBar:GetName() .. 'IndicatorText', 'OVERLAY')
+  local reactionIndicator = overlay:CreateFontString(healthBar:GetName() .. 'IndicatorText', 'OVERLAY')
   reactionIndicator:SetPoint('BOTTOMLEFT', healthBar, 'TOPLEFT', 0, 2)
   reactionIndicator:SetFont(Slab.font, Slab.scale(7), "OUTLINE")
   reactionIndicator:Hide()
 
-  local pins = buildTargetPins(healthBar)
+  local pins = buildTargetPins(overlay)
 
   healthBar.raidMarker = raidMarker
   healthBar.bg = bg
