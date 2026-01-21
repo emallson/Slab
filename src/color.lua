@@ -44,9 +44,9 @@ local function hsl_to_srgb(hue, saturation, lightness)
     b = hue_to_rgb_component(var1, var2, hue - 1 / 3),
   }
 end
----@class LibSlab
-local Slab = select(2, ...)
+---@class SlabPrivate
+local private = select(2, ...)
 
-Slab.color = {
+private.color = {
   hsl_to_srgb = hsl_to_srgb,
 }

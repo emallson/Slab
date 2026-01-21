@@ -1,26 +1,13 @@
-## Interface: 110200
+## Interface: 120000
 ## Title: Slab
 ## Notes: Minimal Nameplates
 ## Version: @project-version@
 ## X-Curse-Project-ID: 792980
 
-libs\LibStub\LibStub.lua
-src\lib.lua
-src\color.lua
-src\combinators\index.lua
-src\combinators\enable_when.lua
-src\combinators\minimal.lua
-src\utils\load_for.lua
-src\components\index.lua
-src\components\healthbar\threat.lua
-src\components\healthbar\colors.lua
-src\components\healthbar\enemies.lua
-src\components\healthbar\index.lua
-src\components\castbar.lua
-src\components\tod_indicator.lua
-src\components\absorb.lua
-src\components\execute_indicator.lua
-src\components\dispel_indicator.lua
-src\components\mouseover.lua
-src\frame.lua
 src\index.lua
+src\nameplate_manager.lua
+src\color.lua
+src\frame.lua
+src\enemies.lua
+src\threat.lua
+src\castbar.lua
