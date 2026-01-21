@@ -53,6 +53,11 @@ do
         label:Hide()
 
         local function refresh(unitToken)
+            if private.smallMode(unitToken) and not UnitIsUnit('target', unitToken) then
+                label:Hide()
+                return
+            end
+
             local reaction = UnitReaction(unitToken, 'player')
             local threatStatus = private.threatStatus(unitToken)
             if reaction == 4 and threatStatus == "noncombat" then
@@ -73,8 +78,9 @@ do
             end
         end
 
+        local storedToken = nil
         function label:bind(unitToken)
-            self.currentToken = unitToken
+            storedToken = unitToken
             self:GetParent():RegisterEvent('PLAYER_REGEN_DISABLED')
             self:GetParent():RegisterUnitEvent('UNIT_THREAT_LIST_UPDATE', unitToken)
 
@@ -83,10 +89,11 @@ do
 
         hp:HookScript('OnEvent', function(parent, eventType, unitToken)
             if eventType == 'PLAYER_REGEN_DISABLED' then
-                unitToken = parent.tagText.currentToken
-                refresh(unitToken)
+                refresh(storedToken)
             elseif eventType == 'UNIT_THREAT_LIST_UPDATE' then
                 refresh(unitToken)
+            elseif eventType == 'UNIT_CLASSIFICATION_CHANGED' or eventType == 'PLAYER_TARGET_CHANGED' then
+                refresh(unitToken or storedToken)
             end
         end)
 
@@ -106,9 +113,16 @@ do
 
         local function refresh(unitToken)
             label:SetText(UnitName(unitToken))
+            if private.smallMode(unitToken) and not UnitIsUnit('target', unitToken) then
+                label:Hide()
+            else
+                label:Show()
+            end
         end
 
+        local storedToken = nil
         function label:bind(unitToken)
+            storedToken = unitToken
             self:GetParent():RegisterUnitEvent('UNIT_NAME_UPDATE')
             refresh(unitToken)
         end
@@ -116,6 +130,8 @@ do
         hp:HookScript('OnEvent', function(parent, eventType, unitToken)
             if eventType == 'UNIT_NAME_UPDATE' then
                 refresh(unitToken)
+            elseif eventType == 'UNIT_CLASSIFICATION_CHANGED' or eventType == 'PLAYER_TARGET_CHANGED' then
+                refresh(unitToken or storedToken)
             end
         end)
 
@@ -127,7 +143,8 @@ do
         local coords = { { 145 / 256, 161 / 256, 3 / 256, 19 / 256 }, { 145 / 256, 161 / 256, 19 / 256, 3 / 256 },
             { 161 / 256, 145 / 256, 19 / 256, 3 / 256 }, { 161 / 256, 145 / 256, 3 / 256, 19 / 256 } }
         local positions = { "TOPLEFT", "BOTTOMLEFT", "BOTTOMRIGHT", "TOPRIGHT" }
-        local offsets = { { -4, 4 }, { -4, -4 }, { 4, -4 }, { 4, 4 } }
+        local x = 5
+        local offsets = { { -x, x }, { -x, -x }, { x, -x }, { x, x } }
 
         local pins = {}
         for i = 1, 4 do
@@ -144,7 +161,6 @@ do
 
         function pins:bind(token)
             unitToken = token
-            frame:RegisterEvent('PLAYER_TARGET_CHANGED')
             if UnitIsUnit('target', unitToken) then
                 for _, pin in ipairs(pins) do
                     pin:Show()
@@ -191,11 +207,22 @@ do
         PixelUtil.SetPoint(bg, 'BOTTOMRIGHT', hp, 'BOTTOMRIGHT', 1, -1, 1, 1)
         bg:SetVertexColor(0, 0, 0, 1)
 
+        local function updateSize(unitToken)
+            if private.smallMode(unitToken) and not UnitIsUnit('target', unitToken) then
+                PixelUtil.SetPoint(hp, 'BOTTOM', nameplate.slab, 'TOP', 0, -38)
+            else
+                PixelUtil.SetPoint(hp, 'BOTTOM', nameplate.slab, 'TOP', 0, -48, 0, 20)
+            end
+        end
+
+        local storedToken = nil
         function hp:bind(unitToken)
+            storedToken = unitToken
             self:RegisterUnitEvent('UNIT_HEALTH', unitToken)
             self:RegisterUnitEvent('UNIT_MAXHEALTH', unitToken)
             self:RegisterUnitEvent('UNIT_THREAT_LIST_UPDATE', unitToken)
             self:RegisterUnitEvent('UNIT_CLASSIFICATION_CHANGED', unitToken)
+            self:RegisterEvent('PLAYER_TARGET_CHANGED')
 
             self:SetMinMaxValues(0, UnitHealthMax(unitToken))
             self:SetValue(UnitHealth(unitToken, false))
@@ -208,6 +235,9 @@ do
             self.tagText:bind(unitToken)
             self.name:bind(unitToken)
             self.pins:bind(unitToken)
+
+
+            updateSize(unitToken)
         end
 
         hp:SetScript('OnEvent', function(self, eventName, unitToken)
@@ -220,6 +250,10 @@ do
                 local threat = private.threatStatus(unitToken)
                 local color = colors[enemyType][threat]
                 hp:SetStatusBarColor(color.r, color.g, color.b)
+
+                updateSize(unitToken)
+            elseif eventName == 'PLAYER_TARGET_CHANGED' then
+                updateSize(storedToken)
             end
         end)
 

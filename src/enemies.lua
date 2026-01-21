@@ -44,9 +44,13 @@ function private.enemyType(unitToken)
         return "important"
     end
 
-    if UnitClassification(unitToken) == "trivial" or UnitClassification(unitToken) == "minus" then
+    if UnitClassification(unitToken) == "trivial" or UnitClassification(unitToken) == "minus" or levelDelta < -10 then
         return "trivial"
     end
 
     return "normal"
+end
+
+function private.smallMode(unitToken)
+    return private.enemyType(unitToken) == 'trivial'
 end
