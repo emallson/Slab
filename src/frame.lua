@@ -185,6 +185,40 @@ do
         return pins
     end
 
+    local function raidTargetMarker(nameplate, hp)
+        local texture = hp:CreateTexture(hp:GetName() .. 'RaidMarker', 'OVERLAY', nil, 7)
+        PixelUtil.SetPoint(texture, 'LEFT', hp, 'LEFT', 2, 0)
+        PixelUtil.SetSize(texture, 15, 15)
+        texture:SetTexture([[Interface\TargetingFrame\UI-RaidTargetingIcons]])
+        texture:Hide()
+
+        local function refresh(unitToken)
+            local markerId = GetRaidTargetIndex(unitToken)
+            print(unitToken, markerId, type(markerId))
+            if type(markerId) == "nil" then
+                texture:Hide()
+            else
+                texture:Show()
+                SetRaidTargetIconTexture(texture, markerId)
+            end
+        end
+
+        local storedToken = nil
+        function texture:bind(unitToken)
+            storedToken = unitToken
+            hp:RegisterEvent('RAID_TARGET_UPDATE')
+            refresh(unitToken)
+        end
+
+        hp:HookScript('OnEvent', function(frame, eventType)
+            if eventType == 'RAID_TARGET_UPDATE' then
+                refresh(storedToken)
+            end
+        end)
+
+        return texture
+    end
+
     ---@param nameplate Nameplate|SlabRootMixin
     ---@return Frame|SlabFrameMixin
     function private.frames.health(nameplate)
@@ -235,6 +269,7 @@ do
             self.tagText:bind(unitToken)
             self.name:bind(unitToken)
             self.pins:bind(unitToken)
+            self.raidMarker:bind(unitToken)
 
 
             updateSize(unitToken)
@@ -260,6 +295,7 @@ do
         hp.tagText = tagText(nameplate, hp)
         hp.name = name(nameplate, hp)
         hp.pins = targetPins(hp)
+        hp.raidMarker = raidTargetMarker(nameplate, hp)
 
         return hp
     end
