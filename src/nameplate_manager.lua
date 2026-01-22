@@ -60,6 +60,7 @@ mgr:SetScript('OnEvent', function (self, eventType, ...)
         local nameplate = ...
         hideBlizzardFrame(nameplate)
         nameplate = private.createNameplate(nameplate)
+        nameplate.slab:Hide()
     elseif eventType == 'NAME_PLATE_UNIT_ADDED' then
         local nameplateToken = ...
         ---@type Nameplate|SlabRootMixin|nil
