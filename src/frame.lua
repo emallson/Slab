@@ -194,7 +194,6 @@ do
 
         local function refresh(unitToken)
             local markerId = GetRaidTargetIndex(unitToken)
-            print(unitToken, markerId, type(markerId))
             if type(markerId) == "nil" then
                 texture:Hide()
             else
