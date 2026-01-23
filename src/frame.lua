@@ -218,6 +218,81 @@ do
         return texture
     end
 
+    local function absorb(parent)
+        local absorb = CreateFrame('StatusBar', parent:GetName() .. 'Absorb', parent)
+        absorb:SetFrameStrata("BACKGROUND")
+        absorb:SetFrameLevel(100)
+        absorb:SetAllPoints()
+
+        absorb:SetStatusBarTexture('interface/buttons/white8x8')
+        absorb:SetStatusBarColor(220 / 255, 191 / 255, 45 / 255, 1)
+        absorb:SetMinMaxValues(0, 100)
+        absorb:SetValue(0)
+        absorb:Show()
+        PixelUtil.SetPoint(absorb, 'TOPLEFT', parent, 'TOPLEFT', -3, 3)
+        PixelUtil.SetPoint(absorb, 'BOTTOMRIGHT', parent, 'BOTTOMRIGHT', 3, -3)
+
+        local function refresh(unitToken)
+            absorb:SetMinMaxValues(0, UnitHealthMax(unitToken))
+            absorb:SetValue(UnitGetTotalAbsorbs(unitToken))
+        end
+
+        local storedToken = nil
+        function absorb:bind(unitToken)
+            storedToken = unitToken
+            parent:RegisterUnitEvent('UNIT_ABSORB_AMOUNT_CHANGED', unitToken)
+            parent:RegisterUnitEvent('UNIT_MAXHEALTH', unitToken)
+
+            refresh(unitToken)
+        end
+
+        parent:HookScript('OnEvent', function(parent, eventName)
+            if eventName == 'UNIT_ABSORB_AMOUNT_CHANGED' or eventName == 'UNIT_MAXHEALTH' then
+                refresh(storedToken)
+            end
+        end)
+
+        return absorb
+    end
+
+    local function healAbsorb(parent)
+        local absorb = CreateFrame('StatusBar', parent:GetName() .. 'Absorb', parent)
+        absorb:SetFrameStrata("BACKGROUND")
+        absorb:SetFrameLevel(100)
+        absorb:SetAllPoints()
+
+        absorb:SetStatusBarTexture('interface/buttons/white8x8')
+        absorb:SetStatusBarColor(0x92 / 0xff, 0x70 / 0xff, 0xdb / 0xff, 0.9)
+        absorb:SetMinMaxValues(0, 100)
+        absorb:SetValue(0)
+        absorb:SetReverseFill(true)
+        absorb:Show()
+        PixelUtil.SetPoint(absorb, 'TOPLEFT', parent, 'TOPLEFT', -4, 4)
+        PixelUtil.SetPoint(absorb, 'BOTTOMRIGHT', parent, 'BOTTOMRIGHT', 4, -4)
+
+        local function refresh(unitToken)
+            absorb:SetMinMaxValues(0, UnitHealthMax(unitToken))
+            absorb:SetValue(UnitGetTotalHealAbsorbs(unitToken))
+        end
+
+        local storedToken = nil
+        function absorb:bind(unitToken)
+            storedToken = unitToken
+            parent:RegisterUnitEvent('UNIT_HEAL_ABSORB_AMOUNT_CHANGED', unitToken)
+            parent:RegisterUnitEvent('UNIT_MAXHEALTH', unitToken)
+
+            refresh(unitToken)
+        end
+
+        parent:HookScript('OnEvent', function(parent, eventName)
+            if eventName == 'UNIT_HEAL_ABSORB_AMOUNT_CHANGED' or eventName == 'UNIT_MAXHEALTH' then
+                refresh(storedToken)
+            end
+        end)
+
+        return absorb
+    end
+
     ---@param nameplate Nameplate|SlabRootMixin
     ---@return Frame|SlabFrameMixin
     function private.frames.health(nameplate)
@@ -269,6 +344,8 @@ do
             self.name:bind(unitToken)
             self.pins:bind(unitToken)
             self.raidMarker:bind(unitToken)
+            self.absorb:bind(unitToken)
+            self.healAbsorb:bind(unitToken)
 
 
             updateSize(unitToken)
@@ -295,6 +372,8 @@ do
         hp.name = name(nameplate, hp)
         hp.pins = targetPins(hp)
         hp.raidMarker = raidTargetMarker(nameplate, hp)
+        hp.absorb = absorb(hp)
+        hp.healAbsorb = healAbsorb(hp)
 
         return hp
     end
