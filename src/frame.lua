@@ -354,6 +354,7 @@ do
         hp:SetScript('OnEvent', function(self, eventName, unitToken)
             if eventName == 'UNIT_MAXHEALTH' then
                 hp:SetMinMaxValues(0, UnitHealthMax(unitToken))
+                hp:SetValue(UnitHealth(unitToken, false))
             elseif eventName == 'UNIT_HEALTH' then
                 hp:SetValue(UnitHealth(unitToken, false))
             elseif eventName == 'UNIT_THREAT_LIST_UPDATE' or eventName == 'UNIT_CLASSIFICATION_CHANGED' then
