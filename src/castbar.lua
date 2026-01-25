@@ -10,7 +10,8 @@ do
     }
 
     local function colorBar(castBar, notInterruptible)
-        local color = C_CurveUtil.EvaluateColorFromBoolean(notInterruptible, colors.notInterruptible, colors.interruptible)
+        local color = C_CurveUtil.EvaluateColorFromBoolean(notInterruptible, colors.notInterruptible,
+            colors.interruptible)
         castBar:GetStatusBarTexture():SetVertexColor(color:GetRGBA())
     end
 
@@ -54,12 +55,20 @@ do
         PixelUtil.SetSize(icon, 20, 20)
         PixelUtil.SetPoint(icon, 'TOPRIGHT', castBar, 'TOPLEFT', -2, 0)
 
+
         local spellName = castBar:CreateFontString(castBar:GetName() .. 'SpellName', 'OVERLAY')
         spellName:SetFont(private.font, 16, 'OUTLINE')
         spellName:SetWidth(100)
         spellName:SetMaxLines(1)
-        PixelUtil.SetPoint(spellName, 'TOPLEFT', castBar, 'BOTTOMLEFT', 0, 2)
+        PixelUtil.SetPoint(spellName, 'TOPLEFT', castBar, 'BOTTOMLEFT', 4, 2)
         spellName:SetJustifyH('LEFT')
+
+        local importantIcon = castBar:CreateTexture(castBar:GetName() .. 'Important', 'OVERLAY', nil, 4)
+        PixelUtil.SetSize(importantIcon, 25, 25)
+        PixelUtil.SetPoint(importantIcon, 'LEFT', spellName, 'LEFT', -16, 0)
+        importantIcon:SetTexture('interface/cursor/crosshair/quest.blp')
+        importantIcon:SetAlpha(0)
+        importantIcon:Show() -- we can't show/hide from a secret value, so we manipulate the alpha value instead
 
         local targetName = castBar:CreateFontString(castBar:GetName() .. 'TargetName', 'OVERLAY')
         targetName:SetFont(private.font, 16, 'OUTLINE')
@@ -71,7 +80,12 @@ do
             self:Hide()
         end
 
-        function frame:showCast(casterToken, duration, notInterruptible, displayName, textureId)
+        local function showImportantIcon(isImportant)
+            local alpha = C_CurveUtil.EvaluateColorValueFromBoolean(isImportant, 1.0, 0.0)
+            importantIcon:SetAlpha(alpha)
+        end
+
+        function frame:showCast(casterToken, duration, notInterruptible, isImportant, displayName, textureId)
             castBar:SetTimerDuration(
                 duration,
                 Enum.StatusBarInterpolation.Immediate,
@@ -83,12 +97,13 @@ do
             spellName:SetText(displayName)
 
             showSpellTarget(targetName, casterToken)
+            showImportantIcon(isImportant)
 
             self:Raise()
             self:Show()
         end
 
-        function frame:showChannel(casterToken, duration, notInterruptible, displayName, textureId)
+        function frame:showChannel(casterToken, duration, notInterruptible, isImportant, displayName, textureId)
             castBar:SetTimerDuration(
                 duration,
                 Enum.StatusBarInterpolation.Immediate,
@@ -100,6 +115,7 @@ do
             spellName:SetText(displayName)
 
             showSpellTarget(targetName, casterToken)
+            showImportantIcon(isImportant)
 
             self:Raise()
             self:Show()
@@ -107,7 +123,9 @@ do
 
         function frame:refresh(kind, unitToken)
             if kind == 'unknown' or kind == 'channel' then
-                local _name, displayName, textureId, _startTimeMs, _endTimeMs, _isTradeskill, notInterruptible, _spellId, _isEmpowered, _numEmpoweredStages, castBarId = UnitChannelInfo(unitToken)
+                local _name, displayName, textureId, _startTimeMs, _endTimeMs, _isTradeskill, notInterruptible, spellId, _isEmpowered, _numEmpoweredStages, castBarId =
+                UnitChannelInfo(unitToken)
+
                 if castBarId == nil then
                     -- in the unknown cast, we fall back to the cast check
                     if kind ~= 'unknown' then
@@ -116,18 +134,19 @@ do
                     end
                 else
                     local duration = UnitChannelDuration(unitToken)
-                    frame:showChannel(unitToken, duration, notInterruptible, displayName, textureId)
+                    frame:showChannel(unitToken, duration, notInterruptible, C_Spell.IsSpellImportant(spellId), displayName, textureId)
                     return
                 end
             end
 
             if kind == 'unknown' or kind == 'cast' then
-                local name, displayName, textureID, startTimeMs, endTimeMs, isTradeskill, castID, notInterruptible, castingSpellID, castBarId = UnitCastingInfo(unitToken)
+                local name, displayName, textureID, startTimeMs, endTimeMs, isTradeskill, castID, notInterruptible, castingSpellID, castBarId =
+                UnitCastingInfo(unitToken)
                 if castBarId == nil then
                     frame:endCast()
                 else
                     local duration = UnitCastingDuration(unitToken)
-                    frame:showCast(unitToken, duration, notInterruptible, displayName, textureID)
+                    frame:showCast(unitToken, duration, notInterruptible, C_Spell.IsSpellImportant(castingSpellID), displayName, textureID)
                 end
             end
         end
