@@ -11,3 +11,4 @@ src\frame.lua
 src\enemies.lua
 src\threat.lua
 src\castbar.lua
+src\tod_indicator.lua
