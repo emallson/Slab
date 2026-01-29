@@ -19,7 +19,9 @@ private.frames = {}
 ---@param unitToken UnitToken
 local function bind(self, unitToken)
     for key, frame in pairs(self.frames) do
-        frame:bind(unitToken)
+        if frame ~= nil then
+            frame:bind(unitToken)
+        end
     end
 end
 

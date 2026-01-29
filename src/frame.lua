@@ -347,7 +347,6 @@ do
             self.absorb:bind(unitToken)
             self.healAbsorb:bind(unitToken)
 
-
             updateSize(unitToken)
         end
 

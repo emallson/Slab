@@ -9,8 +9,12 @@ local private = select(2, ...)
 do
     ---@param nameplate Nameplate|SlabRootMixin
     ---@param hp StatusBar|SlabFrameMixin
-    ---@return Frame|SlabFrameMixin
+    ---@return Frame|SlabFrameMixin|nil
     function private.frames.todIndicator(nameplate, hp)
+        if select(2, UnitClass('player')) ~= 'MONK' then
+            return nil
+        end
+
         local todBar = CreateFrame('StatusBar', nameplate.slab:GetName() .. 'ToD', hp)
         todBar:SetAllPoints(hp)
         todBar:Show()
