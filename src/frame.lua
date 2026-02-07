@@ -123,7 +123,7 @@ do
         local storedToken = nil
         function label:bind(unitToken)
             storedToken = unitToken
-            self:GetParent():RegisterUnitEvent('UNIT_NAME_UPDATE')
+            self:GetParent():RegisterUnitEvent('UNIT_NAME_UPDATE', unitToken)
             refresh(unitToken)
         end
 
