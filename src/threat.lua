@@ -40,8 +40,10 @@ function private.threatStatus(unitToken)
             return "warning"
         elseif IsTankPlayer(unitToken .. "target") then
             return "other-tank"
-        elseif (select(4, UnitDetailedThreatSituation("player", unitToken)) or 0) > 110 then
-            return "active" -- treat fixates as actively tanked
+        -- FIXME: disabled in build 66044. this code worked around threat display issues with fixates and cosmetic casts,
+        -- which do not indicate that the player is the primary target
+        -- elseif (select(4, UnitDetailedThreatSituation("player", unitToken)) or 0) > 110 then
+        --     return "active" -- treat fixates as actively tanked
         elseif UnitPlayerOrPetInParty(unitToken .. 'target') or UnitPlayerOrPetInRaid(unitToken .. 'target') or UnitIsOwnerOrControllerOfUnit('player', unitToken .. 'target') then
             return UnitIsPlayer(unitToken .. 'target') and "danger" or 'other-tank'
         else
