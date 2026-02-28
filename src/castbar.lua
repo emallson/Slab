@@ -56,11 +56,9 @@ do
         PixelUtil.SetPoint(icon, 'TOPRIGHT', castBar, 'TOPLEFT', -2, 0)
 
 
-        local spellName = castBar:CreateFontString(castBar:GetName() .. 'SpellName', 'OVERLAY')
-        spellName:SetFont(private.font, 16, 'OUTLINE')
-        spellName:SetWidth(100)
-        spellName:SetMaxLines(1)
-        PixelUtil.SetPoint(spellName, 'TOPLEFT', castBar, 'BOTTOMLEFT', 4, 2)
+        local spellNameClip, spellName = private.util.ClippedFontString(castBar:GetName() .. 'SpellName', castBar, 16)
+        PixelUtil.SetPoint(spellNameClip, 'TOPLEFT', castBar, 'BOTTOMLEFT', 4, 2)
+        PixelUtil.SetSize(spellNameClip, 100, 20)
         spellName:SetJustifyH('LEFT')
 
         local importantIcon = castBar:CreateTexture(castBar:GetName() .. 'Important', 'OVERLAY', nil, 4)
@@ -70,11 +68,11 @@ do
         importantIcon:SetAlpha(0)
         importantIcon:Show() -- we can't show/hide from a secret value, so we manipulate the alpha value instead
 
-        local targetName = castBar:CreateFontString(castBar:GetName() .. 'TargetName', 'OVERLAY')
-        targetName:SetFont(private.font, 16, 'OUTLINE')
-        targetName:SetMaxLines(1)
-        PixelUtil.SetPoint(targetName, 'TOPRIGHT', castBar, 'BOTTOMRIGHT', 0, 2)
-        targetName:SetJustifyH('RIGHT')
+        local targetNameClip, targetName = private.util.ClippedFontString(castBar:GetName() .. 'TargetName', castBar, 16)
+        PixelUtil.SetPoint(targetNameClip, 'TOPRIGHT', castBar, 'BOTTOMRIGHT', 0, 2)
+        PixelUtil.SetSize(targetNameClip, 80, 20)
+        targetName:SetJustifyH('LEFT')
+        targetName:SetWordWrap(false)
 
         function frame:endCast()
             self:Hide()
