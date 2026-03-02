@@ -293,6 +293,52 @@ do
         return absorb
     end
 
+    local function mouseover(parent)
+        local frame = CreateFrame('Frame', parent:GetName() .. 'Mouseover', parent)
+        local bottom = frame:CreateTexture(nil, "OVERLAY", nil, -8)
+        bottom:SetPoint("BOTTOMRIGHT", parent)
+        bottom:SetPoint("BOTTOMLEFT", parent)
+        bottom:SetHeight(10)
+        bottom:SetTexture([[Interface\COMMON\talent-blue-glow]])
+
+        local top = frame:CreateTexture(nil, "OVERLAY", nil, -8)
+        top:SetPoint("TOPRIGHT", parent)
+        top:SetPoint("TOPLEFT", parent)
+        top:SetHeight(10)
+        top:SetTexture([[Interface\COMMON\talent-blue-glow]])
+        top:SetRotation(math.pi)
+
+        frame:Hide()
+
+        local unitToken
+
+        function frame:bind(tok)
+            unitToken = tok
+
+            if UnitExists('mouseover') and UnitIsUnit('mouseover', unitToken) then
+                frame:Show()
+            else
+                frame:Hide()
+            end
+        end
+
+        frame:RegisterEvent('UPDATE_MOUSEOVER_UNIT')
+        frame:HookScript('OnEvent', function(frame, event)
+            if event == 'UPDATE_MOUSEOVER_UNIT' and unitToken and UnitIsUnit('mouseover', unitToken) then
+                frame:Show()
+                
+                frame:SetScript('OnUpdate', function()
+                    if unitToken == nil or not UnitExists('mouseover') or not UnitIsUnit('mouseover', unitToken) then
+                        frame:Hide()
+                        frame:SetScript('OnUpdate', nil)
+                    end
+                end)
+            end
+        end)
+
+        return frame
+    end
+
     ---@param nameplate Nameplate|SlabRootMixin
     ---@return Frame|SlabFrameMixin
     function private.frames.health(nameplate)
@@ -346,6 +392,7 @@ do
             self.raidMarker:bind(unitToken)
             self.absorb:bind(unitToken)
             self.healAbsorb:bind(unitToken)
+            self.mouseover:bind(unitToken)
 
             updateSize(unitToken)
         end
@@ -374,6 +421,7 @@ do
         hp.raidMarker = raidTargetMarker(nameplate, hp)
         hp.absorb = absorb(hp)
         hp.healAbsorb = healAbsorb(hp)
+        hp.mouseover = mouseover(hp)
 
         return hp
     end

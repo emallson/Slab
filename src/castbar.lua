@@ -58,7 +58,7 @@ do
 
         local spellNameClip, spellName = private.util.ClippedFontString(castBar:GetName() .. 'SpellName', castBar, 16)
         PixelUtil.SetPoint(spellNameClip, 'TOPLEFT', castBar, 'BOTTOMLEFT', 4, 2)
-        PixelUtil.SetSize(spellNameClip, 100, 20)
+        PixelUtil.SetSize(spellNameClip, 110, 20)
         spellName:SetJustifyH('LEFT')
 
         local importantIcon = castBar:CreateTexture(castBar:GetName() .. 'Important', 'OVERLAY', nil, 4)
