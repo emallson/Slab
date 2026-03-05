@@ -48,6 +48,7 @@ function private.createNameplate(nameplate)
     nameplate_.slab.frames.hp = private.frames.health(nameplate_)
     nameplate_.slab.frames.todBar = private.frames.todIndicator(nameplate_, nameplate_.slab.frames.hp)
     nameplate_.slab.frames.castbar = private.frames.castbar(nameplate_, nameplate_.slab.frames.hp)
+    nameplate_.slab.frames.focusIndicator = private.frames.focusIndicator(nameplate_, nameplate_.slab.frames.hp)
 
     -- LibGetFrame compat with previous version
     nameplate_.slab.components = {

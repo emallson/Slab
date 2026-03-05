@@ -2,9 +2,6 @@
 local private = select(2, ...)
 
 do
-    local WARNING_COLOR = private.color.hsl_to_srgb(57, 100, 60)
-    local DANGER_COLOR = private.color.hsl_to_srgb(1, 100, 55)
-
     local function colorTable(hue, saturation, lightness, otSaturation, otLightness)
         local active = private.color.hsl_to_srgb(hue, saturation, lightness)
         local offtank = private.color.hsl_to_srgb(hue, otSaturation or 15, otLightness or 80)
@@ -13,8 +10,8 @@ do
             ["active"] = active,
             ["noncombat"] = active,
             ["other-tank"] = offtank,
-            ["warning"] = WARNING_COLOR,
-            ["danger"] = DANGER_COLOR
+            ["warning"] = private.color.WARNING_COLOR,
+            ["danger"] = private.color.DANGER_COLOR
         }
     end
 

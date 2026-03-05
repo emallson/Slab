@@ -49,4 +49,6 @@ local private = select(2, ...)
 
 private.color = {
   hsl_to_srgb = hsl_to_srgb,
+  WARNING_COLOR = hsl_to_srgb(57, 100, 60),
+  DANGER_COLOR = hsl_to_srgb(1, 100, 55),
 }
