@@ -50,6 +50,10 @@ do
             refresh(unitToken)
         end
 
+        function todBar:unbind()
+            todBar:UnregisterAllEvents()
+        end
+
         todBar:SetScript('OnEvent', function(self, eventName, unitToken)
             if eventName == 'UNIT_MAXHEALTH' then
                 refresh(storedToken)

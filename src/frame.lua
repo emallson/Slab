@@ -45,9 +45,10 @@ do
 
     ---@param nameplate Nameplate|SlabRootMixin
     ---@param hp Frame|SlabFrameMixin
-    ---@return FontString
+    ---@return Frame|SlabFrameMixin
     local function tagText(nameplate, hp)
-        local label = hp:CreateFontString(hp:GetName() .. 'TagText')
+        local frame = CreateFrame("Frame", nil, hp)
+        local label = frame:CreateFontString(hp:GetName() .. 'TagText')
         label:SetFont([[Interface\addons\Slab\resources\fonts\FiraSans-Regular.otf]], 14, "OUTLINE")
         PixelUtil.SetPoint(label, 'BOTTOMLEFT', hp, 'TOPLEFT', 0, 2)
         label:Hide()
@@ -79,15 +80,21 @@ do
         end
 
         local storedToken = nil
-        function label:bind(unitToken)
+        function frame:bind(unitToken)
             storedToken = unitToken
-            self:GetParent():RegisterEvent('PLAYER_REGEN_DISABLED')
-            self:GetParent():RegisterUnitEvent('UNIT_THREAT_LIST_UPDATE', unitToken)
+            self:RegisterEvent('PLAYER_REGEN_DISABLED')
+            self:RegisterEvent('PLAYER_TARGET_CHANGED')
+            self:RegisterUnitEvent('UNIT_THREAT_LIST_UPDATE', unitToken)
+            self:RegisterUnitEvent('UNIT_CLASSIFICATION_CHANGED', unitToken)
 
             refresh(unitToken)
         end
 
-        hp:HookScript('OnEvent', function(parent, eventType, unitToken)
+        function frame:unbind()
+            self:UnregisterAllEvents()
+        end
+
+        frame:SetScript('OnEvent', function(parent, eventType, unitToken)
             if eventType == 'PLAYER_REGEN_DISABLED' then
                 refresh(storedToken)
             elseif eventType == 'UNIT_THREAT_LIST_UPDATE' then
@@ -97,14 +104,15 @@ do
             end
         end)
 
-        return label
+        return frame
     end
 
     ---@param nameplate Nameplate|SlabRootMixin
     ---@param hp Frame|SlabFrameMixin
-    ---@return FontString
+    ---@return Frame|SlabFrameMixin
     local function name(nameplate, hp)
-        local label = hp:CreateFontString(hp:GetName() .. 'Name')
+        local frame = CreateFrame('Frame', nil, hp)
+        local label = frame:CreateFontString(hp:GetName() .. 'Name')
         label:SetFont(private.font, 16, 'OUTLINE')
         PixelUtil.SetPoint(label, 'BOTTOM', hp, 'TOP', 0, 2)
         label:SetWidth(150)
@@ -121,13 +129,19 @@ do
         end
 
         local storedToken = nil
-        function label:bind(unitToken)
+        function frame:bind(unitToken)
             storedToken = unitToken
-            self:GetParent():RegisterUnitEvent('UNIT_NAME_UPDATE', unitToken)
+            self:RegisterUnitEvent('UNIT_NAME_UPDATE', unitToken)
+            self:RegisterUnitEvent('UNIT_CLASSIFICATION_CHANGED', unitToken)
+            self:RegisterEvent('PLAYER_TARGET_CHANGED')
             refresh(unitToken)
         end
 
-        hp:HookScript('OnEvent', function(parent, eventType, unitToken)
+        function frame:unbind()
+            self:UnregisterAllEvents()
+        end
+
+        frame:SetScript('OnEvent', function(parent, eventType, unitToken)
             if eventType == 'UNIT_NAME_UPDATE' then
                 refresh(unitToken)
             elseif eventType == 'UNIT_CLASSIFICATION_CHANGED' or eventType == 'PLAYER_TARGET_CHANGED' then
@@ -135,10 +149,11 @@ do
             end
         end)
 
-        return label
+        return frame
     end
 
-    local function targetPins(frame)
+    local function targetPins(parent)
+        local frame = CreateFrame("Frame", nil, parent)
         -- coords stolen from plater, but i suppose they're just fundamental to the texture
         local coords = { { 145 / 256, 161 / 256, 3 / 256, 19 / 256 }, { 145 / 256, 161 / 256, 19 / 256, 3 / 256 },
             { 161 / 256, 145 / 256, 19 / 256, 3 / 256 }, { 161 / 256, 145 / 256, 3 / 256, 19 / 256 } }
@@ -148,10 +163,10 @@ do
 
         local pins = {}
         for i = 1, 4 do
-            local pin = frame:CreateTexture(frame:GetName() .. "TargetPin" .. i, 'OVERLAY', nil, 4)
+            local pin = frame:CreateTexture(parent:GetName() .. "TargetPin" .. i, 'OVERLAY', nil, 4)
             pin:SetTexture([[Interface\ITEMSOCKETINGFRAME\UI-ItemSockets]])
             pin:SetTexCoord(unpack(coords[i]))
-            PixelUtil.SetPoint(pin, positions[i], frame, positions[i], unpack(offsets[i]))
+            PixelUtil.SetPoint(pin, positions[i], parent, positions[i], unpack(offsets[i]))
             PixelUtil.SetSize(pin, 8, 8)
             pin:Hide()
             pins[i] = pin
@@ -159,7 +174,8 @@ do
 
         local unitToken = nil
 
-        function pins:bind(token)
+        function frame:bind(token)
+            frame:RegisterEvent('PLAYER_TARGET_CHANGED')
             unitToken = token
             if UnitIsUnit('target', unitToken) then
                 for _, pin in ipairs(pins) do
@@ -168,7 +184,11 @@ do
             end
         end
 
-        frame:HookScript('OnEvent', function(parent, eventType)
+        function frame:unbind()
+            frame:UnregisterAllEvents()
+        end
+
+        frame:SetScript('OnEvent', function(parent, eventType)
             if unitToken and eventType == 'PLAYER_TARGET_CHANGED' then
                 if UnitIsUnit('target', unitToken) then
                     for _, pin in ipairs(pins) do
@@ -182,13 +202,15 @@ do
             end
         end)
 
-        return pins
+        return frame
     end
 
     local function raidTargetMarker(nameplate, hp)
-        local texture = hp:CreateTexture(hp:GetName() .. 'RaidMarker', 'OVERLAY', nil, 7)
-        PixelUtil.SetPoint(texture, 'LEFT', hp, 'LEFT', 2, 0)
-        PixelUtil.SetSize(texture, 15, 15)
+        local child = CreateFrame('Frame', nil, hp)
+        local texture = child:CreateTexture(hp:GetName() .. 'RaidMarker', 'OVERLAY', nil, 7)
+        PixelUtil.SetPoint(child, 'LEFT', hp, 'LEFT', 2, 0)
+        PixelUtil.SetSize(child, 15, 15)
+        texture:SetAllPoints(child)
         texture:SetTexture([[Interface\TargetingFrame\UI-RaidTargetingIcons]])
         texture:Hide()
 
@@ -203,19 +225,22 @@ do
         end
 
         local storedToken = nil
-        function texture:bind(unitToken)
+        function child:bind(unitToken)
             storedToken = unitToken
-            hp:RegisterEvent('RAID_TARGET_UPDATE')
+            child:RegisterEvent('RAID_TARGET_UPDATE')
             refresh(unitToken)
         end
+        function child:unbind()
+            self:UnregisterAllEvents()
+        end
 
-        hp:HookScript('OnEvent', function(frame, eventType)
+        child:SetScript('OnEvent', function(frame, eventType)
             if eventType == 'RAID_TARGET_UPDATE' then
                 refresh(storedToken)
             end
         end)
 
-        return texture
+        return child
     end
 
     local function absorb(parent)
@@ -240,13 +265,17 @@ do
         local storedToken = nil
         function absorb:bind(unitToken)
             storedToken = unitToken
-            parent:RegisterUnitEvent('UNIT_ABSORB_AMOUNT_CHANGED', unitToken)
-            parent:RegisterUnitEvent('UNIT_MAXHEALTH', unitToken)
+            absorb:RegisterUnitEvent('UNIT_ABSORB_AMOUNT_CHANGED', unitToken)
+            absorb:RegisterUnitEvent('UNIT_MAXHEALTH', unitToken)
 
             refresh(unitToken)
         end
 
-        parent:HookScript('OnEvent', function(parent, eventName)
+        function absorb:unbind()
+            absorb:UnregisterAllEvents()
+        end
+
+        absorb:SetScript('OnEvent', function(parent, eventName)
             if eventName == 'UNIT_ABSORB_AMOUNT_CHANGED' or eventName == 'UNIT_MAXHEALTH' then
                 refresh(storedToken)
             end
@@ -278,13 +307,17 @@ do
         local storedToken = nil
         function absorb:bind(unitToken)
             storedToken = unitToken
-            parent:RegisterUnitEvent('UNIT_HEAL_ABSORB_AMOUNT_CHANGED', unitToken)
-            parent:RegisterUnitEvent('UNIT_MAXHEALTH', unitToken)
+            absorb:RegisterUnitEvent('UNIT_HEAL_ABSORB_AMOUNT_CHANGED', unitToken)
+            absorb:RegisterUnitEvent('UNIT_MAXHEALTH', unitToken)
 
             refresh(unitToken)
         end
 
-        parent:HookScript('OnEvent', function(parent, eventName)
+        function absorb:unbind()
+            absorb:UnregisterAllEvents()
+        end
+
+        absorb:SetScript('OnEvent', function(parent, eventName)
             if eventName == 'UNIT_HEAL_ABSORB_AMOUNT_CHANGED' or eventName == 'UNIT_MAXHEALTH' then
                 refresh(storedToken)
             end
@@ -313,6 +346,7 @@ do
         local unitToken
 
         function frame:bind(tok)
+            frame:RegisterEvent('UPDATE_MOUSEOVER_UNIT')
             unitToken = tok
 
             if UnitExists('mouseover') and UnitIsUnit('mouseover', unitToken) then
@@ -322,8 +356,12 @@ do
             end
         end
 
-        frame:RegisterEvent('UPDATE_MOUSEOVER_UNIT')
-        frame:HookScript('OnEvent', function(frame, event)
+        function frame:unbind()
+            frame:UnregisterAllEvents()
+            frame:SetScript('OnUpdate', nil)
+        end
+
+        frame:SetScript('OnEvent', function(frame, event)
             if event == 'UPDATE_MOUSEOVER_UNIT' and unitToken and UnitIsUnit('mouseover', unitToken) then
                 frame:Show()
                 
@@ -395,6 +433,13 @@ do
             self.mouseover:bind(unitToken)
 
             updateSize(unitToken)
+        end
+
+        function hp:unbind()
+            hp:UnregisterAllEvents()
+            hp.absorb:unbind()
+            hp.healAbsorb:unbind()
+            hp.mouseover:unbind()
         end
 
         hp:SetScript('OnEvent', function(self, eventName, unitToken)

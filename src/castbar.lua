@@ -161,6 +161,9 @@ do
 
             self:refresh('unknown', unitToken)
         end
+        function frame:unbind()
+            self:UnregisterAllEvents()
+        end
 
         frame:SetScript('OnEvent', function(frame, eventName, ...)
             local unitToken = select(1, ...)

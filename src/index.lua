@@ -4,6 +4,7 @@ local private = select(2, ...)
 
 ---@class SlabFrameMixin
 ---@field bind fun(self, unitToken: UnitToken)
+---@field unbind fun(self)
 
 private.frames = {}
 
@@ -28,7 +29,7 @@ end
 ---@param self SlabRoot
 local function unbind(self)
     for key, frame in pairs(self.frames) do
-        frame:UnregisterAllEvents()
+        frame:unbind()
     end
 end
 
