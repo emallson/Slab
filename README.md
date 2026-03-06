@@ -1,6 +1,6 @@
 # Slab
 
-![Slab v2 in brackenhide hollow](readme/brackenhide_cast.png)
+![Slab v2 in brackenhide hollow](readme/maisara_screenshot.png)
 
 Slab is a slim and colorful nameplate addon for Retail World of Warcraft with a focus on being clear, simple & efficient. It uses color to distinguish different classes of enemies, with high-visibility colors for dangerous threat states.
 
@@ -10,19 +10,18 @@ Slab is a slim and colorful nameplate addon for Retail World of Warcraft with a 
 
 - Built-in support for threat and tank pets.
 - Built-in cast bars with support for cast targets.
+- Focus target indicator showing the cooldown of your interrupt (if talented)
 - Option-free. Install & go, no fiddling allowed.
+
+![Focus indicator](readme/focus_indicator.png)
 
 ### Enemy Classes
 
-<p align="center">
-<img alt="Slab v2 Colors" src="readme/v2_grid.png" />
-</p>
-
 - Boss: A Dungeon or Raid boss (or world boss, in open world content)
 - Lieutenant: Traditionally a level 71 enemy in a dungeon or 72 in raid. These are usually immune to CCs and have important mechanics.
+- Caster: Caster enemies are conventionally marked as "Paladin" NPCs in-game.
 - Normal: Most enemies you encounter fall into the "normal" category.
 - Trivial: "Spam" enemies like lashers on Gnarlroot and low-level enemies in Dungeons.
-- Special: *Currently unused* due to limitations in Midnight.
 
 ### A Note on Nameplate CVars
 
