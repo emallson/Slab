@@ -21,7 +21,8 @@ do
             return
         end
 
-        targetName:SetText(UnitSpellTargetName(casterToken))
+        local name = UnitSpellTargetName(casterToken)
+        targetName:SetText(string.format("%.12s", name or ""))
         local classColor = C_ClassColor.GetClassColor(UnitSpellTargetClass(casterToken))
         targetName:SetTextColor(classColor.r, classColor.g, classColor.b, classColor.a)
         targetName:Show()
@@ -55,10 +56,10 @@ do
         PixelUtil.SetSize(icon, 20, 20)
         PixelUtil.SetPoint(icon, 'TOPRIGHT', castBar, 'TOPLEFT', -2, 0)
 
-
-        local spellNameClip, spellName = private.util.ClippedFontString(castBar:GetName() .. 'SpellName', castBar, 16)
-        PixelUtil.SetPoint(spellNameClip, 'TOPLEFT', castBar, 'BOTTOMLEFT', 4, 2)
-        PixelUtil.SetSize(spellNameClip, 110, 20)
+        local spellName = castBar:CreateFontString(castBar:GetName() .. 'SpellName', 'OVERLAY')
+        spellName:SetFont(private.font, 16, 'OUTLINE')
+        spellName:SetMaxLines(1)
+        PixelUtil.SetPoint(spellName, 'TOPLEFT', castBar, 'BOTTOMLEFT', 4, 2)
         spellName:SetJustifyH('LEFT')
 
         local importantIcon = castBar:CreateTexture(castBar:GetName() .. 'Important', 'OVERLAY', nil, 4)
@@ -68,10 +69,11 @@ do
         importantIcon:SetAlpha(0)
         importantIcon:Show() -- we can't show/hide from a secret value, so we manipulate the alpha value instead
 
-        local targetNameClip, targetName = private.util.ClippedFontString(castBar:GetName() .. 'TargetName', castBar, 16)
-        PixelUtil.SetPoint(targetNameClip, 'TOPRIGHT', castBar, 'BOTTOMRIGHT', 0, 2)
-        PixelUtil.SetSize(targetNameClip, 80, 20)
-        targetName:SetJustifyH('LEFT')
+        local targetName = castBar:CreateFontString(castBar:GetName() .. 'TaregtName', 'OVERLAY')
+        targetName:SetFont(private.font, 16, 'OUTLINE')
+        targetName:SetMaxLines(1)
+        PixelUtil.SetPoint(targetName, 'TOPRIGHT', castBar, 'BOTTOMRIGHT', 0, 2)
+        targetName:SetJustifyH('RIGHT')
         targetName:SetWordWrap(false)
 
         function frame:endCast()
@@ -92,7 +94,7 @@ do
 
             colorBar(castBar, notInterruptible)
             icon:SetTexture(textureId)
-            spellName:SetText(displayName)
+            spellName:SetText(string.format("%.10s", displayName or ""))
 
             showSpellTarget(targetName, casterToken)
             showImportantIcon(isImportant)
@@ -110,7 +112,7 @@ do
 
             colorBar(castBar, notInterruptible)
             icon:SetTexture(textureId)
-            spellName:SetText(displayName)
+            spellName:SetText(string.format("%.10s", displayName or ""))
 
             showSpellTarget(targetName, casterToken)
             showImportantIcon(isImportant)
