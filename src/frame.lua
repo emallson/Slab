@@ -57,13 +57,13 @@ do
             end
 
             local reaction = UnitReaction(unitToken, 'player')
-            local threatStatus = private.threatStatus(unitToken)
+            local threatStatus, groupUnit = private.threatStatus(unitToken)
             if reaction == 4 and threatStatus == "noncombat" then
                 label:SetText('N')
                 -- stolen from plater
                 label:SetTextColor(0.9254901, 0.8, 0.2666666, 1)
                 label:Show()
-            elseif threatStatus == "other-tank" and not UnitIsPlayer(unitToken .. 'target') then
+            elseif threatStatus == "other-tank" and not UnitIsPlayer(groupUnit or (unitToken .. 'target')) then
                 label:SetText('PET')
                 label:SetTextColor(0.75, 0.75, 0.5, 1)
                 label:Show()

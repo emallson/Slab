@@ -23,11 +23,56 @@ local THREAT_WARNING_TANKING = 2
 local THREAT_WARNING_NOT_TANKING = 1
 local THREAT_NOT_TANKING = 0
 
+local function groupMembers()
+    if IsInRaid() then
+        local i = 0
+        return function()
+            while i < 40 do
+                i = i + 1
+                if UnitExists("raid" .. i) then
+                    return "raid" .. i
+                end
+            end
+            return nil
+        end
+    elseif IsInGroup() then
+        local i = 0
+        return function()
+            while i < 5 do
+                i = i + 1
+                if UnitExists("party" .. i) then
+                    return "party" .. i
+                end
+            end
+            return nil
+        end
+    else
+        local i = 0
+        return function()
+            if i == 0 then
+                i = 1
+                return "player"
+            end
+            return nil
+        end
+    end
+end
+
+
+local function UnitAffectingGroupCombat(unitToken)
+    for playerUnit in groupMembers() do
+        if UnitThreatSituation(playerUnit, unitToken) ~= nil then
+            return true
+        end
+    end
+
+    return UnitAffectingCombat(unitToken)
+end
 
 ---@param unitToken UnitToken
----@return ThreatStatus
+---@return ThreatStatus, UnitToken|nil
 function private.threatStatus(unitToken)
-    if not UnitAffectingCombat(unitToken) then
+    if not UnitAffectingGroupCombat(unitToken) then
         return "noncombat"
     end
 
@@ -40,13 +85,22 @@ function private.threatStatus(unitToken)
             return "warning"
         elseif IsTankPlayer(unitToken .. "target") then
             return "other-tank"
-        -- FIXME: disabled in build 66044. this code worked around threat display issues with fixates and cosmetic casts,
-        -- which do not indicate that the player is the primary target
-        -- elseif (select(4, UnitDetailedThreatSituation("player", unitToken)) or 0) > 110 then
-        --     return "active" -- treat fixates as actively tanked
+        elseif (UnitThreatLeadSituation("player", unitToken) or 3) < 2 then
+            return "active" -- threat lead but not tanking and no warning. assume fixate. treat fixates as actively tanked
         elseif UnitPlayerOrPetInParty(unitToken .. 'target') or UnitPlayerOrPetInRaid(unitToken .. 'target') or UnitIsOwnerOrControllerOfUnit('player', unitToken .. 'target') then
             return UnitIsPlayer(unitToken .. 'target') and "danger" or 'other-tank'
         else
+            for groupUnit in groupMembers() do
+                if (UnitThreatSituation(groupUnit, unitToken) or 0) > 0 then
+                    if UnitIsUnit("player", groupUnit) then
+                        return "active" -- should never happen
+                    elseif IsTankPlayer(groupUnit) then
+                        return "other-tank", groupUnit
+                    else
+                        return "danger"
+                    end
+                end
+            end
             return "noncombat"
         end
     else
