@@ -112,13 +112,12 @@ do
         local label = frame:CreateFontString(hp:GetName() .. 'Name')
         label:SetFont(private.font, 16, 'OUTLINE')
         PixelUtil.SetPoint(label, 'BOTTOM', hp, 'TOP', 0, 2)
-        label:SetWidth(160)
+        label:SetWidth(150)
         label:SetMaxLines(1)
         label:SetWordWrap(false)
 
         local function refresh(unitToken)
-            local truncatedName = string.format("%.16s", UnitName(unitToken) or "")
-            label:SetText(truncatedName)
+            label:SetText(UnitName(unitToken))
             if private.smallMode(unitToken) and not UnitIsUnit('target', unitToken) then
                 label:Hide()
             else

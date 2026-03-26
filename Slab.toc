@@ -12,4 +12,5 @@ src\enemies.lua
 src\threat.lua
 src\castbar.lua
 src\tod_indicator.lua
+src\clipped_fontstring.lua
 src\focus.lua
