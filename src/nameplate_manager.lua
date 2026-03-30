@@ -63,6 +63,9 @@ mgr:SetScript('OnEvent', function (self, eventType, ...)
         nameplate.slab:Hide()
     elseif eventType == 'NAME_PLATE_UNIT_ADDED' then
         local nameplateToken = ...
+        if not issecretvalue(nameplateToken) and UnitIsPlayer(nameplateToken) and UnitIsFriend("player", nameplateToken) then
+            return
+        end
         ---@type Nameplate|SlabRootMixin|nil
         local nameplate = C_NamePlate.GetNamePlateForUnit(nameplateToken, false)
         if nameplate == nil then return end
