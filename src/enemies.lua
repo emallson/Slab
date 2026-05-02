@@ -35,6 +35,10 @@ function private.enemyType(unitToken)
         return 'normal'
     end
 
+    if instanceType == 'party' and levelDelta >= 2 then
+        return 'boss'
+    end
+
     local lieutenantDelta = instanceType == 'raid' and 2 or 1
     if levelDelta >= lieutenantDelta then
         return 'lieutenant'
