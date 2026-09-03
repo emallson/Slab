@@ -71,7 +71,7 @@ do
         local targetNameClip, targetName = private.util.ClippedFontString(castBar:GetName() .. 'TargetName', castBar, 16)
         PixelUtil.SetPoint(targetNameClip, 'TOPRIGHT', castBar, 'BOTTOMRIGHT', 0, 2)
         PixelUtil.SetSize(targetNameClip, 80, 20)
-        targetName:SetJustifyH('LEFT')
+        targetName:SetJustifyH('RIGHT')
         targetName:SetWordWrap(false)
 
         function frame:endCast()

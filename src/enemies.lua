@@ -44,7 +44,7 @@ function private.enemyType(unitToken)
         return 'lieutenant'
     end
 
-    if select(2, UnitClass(unitToken)) == "PALADIN" then
+    if UnitPowerType(unitToken) == Enum.PowerType.Mana then
         return "important"
     end
 
